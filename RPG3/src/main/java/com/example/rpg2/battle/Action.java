@@ -20,9 +20,21 @@ public class Action {
 	//通常攻撃
 	public MonsterData actionAttack( AllyData allyData , MonsterData monsterData ) {
 		
-		//(攻撃力-防御力/2) + 乱数 = ダメージ
-		this.damage = ( allyData.getCurrentATK() - ( monsterData.getCurrentDEF() / 2 )) 
-				+ ( random.nextInt( allyData.getCurrentATK() ) / 2 );
+		
+		int critical = random.nextInt( 255 );
+		
+		// 6/256で会心の一撃
+		if( critical > 6 ) {
+			//(攻撃力-防御力/2) + 乱数 = ダメージ
+			this.damage = ( allyData.getCurrentATK() - ( monsterData.getCurrentDEF() / 2 )) 
+					+ ( random.nextInt( allyData.getCurrentATK() ) / 2 );
+			this.damageMessage = damage + "のダメージを与えた!!";
+		}else{
+			//(攻撃力 * 2) + 乱数 = ダメージ
+			this.damage = allyData.getCurrentATK() * 2
+					+ ( random.nextInt( allyData.getCurrentATK() ) / 2 );
+			this.damageMessage = "会心の一撃!!!" + damage + "のダメージを与えた!!";
+		}
 		
 		if( damage < 0 ) {
 			damage = 0;
@@ -30,12 +42,11 @@ public class Action {
 		
 		Integer HP = monsterData.getCurrentHp() - damage;
 		
+		
 		if( HP < 0 ) {
 			monsterData.setCurrentHp( 0 );
-			this.damageMessage = damage + "のダメージを与えた!!";
 		}else{
 			monsterData.setCurrentHp( HP );
-			this.damageMessage = damage + "のダメージを与えた!!";
 		}
 		
 		return monsterData;
@@ -80,13 +91,12 @@ public class Action {
 		}
 		
 		Integer HP = monsterData.getCurrentHp() - damage;
+		this.damageMessage = damage + "のダメージを与えた!!";
 		
 		if( HP < 0 ) {
 			monsterData.setCurrentHp( 0 );
-			this.damageMessage = damage + "のダメージを与えた!!";
 		}else{
 			monsterData.setCurrentHp( HP );
-			this.damageMessage = damage + "のダメージを与えた!!";
 		}
 		
 		
