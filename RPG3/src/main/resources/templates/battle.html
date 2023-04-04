@@ -28,6 +28,7 @@
 				<th>名前</th>
 				<th>HP</th>
 				<th>MP</th>
+				<th>状態</th>
 				<th>攻撃</th>
 				<th>魔法</th>
 				<th>防御</th>
@@ -47,6 +48,11 @@
 					<a th:text="${entry.value.currentMp}"></a>
 					<a>/</a>
 					<a th:text="${entry.value.maxMP}"></a>
+				</td>
+				<td>
+					<div th:each="st:${entry.value.statusSet}">
+						<a th:text="${st.name}"></a>
+					</div>
 				</td>
 				<form th:action="@{/}" method="get">
 					<td>
@@ -71,10 +77,7 @@
 					<td>
 						<a th:text="${session.battle.targetMap.get(entry.key).selectionName}"></a>
 					</td>
-					<!-- 以下はテストのため表記 -->
-					<td>
-						<a th:text="${entry.value.currentDEF}"></a>
-					</td>
+
 			</tr>
 		</table>
 		

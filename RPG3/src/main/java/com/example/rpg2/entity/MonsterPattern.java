@@ -38,5 +38,11 @@ public class MonsterPattern {
     
     @Column( name = "text" )
     private String text;
+    
+    @Column( name = "buffcategory" )
+    private String buffcategory;
+    
+    @Column( name = "attribute" )
+    private String attribute;
 
 }

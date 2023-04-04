@@ -2,11 +2,15 @@ package com.example.rpg2.battle;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.example.rpg2.entity.Ally;
 import com.example.rpg2.entity.Magic;
 import com.example.rpg2.repository.MagicRepository;
+import com.example.rpg2.status.Normal;
+import com.example.rpg2.status.Status;
 
 import lombok.Data;
 
@@ -31,9 +35,12 @@ public class AllyData {
 	//使用可能な魔法を格納
 	List<Magic> magicList = new ArrayList<>();
 	
+	//状態異常を管理
+	Set<Status> statusSet = new HashSet<>();
+	
 	
 	public AllyData( Ally ally , MagicRepository magicRepository ) {
-		
+
 		this.name = ally.getName();
 		
 		//固定ステータスの設定
@@ -61,7 +68,7 @@ public class AllyData {
 		
 		//生存設定
 		this.survival = 1;
-
+		statusSet.add( new Normal() );
 	}
 	
 	
@@ -71,6 +78,8 @@ public class AllyData {
 		this.currentATK = defaultATK;
 		this.currentDEF = defaultDEF;
 		this.currentSPE = defaultSPE;
+		statusSet.clear();
+		statusSet.add( new Normal() );
 	}
 	
 }

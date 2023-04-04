@@ -8,10 +8,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import com.example.rpg2.entity.Magic;
+import com.example.rpg2.status.Dead;
+import com.example.rpg2.status.Status;
 
 import lombok.Data;
 
@@ -199,6 +202,9 @@ public class Battle {
     			Integer  target	  = targetMap.get( key ).getSelectionId();
     			String   movementPattern = targetMap.get( key ).getCategory();
     			
+    			
+				//状態異常に応じた処理
+    			
     			//通常攻撃の処理
 				if( movementPattern.equals( "attack" )) {
 					MonsterData monsterData = monsterDataMap.get( target );
@@ -288,14 +294,12 @@ public class Battle {
 				
 				//補助魔法の処理
 				}else if( movementPattern.equals( "buffmagic" )) {
-					
+					mesageList.add( allyData.getName() + "は" + targetMap.get( key ).getSkillName() + "を放った!!" );
 					//MP判定処理
 					if( targetMap.get( key ).getExecutionMagic().getMp() > allyData.getCurrentMp() ) {
 						action.noAction();
-						mesageList.add( allyData.getName() + "は" + targetMap.get( key ).getSkillName() + "を放った!!" );
 						mesageList.add( "しかしMPが足りない･･･" );
 					}else{
-						mesageList.add( allyData.getName() + "は" + targetMap.get( key ).getSkillName() + "を放った!!" );
 						//全体補助魔法の処理
 						if( targetMap.get( key ).getTargetListAlly() != null ) {
 							for( int i = 0 ; i < targetListAlly.size() ; i++ ) {
@@ -318,14 +322,12 @@ public class Battle {
 					
 				//蘇生魔法の処理
 				}else if( movementPattern.equals( "resuscitationmagic" )) {
-					
+					mesageList.add( allyData.getName() + "は" + targetMap.get( key ).getSkillName() + "を放った!!" );
 					//MP判定処理
 					if( targetMap.get( key ).getExecutionMagic().getMp() > allyData.getCurrentMp() ) {
 						action.noAction();
-						mesageList.add( allyData.getName() + "は" + targetMap.get( key ).getSkillName() + "を放った!!" );
 						mesageList.add( "しかしMPが足りない･･･" );
 					}else{
-						mesageList.add( allyData.getName() + "は" + targetMap.get( key ).getSkillName() + "を放った!!" );
 						//全体蘇生魔法の処理
 						if( targetMap.get( key ).getTargetListAlly() != null ) {
 							for( int i = 0 ; i < targetListAlly.size() ; i++ ) {
@@ -343,16 +345,12 @@ public class Battle {
 					
 				//妨害の処理
 				}else if( movementPattern.equals( "debuffmagic" )) {
-					
+					mesageList.add( allyData.getName() + "は" + targetMap.get( key ).getSkillName() + "を放った!!" );
 					//MP判定
 					if( targetMap.get( key ).getExecutionMagic().getMp() > allyData.getCurrentMp() ) {
 						action.noAction();
-						mesageList.add( allyData.getName() + "は" + targetMap.get( key ).getSkillName() + "を放った!!" );
 						mesageList.add( "しかしMPが足りない･･･" );
-						
 					}else{
-						mesageList.add( allyData.getName() + "は" + targetMap.get( key ).getSkillName() + "を放った!!" );
-						
 						//全体妨害の処理
 						if( targetMap.get( key ).getTargetListEnemy() != null ) {
 							for( int i = 0 ; i < targetListEnemy.size() ; i++ ) {
@@ -368,6 +366,30 @@ public class Battle {
 						allyData = action.consumptionMp( allyData , targetMap.get( key ).getExecutionMagic() );
 						partyMap.put( key , allyData );
 					}
+				}
+				
+				//ダメージ系の状態異常の処理
+				List<Integer> damageList = new ArrayList<>();
+				allyData.getStatusSet().stream()
+				.forEach( s -> damageList.add( s.actionStatusAfter() ));
+				
+				allyData.getStatusSet().stream()
+				.filter( s -> !s.statusMessageAfter().equals( "no" ) )
+				.forEach( s -> this.mesageList.add( s.statusMessageAfter() ));
+				
+				Integer result = damageList.stream().collect( Collectors.summingInt( s -> s ) );
+				Integer HP = allyData.getCurrentHp() - result;
+				
+				if( HP < 0 ) {
+					allyData.setCurrentHp( 0 );
+					allyData.setSurvival( 0 );
+					Set<Status> statusSet = allyData.getStatusSet();
+					statusSet.clear();
+					statusSet.add( new Dead() );
+					allyData.setStatusSet( statusSet );
+					this.mesageList.add( allyData.getName() + "は死んでしまった…" );
+				}else{
+					allyData.setCurrentHp( HP );
 				}
 				
 			//敵側の行動処理
@@ -404,19 +426,18 @@ public class Battle {
 	            	}
 	    			
 	    			//単体攻撃処理
-	    			if( enemyAction.getRange().equals( "single" )) {
+	    			if( enemyAction.getRange().equals( "single" )){
 	    				//単体攻撃を処理
 	    				AllyData allyData = enemyAction.attackSkillSingle( partyMap , targetListAlly );
 	    				mesageList.add( enemyAction.getMessage() );
+	    				mesageList.add( enemyAction.getBattleMessage() );
 	    				if( allyData.getSurvival() == 0 ) {
 	    					targetListAlly.remove( enemyAction.getTargetId() );
 	    					targetMap.put( enemyAction.getTargetId() , new Target( enemyAction.getTargetId() ) );
 	    					partyMap.put( enemyAction.getTargetId() , allyData );
-	    					mesageList.add( allyData.getName() + "に" + enemyAction.getDamage() + "のダメージ!!!" );
-	    					mesageList.add( allyData.getName() + "は死んでしまった…" );
+	    					mesageList.add( enemyAction.getResultMessage() );
 	    				}else{
 	    					partyMap.put( enemyAction.getTargetId() , allyData );
-	    					mesageList.add( allyData.getName() + "に" + enemyAction.getDamage() + "のダメージ!!!" );
 	    				}
 	    			
 	    			//全体攻撃を処理
@@ -425,15 +446,14 @@ public class Battle {
 						for( int j = 0 ; j < targetListAlly.size() ; j++ ) {
 							int targetId = targetListAlly.get( j );
 							AllyData allyData = enemyAction.attackSkillWhole( partyMap , targetId );
-							if( allyData.getCurrentHp() == 0 ) {
+							mesageList.add( enemyAction.getBattleMessage() );
+							if( allyData.getSurvival() == 0 ) {
 								targetListAlly.remove( enemyAction.getTargetId() );
 								targetMap.put( enemyAction.getTargetId() , new Target( enemyAction.getTargetId() ) );
 								partyMap.put( enemyAction.getTargetId() , allyData );
-								mesageList.add( allyData.getName() + "に" + enemyAction.getDamage() + "のダメージ!!!" );
-								mesageList.add( allyData.getName() + "は死んでしまった…" );
+								mesageList.add( enemyAction.getResultMessage() );
 							}else{
 								partyMap.put( enemyAction.getTargetId() , allyData );
-								mesageList.add( allyData.getName() + "に" + enemyAction.getDamage() + "のダメージ!!!" );
 							}
 						}
 	

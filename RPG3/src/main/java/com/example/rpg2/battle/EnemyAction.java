@@ -3,8 +3,13 @@ package com.example.rpg2.battle;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.example.rpg2.entity.MonsterPattern;
+import com.example.rpg2.status.Dead;
+import com.example.rpg2.status.Poison;
+import com.example.rpg2.status.Status;
 
 import lombok.Data;
 
@@ -19,7 +24,10 @@ public class EnemyAction {
 
 	private Integer recovery;
 	private Integer damage  ;
-	private String  message;
+	private String  message ;
+	private String  battleMessage;
+	private String  buffMessage;
+	private String  resultMessage;
 	
 	Random random = new Random();
 	
@@ -37,33 +45,53 @@ public class EnemyAction {
 	//単体攻撃を処理
 	public AllyData attackSkillSingle( Map<Integer,AllyData> partyMap , List<Integer> targetList ) {
 		
+		//攻撃する相手を乱数で決定
 		Integer target = random.nextInt( targetList.size() );
-		
 		this.targetId = targetList.get( target );
 		AllyData allyData = partyMap.get( targetId );
 		
+		//敵の攻撃方法をアナウンス
+		this.message = monsterData.getName() + monsterPattern.getText();
+		
+		//悪性ステータス異常の処理
+		if( monsterPattern.getBuffcategory().equals( "poison" ) && monsterPattern.getPercentage() > 0 ) {
+			Set<Status> statusSet = allyData.getStatusSet().stream().filter( s -> !s.getName().equals( "正常" ) ).collect( Collectors.toSet() );
+			statusSet.add( new Poison( allyData ) );
+			allyData.setStatusSet( statusSet );
+			this.damage = 0;
+		}
+		
+		//ダメージ補正の乱数を初期化
 		Integer plusDamage = 0;
 		
 		if( monsterPattern.getPoint() == 0 ){
 			plusDamage = random.nextInt( monsterData.getCurrentATK() + 1 ) / 4;
 		}else{
-			plusDamage = random.nextInt( monsterPattern.getPoint() + 1 ) / 8
-							+ random.nextInt( monsterData.getCurrentATK() ) / 8;
+			plusDamage = random.nextInt( monsterPattern.getPoint() ) / 4 ;
 		}
 		
 		//物理攻撃の計算処理
-		if( this.pattern.equals( "attackskill" )) {
+		if( this.pattern.equals( "attackskill" ) && monsterPattern.getPercentage() == 0 ) {
 			//(攻撃力-防御力/2) + 乱数 = ダメージ
 			this.damage = ( monsterData.getCurrentATK() - ( allyData.getCurrentDEF() / 2 )) + plusDamage;
 			
 			if( damage < 0 ) {
 				this.damage = 0;
+				this.battleMessage = allyData.getName() + "にダメージを与えられない…";
+			}else{
+				this.battleMessage = allyData.getName() + "に" + damage + "のダメージ!!!";
 			}
 			
 		//魔法攻撃の計算処理
-		}else if( this.pattern.equals( "attackmagic" )){
+		}else if( this.pattern.equals( "attackmagic" ) && monsterPattern.getPercentage() == 0 ){
 			//攻撃力 + 乱数 = ダメージ(防御力無視だけで暫定対応、耐性値を実装して値に干渉する予定)
 			this.damage = monsterData.getCurrentATK() + plusDamage;
+			if( damage < 0 ) {
+				this.damage = 0;
+				this.battleMessage = allyData.getName() + "にダメージを与えられない…";
+			}else{
+				this.battleMessage = allyData.getName() + "に" + damage + "のダメージ!!!";
+			}
 		}
 
 		Integer HP = allyData.getCurrentHp() - damage;
@@ -71,10 +99,13 @@ public class EnemyAction {
 		if( HP < 0 ) {
 			allyData.setCurrentHp( 0 );
 			allyData.setSurvival( 0 );
-			this.message = monsterData.getName() + monsterPattern.getText();
+			Set<Status> statusSet = allyData.getStatusSet();
+			statusSet.clear();
+			statusSet.add( new Dead() );
+			allyData.setStatusSet( statusSet );
+			this.resultMessage = allyData.getName() + "は死んでしまった…";
 		}else{
 			allyData.setCurrentHp( HP );
-			this.message = monsterData.getName() + monsterPattern.getText();
 		}
 		
 		return allyData;
@@ -87,8 +118,14 @@ public class EnemyAction {
 		this.targetId = target;
 		AllyData allyData = partyMap.get( targetId );
 		
-		Integer plusDamage = 0;
+		if( monsterPattern.getBuffcategory().equals( "poison" ) && monsterPattern.getPercentage() > 0 ) {
+			Set<Status> statusSet = allyData.getStatusSet().stream().filter( s -> !s.getName().equals( "正常" ) ).collect( Collectors.toSet() );
+			statusSet.add( new Poison( allyData ) );
+			allyData.setStatusSet( statusSet );
+			this.damage = 0;
+		}
 		
+		Integer plusDamage = 0;
 		if( monsterPattern.getPoint() == 0 ){
 			plusDamage = random.nextInt( monsterData.getCurrentATK() + 1 ) / 4;
 		}else{
@@ -97,18 +134,22 @@ public class EnemyAction {
 		}
 		
 		//物理攻撃の計算処理
-		if( this.pattern.equals( "attackskill" )) {
+		if( this.pattern.equals( "attackskill" ) && monsterPattern.getPercentage() == 0 ) {
 			//(攻撃力-防御力/2) + 乱数 = ダメージ
 			this.damage = ( monsterData.getCurrentATK() - ( allyData.getCurrentDEF() / 2 )) + plusDamage;
 			
 			if( damage < 0 ) {
 				this.damage = 0;
+				this.battleMessage = allyData.getName() + "にダメージを与えられない…";
+			}else{
+				this.battleMessage = allyData.getName() + "に" + damage + "のダメージ!!!";
 			}
 			
 		//魔法攻撃の計算処理
-		}else if( this.pattern.equals( "attackmagic" )){
+		}else if( this.pattern.equals( "attackmagic" ) && monsterPattern.getPercentage() == 0 ){
 			//攻撃力 + 乱数 = ダメージ(防御力無視だけで暫定対応、耐性値を実装して値に干渉する予定)
 			this.damage = monsterData.getCurrentATK() + plusDamage;
+			this.battleMessage = allyData.getName() + "に" + damage + "のダメージ!!!";
 		}
 		
 		Integer HP = allyData.getCurrentHp() - damage;
@@ -116,7 +157,11 @@ public class EnemyAction {
 		if( HP < 0 ) {
 			allyData.setCurrentHp( 0 );
 			allyData.setSurvival( 0 );
-			
+			Set<Status> statusSet = allyData.getStatusSet();
+			statusSet.clear();
+			statusSet.add( new Dead() );
+			allyData.setStatusSet( statusSet );
+			this.resultMessage = allyData.getName() + "は死んでしまった…";
 		}else{
 			allyData.setCurrentHp( HP );
 		}
