@@ -81,24 +81,40 @@ public class Action {
 	
 	
 	//攻撃魔法
-	public MonsterData actionAttackMagic( AllyData allyData , MonsterData monsterData , Magic magic) {
+	public MonsterData actionAttackMagic( AllyData allyData , MonsterData monsterData , Magic magic ) {
 		
-		//魔法威力 + 乱数 = ダメージ
-		Integer damage = magic.getPoint() + ( random.nextInt( magic.getPoint() ) / 4 ) - random.nextInt( magic.getPoint() / 4 );
-		
-		if( damage < 0 ) {
-			damage = 0;
-		}
-		
-		Integer HP = monsterData.getCurrentHp() - damage;
-		this.damageMessage = damage + "のダメージを与えた!!";
-		
-		if( HP < 0 ) {
-			monsterData.setCurrentHp( 0 );
+		//ダメージ補正がある場合は、物理攻撃として処理
+		if( magic.getPercentage() > 0 ) {
+			
+			//攻撃力に補正処理
+			int datk = allyData.getCurrentATK();
+			double atk = allyData.getCurrentATK() * magic.getPercentage();
+			allyData.setCurrentATK( (int)atk );
+			
+			//通常攻撃として処理
+			monsterData = this.actionAttack( allyData , monsterData );
+			
+			//補正されていた攻撃力を元に戻す。
+			allyData.setCurrentATK( datk );
+			
 		}else{
-			monsterData.setCurrentHp( HP );
-		}
 		
+			//魔法威力 + 乱数 = ダメージ
+			Integer damage = magic.getPoint() + ( random.nextInt( magic.getPoint() ) / 4 ) - random.nextInt( magic.getPoint() / 4 );
+			
+			if( damage < 0 ) {
+				damage = 0;
+			}
+			
+			Integer HP = monsterData.getCurrentHp() - damage;
+			this.damageMessage = damage + "のダメージを与えた!!";
+			
+			if( HP < 0 ) {
+				monsterData.setCurrentHp( 0 );
+			}else{
+				monsterData.setCurrentHp( HP );
+			}
+		}
 		
 		return monsterData;
 	}

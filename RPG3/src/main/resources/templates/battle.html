@@ -215,6 +215,13 @@
 		<div th:if="${session.mode == 'result'}">
 			<form th:action="@{/}" method="get">
 				<div>
+					<ul th:each="me:${session.battle.mesageList}">
+						<li>
+							<a th:text="${me}"></a>
+						</li>
+					</ul>
+				</div>
+				<div>
 					<button type="submit" th:formaction="@{/}" th:text="TOPへ"></button>
 				</div>
 			</form>
