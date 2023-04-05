@@ -53,12 +53,18 @@ public class EnemyAction {
 		//敵の攻撃方法をアナウンス
 		this.message = monsterData.getName() + monsterPattern.getText();
 		
-		//悪性ステータス異常の処理
-		if( monsterPattern.getBuffcategory().equals( "poison" ) && monsterPattern.getPercentage() > 0 ) {
-			Set<Status> statusSet = allyData.getStatusSet().stream().filter( s -> !s.getName().equals( "正常" ) ).collect( Collectors.toSet() );
+		//悪性ステータス異常
+		if( !monsterPattern.getBuffcategory().equals( "no" ) ) {
+			if( monsterPattern.getBuffcategory().equals( "poison" ) && allyData.getSurvival() == 1 ) {
+			Set<Status> statusSet = allyData.getStatusSet()
+					.stream()
+					.filter( s -> !s.getName().equals( "正常" ) )
+					.collect( Collectors.toSet() );
 			statusSet.add( new Poison( allyData ) );
 			allyData.setStatusSet( statusSet );
 			this.damage = 0;
+			this.battleMessage = allyData.getName() + "は毒状態になった!!";
+			}
 		}
 		
 		//ダメージ補正の乱数を初期化
@@ -96,7 +102,7 @@ public class EnemyAction {
 
 		Integer HP = allyData.getCurrentHp() - damage;
 		
-		if( HP < 0 ) {
+		if( HP <= 0 ) {
 			allyData.setCurrentHp( 0 );
 			allyData.setSurvival( 0 );
 			Set<Status> statusSet = allyData.getStatusSet();
@@ -118,11 +124,18 @@ public class EnemyAction {
 		this.targetId = target;
 		AllyData allyData = partyMap.get( targetId );
 		
-		if( monsterPattern.getBuffcategory().equals( "poison" ) && monsterPattern.getPercentage() > 0 ) {
-			Set<Status> statusSet = allyData.getStatusSet().stream().filter( s -> !s.getName().equals( "正常" ) ).collect( Collectors.toSet() );
+		//悪性ステータス異常
+		if( !monsterPattern.getBuffcategory().equals( "no" ) ) {
+			if( monsterPattern.getBuffcategory().equals( "poison" ) && allyData.getSurvival() == 1 ) {
+			Set<Status> statusSet = allyData.getStatusSet()
+					.stream()
+					.filter( s -> !s.getName().equals( "正常" ) )
+					.collect( Collectors.toSet() );
 			statusSet.add( new Poison( allyData ) );
 			allyData.setStatusSet( statusSet );
 			this.damage = 0;
+			this.battleMessage = allyData.getName() + "は毒状態になった!!";
+			}
 		}
 		
 		Integer plusDamage = 0;
@@ -154,7 +167,7 @@ public class EnemyAction {
 		
 		Integer HP = allyData.getCurrentHp() - damage;
 		
-		if( HP < 0 ) {
+		if( HP <= 0 ) {
 			allyData.setCurrentHp( 0 );
 			allyData.setSurvival( 0 );
 			Set<Status> statusSet = allyData.getStatusSet();

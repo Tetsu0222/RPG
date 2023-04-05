@@ -1,8 +1,12 @@
 package com.example.rpg2.battle;
 
 import java.util.Random;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.example.rpg2.entity.Magic;
+import com.example.rpg2.status.Normal;
+import com.example.rpg2.status.Status;
 
 import lombok.Data;
 
@@ -166,6 +170,37 @@ public class Action {
 				receptionAllyData.setCurrentDEF( (int) atk );	
 				this.buffMessage = "攻撃力が大きく上がった!!";
 			}
+		
+		//毒治癒
+		}else if( magic.getBuffcategory().equals( "poison" ) ) {
+				
+			Set<Status> statusSet = receptionAllyData.getStatusSet();
+				
+			Long sts = statusSet.stream()
+					.filter( s -> s.getName().equals( "毒" ))
+					.count();
+			int size = statusSet.size();
+			
+			//状態異常が毒のみ
+			if( sts == 1 && size == 1 ) {
+				statusSet.clear();
+				statusSet.add( new Normal() );
+				this.buffMessage = "の毒が治った!!";
+				
+			//状態異常が毒以外にもある。
+			}else if( sts == 1 && size > 1 ) {
+				statusSet = allyData.getStatusSet()
+						.stream()
+						.filter( s -> !s.getName().equals( "毒" ) )
+						.collect( Collectors.toSet() );
+				this.buffMessage = "の毒が治った!!";
+			//毒状態じゃない。
+			}else{
+				this.buffMessage = "に効果はなかった…";
+			}
+			
+			receptionAllyData.setStatusSet( statusSet );
+
 		}
 		
 		return receptionAllyData;

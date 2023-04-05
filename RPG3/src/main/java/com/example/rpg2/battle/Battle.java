@@ -380,7 +380,7 @@ public class Battle {
 				Integer result = damageList.stream().collect( Collectors.summingInt( s -> s ) );
 				Integer HP = allyData.getCurrentHp() - result;
 				
-				if( HP < 0 ) {
+				if( HP <= 0 ) {
 					allyData.setCurrentHp( 0 );
 					allyData.setSurvival( 0 );
 					Set<Status> statusSet = allyData.getStatusSet();
@@ -388,6 +388,9 @@ public class Battle {
 					statusSet.add( new Dead() );
 					allyData.setStatusSet( statusSet );
 					this.mesageList.add( allyData.getName() + "は死んでしまった…" );
+					targetListAlly.remove( key );
+					targetMap.put( key , new Target( key ) );
+					partyMap.put( key , allyData );
 				}else{
 					allyData.setCurrentHp( HP );
 				}
