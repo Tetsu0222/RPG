@@ -5,9 +5,9 @@ import java.util.Random;
 import com.example.rpg2.battle.AllyData;
 import com.example.rpg2.battle.MonsterData;
 
-public class Sleep implements Status{
+public class Paralysis implements Status{
 	
-	private String name = "睡眠";
+	private String name = "麻痺";
 	private String targetName;
 	private Integer count;
 	
@@ -25,26 +25,25 @@ public class Sleep implements Status{
 	}
 	
 	
-	public Sleep( AllyData allyData ) {
+	public Paralysis( AllyData allyData ) {
 		this.targetName = allyData.getName();
 		this.count = 1;
 	}
 	
-	public Sleep( MonsterData monsterData ) {
+	public Paralysis( MonsterData monsterData ) {
 		this.targetName = monsterData.getName();
 		this.count = 1;
 	}
 	
 	@Override
 	public Integer actionStatusBefore() {
-
-		return 1;
+		//50%の確率で行動不能
+		return random.nextInt( 2 );
 	}
 	
 	@Override
 	public String statusMessageBefore() {
-		
-		return targetName + "は眠っていて動けない";
+		return targetName + "は麻痺している";
 	}
 	
 	@Override
@@ -61,16 +60,14 @@ public class Sleep implements Status{
 	
 	@Override
 	public Integer countDown() {
-		
-		this.count = random.nextInt( 2 );
-		
-		return count;
+		//永続
+		return 1;
 	}
 	
 	@Override
 	public String recoverymessage() {
-		
-		return targetName + "は目を覚ました!!";
+		//自然治癒しない。
+		return "no";
 	}
 	
 	

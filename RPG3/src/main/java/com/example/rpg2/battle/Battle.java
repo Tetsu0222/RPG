@@ -554,7 +554,7 @@ public class Battle {
 		
 		//状態異常のメッセージ
 		allyData.getStatusSet().stream()
-		.filter( s -> !s.statusMessageBefore().equals( "no" ) )
+		.filter( s -> !s.statusMessageBefore().equals( "no" ))
 		.forEach( s -> this.mesageList.add( s.statusMessageBefore() ));
 		
 		//行動不能系のステータス異常の数を抽出（リストサイズが1以上なら行動ができない）

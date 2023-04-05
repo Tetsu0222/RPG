@@ -1,17 +1,13 @@
 package com.example.rpg2.status;
 
-import java.util.Random;
-
 import com.example.rpg2.battle.AllyData;
 import com.example.rpg2.battle.MonsterData;
 
-public class Sleep implements Status{
+public class Swoon implements Status{
 	
-	private String name = "睡眠";
+	private String name = "気絶";
 	private String targetName;
 	private Integer count;
-	
-	Random random = new Random();
 	
 	
 	public int hashCode() {
@@ -25,26 +21,24 @@ public class Sleep implements Status{
 	}
 	
 	
-	public Sleep( AllyData allyData ) {
+	public Swoon( AllyData allyData ) {
 		this.targetName = allyData.getName();
 		this.count = 1;
 	}
 	
-	public Sleep( MonsterData monsterData ) {
+	public Swoon( MonsterData monsterData ) {
 		this.targetName = monsterData.getName();
 		this.count = 1;
 	}
 	
 	@Override
 	public Integer actionStatusBefore() {
-
 		return 1;
 	}
 	
 	@Override
 	public String statusMessageBefore() {
-		
-		return targetName + "は眠っていて動けない";
+		return targetName + "は気を失っていて動けない";
 	}
 	
 	@Override
@@ -62,7 +56,11 @@ public class Sleep implements Status{
 	@Override
 	public Integer countDown() {
 		
-		this.count = random.nextInt( 2 );
+		this.count -= 1;
+		
+		if( count < 0 ) {
+			this.count = 0;
+		}
 		
 		return count;
 	}
@@ -70,7 +68,7 @@ public class Sleep implements Status{
 	@Override
 	public String recoverymessage() {
 		
-		return targetName + "は目を覚ました!!";
+		return targetName + "は意識を回復させた!";
 	}
 	
 	
