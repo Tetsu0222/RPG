@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.example.rpg2.entity.MonsterPattern;
+import com.example.rpg2.status.Burn;
 import com.example.rpg2.status.Dead;
 import com.example.rpg2.status.Poison;
 import com.example.rpg2.status.Status;
@@ -55,15 +56,16 @@ public class EnemyAction {
 		
 		//悪性ステータス異常
 		if( !monsterPattern.getBuffcategory().equals( "no" ) ) {
+			
+			//毒の処理
 			if( monsterPattern.getBuffcategory().equals( "poison" ) && allyData.getSurvival() == 1 ) {
-			Set<Status> statusSet = allyData.getStatusSet()
-					.stream()
-					.filter( s -> !s.getName().equals( "正常" ) )
-					.collect( Collectors.toSet() );
-			statusSet.add( new Poison( allyData ) );
-			allyData.setStatusSet( statusSet );
-			this.damage = 0;
-			this.battleMessage = allyData.getName() + "は毒状態になった!!";
+				Set<Status> statusSet = this.badStatus( allyData );
+				allyData = this.poison( allyData , statusSet );
+				
+			//火傷付与
+			}else if( monsterPattern.getBuffcategory().equals( "burn" ) && allyData.getSurvival() == 1 ) {
+				Set<Status> statusSet = this.badStatus( allyData );
+				allyData = this.burn( allyData , statusSet );
 			}
 		}
 		
@@ -126,15 +128,16 @@ public class EnemyAction {
 		
 		//悪性ステータス異常
 		if( !monsterPattern.getBuffcategory().equals( "no" ) ) {
+			
+			//毒の処理
 			if( monsterPattern.getBuffcategory().equals( "poison" ) && allyData.getSurvival() == 1 ) {
-			Set<Status> statusSet = allyData.getStatusSet()
-					.stream()
-					.filter( s -> !s.getName().equals( "正常" ) )
-					.collect( Collectors.toSet() );
-			statusSet.add( new Poison( allyData ) );
-			allyData.setStatusSet( statusSet );
-			this.damage = 0;
-			this.battleMessage = allyData.getName() + "は毒状態になった!!";
+				Set<Status> statusSet = this.badStatus( allyData );
+				allyData = this.poison( allyData , statusSet );
+				
+			//火傷付与
+			}else if( monsterPattern.getBuffcategory().equals( "burn" ) && allyData.getSurvival() == 1 ) {
+				Set<Status> statusSet = this.badStatus( allyData );
+				allyData = this.burn( allyData , statusSet );
 			}
 		}
 		
@@ -187,4 +190,39 @@ public class EnemyAction {
 	public void noAction() {
 		//明示的に何も処理しない。
 	}
+	
+	
+	
+	
+	//正常から状態異常へ変化
+	public Set<Status> badStatus( AllyData allyData ){
+		
+		Set<Status> statusSet = allyData.getStatusSet()
+				.stream()
+				.filter( s -> !s.getName().equals( "正常" ) )
+				.collect( Collectors.toSet() );
+		
+		return statusSet;
+	}
+	
+	//毒の付与
+	public AllyData poison( AllyData allyData , Set<Status> statusSet ) {
+		statusSet.add( new Poison( allyData ) );
+		allyData.setStatusSet( statusSet );
+		this.damage = 0;
+		this.buffMessage = allyData.getName() + "は毒状態になった!!";
+		
+		return allyData;
+	}
+	
+	//火傷の付与
+	public AllyData burn( AllyData allyData , Set<Status> statusSet ) {
+		statusSet.add( new Burn( allyData ) );
+		allyData.setStatusSet( statusSet );
+		this.damage = 0;
+		this.buffMessage = allyData.getName() + "は火傷を負った!!";
+		
+		return allyData;
+	}
+	
 }

@@ -10,6 +10,7 @@ public class Poison implements Status{
 	private Integer damage;
 	private String message;
 	private String targetName;
+	private Integer count = 1;
 	
 	
 	public int hashCode() {
@@ -39,6 +40,13 @@ public class Poison implements Status{
 	}
 	
 	@Override
+	public String statusMessageBefore() {
+	//no
+	
+	return "no";
+	}
+	
+	@Override
 	public Integer actionStatusAfter() {
 		
 		return damage;
@@ -51,7 +59,12 @@ public class Poison implements Status{
 		
 		return message;
 	}
-
+	
+	@Override
+	public Integer countDown() {
+		//永続効果
+		return count;
+	}
 
 	public String getName() {
 		return name;

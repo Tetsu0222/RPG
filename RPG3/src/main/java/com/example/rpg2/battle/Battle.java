@@ -14,6 +14,7 @@ import java.util.stream.IntStream;
 
 import com.example.rpg2.entity.Magic;
 import com.example.rpg2.status.Dead;
+import com.example.rpg2.status.Normal;
 import com.example.rpg2.status.Status;
 
 import lombok.Data;
@@ -373,9 +374,19 @@ public class Battle {
 				allyData.getStatusSet().stream()
 				.forEach( s -> damageList.add( s.actionStatusAfter() ));
 				
+				//状態異常のメッセージ
 				allyData.getStatusSet().stream()
 				.filter( s -> !s.statusMessageAfter().equals( "no" ) )
 				.forEach( s -> this.mesageList.add( s.statusMessageAfter() ));
+				
+				//自然治癒判定
+				Set<Status> statusSet = allyData.getStatusSet().stream()
+				.filter( s -> s.countDown() > 0 )
+				.collect( Collectors.toSet() );
+				
+				if( statusSet.size() == 0 ) {
+					statusSet.add( new Normal() );
+				}
 				
 				Integer result = damageList.stream().collect( Collectors.summingInt( s -> s ) );
 				Integer HP = allyData.getCurrentHp() - result;
@@ -383,7 +394,6 @@ public class Battle {
 				if( HP <= 0 ) {
 					allyData.setCurrentHp( 0 );
 					allyData.setSurvival( 0 );
-					Set<Status> statusSet = allyData.getStatusSet();
 					statusSet.clear();
 					statusSet.add( new Dead() );
 					allyData.setStatusSet( statusSet );
@@ -393,6 +403,7 @@ public class Battle {
 					partyMap.put( key , allyData );
 				}else{
 					allyData.setCurrentHp( HP );
+					allyData.setStatusSet( statusSet );
 				}
 				
 			//敵側の行動処理
@@ -434,6 +445,9 @@ public class Battle {
 	    				AllyData allyData = enemyAction.attackSkillSingle( partyMap , targetListAlly );
 	    				mesageList.add( enemyAction.getMessage() );
 	    				mesageList.add( enemyAction.getBattleMessage() );
+	    				if( enemyAction.getBuffMessage() != null ) {
+	    					mesageList.add( enemyAction.getBuffMessage() );
+	    				}
 	    				if( allyData.getSurvival() == 0 ) {
 	    					targetListAlly.remove( enemyAction.getTargetId() );
 	    					targetMap.put( enemyAction.getTargetId() , new Target( enemyAction.getTargetId() ) );
@@ -449,7 +463,12 @@ public class Battle {
 						for( int j = 0 ; j < targetListAlly.size() ; j++ ) {
 							int targetId = targetListAlly.get( j );
 							AllyData allyData = enemyAction.attackSkillWhole( partyMap , targetId );
-							mesageList.add( enemyAction.getBattleMessage() );
+							if( enemyAction.getBattleMessage() != null ) {
+								mesageList.add( enemyAction.getBattleMessage() );
+							}
+		    				if( enemyAction.getBuffMessage() != null ) {
+		    					mesageList.add( enemyAction.getBuffMessage() );
+		    				}
 							if( allyData.getSurvival() == 0 ) {
 								targetListAlly.remove( enemyAction.getTargetId() );
 								targetMap.put( enemyAction.getTargetId() , new Target( enemyAction.getTargetId() ) );

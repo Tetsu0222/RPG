@@ -4,6 +4,7 @@ package com.example.rpg2.status;
 public class Dead implements Status{
 	
 	private String name = "死亡";
+	private Integer count = 1;
 	
 	public int hashCode() {
 		return name.hashCode();
@@ -33,6 +34,19 @@ public class Dead implements Status{
 		//no
 		
 		return "no";
+	}
+	
+	@Override
+	public String statusMessageBefore() {
+	//no
+	
+	return "no";
+	}
+	
+	@Override
+	public Integer countDown() {
+		//永続効果
+		return count;
 	}
 
 	public String getName() {

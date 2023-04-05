@@ -9,6 +9,7 @@ public class Burn implements Status{
 	private Integer damage;
 	private String message;
 	private String targetName;
+	private Integer count;
 	
 	
 	public int hashCode() {
@@ -25,11 +26,13 @@ public class Burn implements Status{
 	public Burn( AllyData allyData ) {
 		this.damage = allyData.getMaxHP() / 30 ;
 		this.targetName = allyData.getName();
+		this.count = 3;
 	}
 	
 	public Burn( MonsterData monsterData ) {
 		this.damage = monsterData.getMaxHP() / 30 ;
 		this.targetName = monsterData.getName();
+		this.count = 3;
 	}
 	
 	@Override
@@ -39,17 +42,33 @@ public class Burn implements Status{
 	}
 	
 	@Override
+	public String statusMessageBefore() {
+	//no
+	return "no";
+	}
+	
+	@Override
 	public Integer actionStatusAfter() {
-		
+		//no
 		return damage;
 	}
 	
 	@Override
 	public String statusMessageAfter() {
-		
 		this.message = targetName + "は火傷により" + damage + "ダメージを受けた";
-		
 		return message;
+	}
+	
+	@Override
+	public Integer countDown() {
+		
+		if( count < 0 ) {
+			this.count = 0;
+		}else {
+			this.count -= 1;
+		}
+		
+		return count;
 	}
 
 	public String getName() {

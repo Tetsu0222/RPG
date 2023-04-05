@@ -4,6 +4,7 @@ public class Normal implements Status{
 	
 	
 	private String name = "正常";
+	private Integer count = 1;
 	
 	
 	public int hashCode() {
@@ -34,6 +35,19 @@ public class Normal implements Status{
 		//no
 		
 		return "no";
+	}
+	
+	@Override
+	public String statusMessageBefore() {
+	//no
+	
+	return "no";
+	}
+	
+	@Override
+	public Integer countDown() {
+		//永続効果
+		return count;
 	}
 
 	public String getName() {
