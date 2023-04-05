@@ -41,5 +41,8 @@ public class Ally {
 	
 	@Column( name = "skill" )
 	private String skill;
+	
+	@Column( name = "resistance" )
+	private Integer resistance;
 
 }

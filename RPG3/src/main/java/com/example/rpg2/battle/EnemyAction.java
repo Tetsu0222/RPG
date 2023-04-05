@@ -60,12 +60,16 @@ public class EnemyAction {
 		
 		//悪性ステータス異常
 		if( !monsterPattern.getBuffcategory().equals( "no" ) ) {
-			
+			int x = random.nextInt( 1 + allyData.getResistance() );
+
 			if( allyData.getSurvival() == 2 ) {
 				this.buffMessage = allyData.getName() + "は聖なる守りの加護を得ている。";
 				
-			//各状態異常を付与
-			}else{
+			//状態異常完全耐性
+			}else if( allyData.getResistance() == 4 ) {
+			
+			//状態異常判定
+			}else if( x == 0 ){
 				
 				//毒付与
 				if( monsterPattern.getBuffcategory().equals( "poison" ) && allyData.getSurvival() == 1 ) {
@@ -92,6 +96,8 @@ public class EnemyAction {
 					Set<Status> statusSet = this.badStatus( allyData );
 					allyData = this.swoon( allyData , statusSet );
 				}
+			}else{
+				this.buffMessage = allyData.getName() + "は状態異常にならない";
 			}
 		}
 		
@@ -158,13 +164,16 @@ public class EnemyAction {
 		
 		//悪性ステータス異常
 		if( !monsterPattern.getBuffcategory().equals( "no" ) ) {
-			
-			//聖なる守りの効果有無検証
+			int x = random.nextInt( 1 + allyData.getResistance() );
+
 			if( allyData.getSurvival() == 2 ) {
 				this.buffMessage = allyData.getName() + "は聖なる守りの加護を得ている。";
+				
+			//状態異常完全耐性
+			}else if( allyData.getResistance() == 4 ) {
 			
-			//各状態異常を付与
-			}else{
+			//状態異常判定
+			}else if( x == 0 ){
 				
 				//毒付与
 				if( monsterPattern.getBuffcategory().equals( "poison" ) && allyData.getSurvival() == 1 ) {
@@ -191,6 +200,8 @@ public class EnemyAction {
 					Set<Status> statusSet = this.badStatus( allyData );
 					allyData = this.swoon( allyData , statusSet );
 				}
+			}else{
+				this.buffMessage = allyData.getName() + "は状態異常にならない";
 			}
 		}
 		

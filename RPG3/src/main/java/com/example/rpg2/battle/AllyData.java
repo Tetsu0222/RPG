@@ -31,6 +31,7 @@ public class AllyData {
 	private Integer currentSPE;
 	private String  magic;
 	private int survival;
+	private Integer resistance;
 	
 	//使用可能な魔法を格納
 	List<Magic> magicList = new ArrayList<>();
@@ -49,6 +50,7 @@ public class AllyData {
 		this.defaultATK = ally.getAtk();
 		this.defaultDEF = ally.getDef();
 		this.defaultSPE = ally.getSpe();
+		this.resistance = ally.getResistance();
 		
 		//変動ステータスの設定
 		this.currentHp  = ally.getHp();
@@ -69,6 +71,7 @@ public class AllyData {
 		//生存設定
 		this.survival = 1;
 		statusSet.add( new Normal() );
+		
 	}
 	
 	
