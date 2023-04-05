@@ -186,6 +186,8 @@ public class Battle {
 			}
 		}
 		
+		
+		
 		//各行動処理
         for( Entry<Integer, Integer> entry : turnList ) {
         	
@@ -203,8 +205,17 @@ public class Battle {
     			Integer  target	  = targetMap.get( key ).getSelectionId();
     			String   movementPattern = targetMap.get( key ).getCategory();
     			
+    			if( allyData.getSurvival() == 0 ) {
+    				continue;
+    			}
     			
 				//状態異常に応じた処理
+    			Integer juds = this.badStatusBefore( allyData , key );
+    			//行動不能系の状態異常が1つ以上あれば処理中断
+    			if( juds > 0 ) {
+    				this.badStatusAfter( allyData, key );
+    				continue;
+    			}
     			
     			//通常攻撃の処理
 				if( movementPattern.equals( "attack" )) {
@@ -369,42 +380,8 @@ public class Battle {
 					}
 				}
 				
-				//ダメージ系の状態異常の処理
-				List<Integer> damageList = new ArrayList<>();
-				allyData.getStatusSet().stream()
-				.forEach( s -> damageList.add( s.actionStatusAfter() ));
-				
-				//状態異常のメッセージ
-				allyData.getStatusSet().stream()
-				.filter( s -> !s.statusMessageAfter().equals( "no" ) )
-				.forEach( s -> this.mesageList.add( s.statusMessageAfter() ));
-				
-				//自然治癒判定
-				Set<Status> statusSet = allyData.getStatusSet().stream()
-				.filter( s -> s.countDown() > 0 )
-				.collect( Collectors.toSet() );
-				
-				if( statusSet.size() == 0 ) {
-					statusSet.add( new Normal() );
-				}
-				
-				Integer result = damageList.stream().collect( Collectors.summingInt( s -> s ) );
-				Integer HP = allyData.getCurrentHp() - result;
-				
-				if( HP <= 0 ) {
-					allyData.setCurrentHp( 0 );
-					allyData.setSurvival( 0 );
-					statusSet.clear();
-					statusSet.add( new Dead() );
-					allyData.setStatusSet( statusSet );
-					this.mesageList.add( allyData.getName() + "は死んでしまった…" );
-					targetListAlly.remove( key );
-					targetMap.put( key , new Target( key ) );
-					partyMap.put( key , allyData );
-				}else{
-					allyData.setCurrentHp( HP );
-					allyData.setStatusSet( statusSet );
-				}
+				this.badStatusAfter( allyData, key );
+
 				
 			//敵側の行動処理
             }else{
@@ -569,6 +546,74 @@ public class Battle {
 		monsterData = action.debuffMagicMagic( allyData , monsterDataMap.get( target )  , targetMap.get( key ).getExecutionMagic() );
 		monsterDataMap.put( target , monsterData );
 		mesageList.add( monsterData.getName() + "の" + action.getBuffMessage() );
+	}
+	
+	
+	//行動不能系のステータス異常の処理（行動前処理）
+	public Integer badStatusBefore( AllyData allyData , Integer key ) {
+		
+		//状態異常のメッセージ
+		allyData.getStatusSet().stream()
+		.filter( s -> !s.statusMessageBefore().equals( "no" ) )
+		.forEach( s -> this.mesageList.add( s.statusMessageBefore() ));
+		
+		//行動不能系のステータス異常の数を抽出（リストサイズが1以上なら行動ができない）
+		List<Status> statusList = allyData.getStatusSet().stream()
+		.filter( s -> s.actionStatusBefore() == 1 )
+		.collect( Collectors.toList() );
+		
+		return statusList.size();
+	}
+	
+	
+	//ダメージ系（行動終了後に処理する状態異常のメソッド）
+	public void badStatusAfter( AllyData allyData , Integer key ) {
+		
+		//ダメージ系の状態異常の処理
+		List<Integer> damageList = new ArrayList<>();
+		allyData.getStatusSet().stream()
+		.forEach( s -> damageList.add( s.actionStatusAfter() ));
+		
+		//状態異常のメッセージ
+		allyData.getStatusSet().stream()
+		.filter( s -> !s.statusMessageAfter().equals( "no" ) )
+		.forEach( s -> this.mesageList.add( s.statusMessageAfter() ));
+		
+		//自然治癒判定
+		Set<Status> statusSet = allyData.getStatusSet().stream()
+		.filter( s -> s.countDown() > 0 )
+		.collect( Collectors.toSet() );
+		
+		//自然治癒メッセージをセット
+		allyData.getStatusSet().stream()
+		.filter( s -> s.getCount() == 0 )
+		.forEach( s -> this.mesageList.add( s.recoverymessage() ));
+		
+		if( statusSet.size() == 0 ) {
+			statusSet.add( new Normal() );
+		}
+		
+		if( statusSet.stream().filter( s -> s.getName().equals( "聖なる守り" )).count() == 0 ) {
+			allyData.setSurvival( 1 );
+		}
+		
+		Integer result = damageList.stream().collect( Collectors.summingInt( s -> s ) );
+		Integer HP = allyData.getCurrentHp() - result;
+		
+		if( HP <= 0 ) {
+			allyData.setCurrentHp( 0 );
+			allyData.setSurvival( 0 );
+			statusSet.clear();
+			statusSet.add( new Dead() );
+			allyData.setStatusSet( statusSet );
+			this.mesageList.add( allyData.getName() + "は死んでしまった…" );
+			targetListAlly.remove( key );
+			targetMap.put( key , new Target( key ) );
+		}else{
+			allyData.setCurrentHp( HP );
+			allyData.setStatusSet( statusSet );
+		}
+		partyMap.put( key , allyData );
 	}
 	
 }

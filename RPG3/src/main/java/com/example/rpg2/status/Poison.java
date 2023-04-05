@@ -65,6 +65,13 @@ public class Poison implements Status{
 		//永続効果
 		return count;
 	}
+	
+	
+	@Override
+	public String recoverymessage() {
+		
+		return "no";
+	}
 
 	public String getName() {
 		return name;
@@ -73,6 +80,14 @@ public class Poison implements Status{
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public Integer getCount() {
+		return count;
+	}
+
+	public void setCount(Integer count) {
+		this.count = count;
 	}
 	
 	

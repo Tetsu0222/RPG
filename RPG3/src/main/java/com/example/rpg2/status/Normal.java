@@ -58,6 +58,20 @@ public class Normal implements Status{
 		this.name = name;
 	}
 	
+	@Override
+	public String recoverymessage() {
+		
+		return "no";
+	}
+
+	public Integer getCount() {
+		return count;
+	}
+
+	public void setCount(Integer count) {
+		this.count = count;
+	}
+	
 	
 
 }

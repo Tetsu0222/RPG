@@ -43,8 +43,8 @@ public class Burn implements Status{
 	
 	@Override
 	public String statusMessageBefore() {
-	//no
-	return "no";
+		//no
+		return "no";
 	}
 	
 	@Override
@@ -70,6 +70,16 @@ public class Burn implements Status{
 		
 		return count;
 	}
+	
+	@Override
+	public String recoverymessage() {
+		
+		return targetName + "の火傷が治った!";
+	}
+	
+	
+	
+	
 
 	public String getName() {
 		return name;
@@ -77,6 +87,14 @@ public class Burn implements Status{
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public Integer getCount() {
+		return count;
+	}
+
+	public void setCount(Integer count) {
+		this.count = count;
 	}
 	
 	

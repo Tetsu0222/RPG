@@ -10,6 +10,7 @@ import com.example.rpg2.entity.MonsterPattern;
 import com.example.rpg2.status.Burn;
 import com.example.rpg2.status.Dead;
 import com.example.rpg2.status.Poison;
+import com.example.rpg2.status.Sleep;
 import com.example.rpg2.status.Status;
 
 import lombok.Data;
@@ -24,7 +25,7 @@ public class EnemyAction {
 	private Integer targetId;
 
 	private Integer recovery;
-	private Integer damage  ;
+	private Integer damage  = 0;
 	private String  message ;
 	private String  battleMessage;
 	private String  buffMessage;
@@ -57,7 +58,11 @@ public class EnemyAction {
 		//悪性ステータス異常
 		if( !monsterPattern.getBuffcategory().equals( "no" ) ) {
 			
-			//毒の処理
+			if( allyData.getSurvival() == 2 ) {
+				this.buffMessage = allyData.getName() + "は聖なる守りの加護を得ている。";
+			}
+			
+			//毒付与
 			if( monsterPattern.getBuffcategory().equals( "poison" ) && allyData.getSurvival() == 1 ) {
 				Set<Status> statusSet = this.badStatus( allyData );
 				allyData = this.poison( allyData , statusSet );
@@ -66,6 +71,11 @@ public class EnemyAction {
 			}else if( monsterPattern.getBuffcategory().equals( "burn" ) && allyData.getSurvival() == 1 ) {
 				Set<Status> statusSet = this.badStatus( allyData );
 				allyData = this.burn( allyData , statusSet );
+			
+			//睡眠付与
+			}else if( monsterPattern.getBuffcategory().equals( "sleep" ) && allyData.getSurvival() == 1 ) {
+				Set<Status> statusSet = this.badStatus( allyData );
+				allyData = this.sleep( allyData , statusSet );
 			}
 		}
 		
@@ -129,7 +139,7 @@ public class EnemyAction {
 		//悪性ステータス異常
 		if( !monsterPattern.getBuffcategory().equals( "no" ) ) {
 			
-			//毒の処理
+			//毒付与
 			if( monsterPattern.getBuffcategory().equals( "poison" ) && allyData.getSurvival() == 1 ) {
 				Set<Status> statusSet = this.badStatus( allyData );
 				allyData = this.poison( allyData , statusSet );
@@ -138,6 +148,11 @@ public class EnemyAction {
 			}else if( monsterPattern.getBuffcategory().equals( "burn" ) && allyData.getSurvival() == 1 ) {
 				Set<Status> statusSet = this.badStatus( allyData );
 				allyData = this.burn( allyData , statusSet );
+				
+			//睡眠付与
+			}else if( monsterPattern.getBuffcategory().equals( "sleep" ) && allyData.getSurvival() == 1 ) {
+				Set<Status> statusSet = this.badStatus( allyData );
+				allyData = this.sleep( allyData , statusSet );
 			}
 		}
 		
@@ -209,7 +224,6 @@ public class EnemyAction {
 	public AllyData poison( AllyData allyData , Set<Status> statusSet ) {
 		statusSet.add( new Poison( allyData ) );
 		allyData.setStatusSet( statusSet );
-		this.damage = 0;
 		this.buffMessage = allyData.getName() + "は毒状態になった!!";
 		
 		return allyData;
@@ -219,8 +233,16 @@ public class EnemyAction {
 	public AllyData burn( AllyData allyData , Set<Status> statusSet ) {
 		statusSet.add( new Burn( allyData ) );
 		allyData.setStatusSet( statusSet );
-		this.damage = 0;
 		this.buffMessage = allyData.getName() + "は火傷を負った!!";
+		
+		return allyData;
+	}
+	
+	//睡眠の付与
+	public AllyData sleep( AllyData allyData , Set<Status> statusSet ) {
+		statusSet.add( new Sleep( allyData ) );
+		allyData.setStatusSet( statusSet );
+		this.buffMessage = allyData.getName() + "は眠りに落ちた!!";
 		
 		return allyData;
 	}

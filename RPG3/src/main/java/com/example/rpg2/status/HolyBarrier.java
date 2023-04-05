@@ -1,12 +1,17 @@
 package com.example.rpg2.status;
 
+import com.example.rpg2.battle.AllyData;
+import com.example.rpg2.battle.MonsterData;
 
-public class Dead implements Status{
+public class HolyBarrier implements Status{
 	
-	private String name = "死亡";
-	private Integer count = 1;
+	private String  name = "聖なる守り";
+	private String  targetName;
+	private Integer count;
+	
 	
 	public int hashCode() {
+		
 		return name.hashCode();
 	}
 	
@@ -15,48 +20,61 @@ public class Dead implements Status{
 		return this.hashCode() == obj.hashCode();
 	}
 	
+	
+	public HolyBarrier( AllyData allyData ) {
+		this.targetName = allyData.getName();
+		this.count = 3;
+	}
+	
+	public HolyBarrier( MonsterData monsterData ) {
+		this.targetName = monsterData.getName();
+		this.count = 3;
+	}
+	
 	@Override
 	public Integer actionStatusBefore() {
+
+		return 0;
+	}
+	
+	@Override
+	public String statusMessageBefore() {
 		//no
-		
-		return 1;
+		return "no";
 	}
 	
 	@Override
 	public Integer actionStatusAfter() {
 		//no
-
 		return 0;
 	}
 	
 	@Override
 	public String statusMessageAfter() {
 		//no
-		
 		return "no";
 	}
 	
 	@Override
-	public String statusMessageBefore() {
-	//no
-	
-	return "no";
-	}
-	
-	@Override
 	public Integer countDown() {
-		//永続効果
+		
+		if( count < 0 ) {
+			this.count = 0;
+			
+		}else {
+			this.count -= 1;
+		}
+		
 		return count;
 	}
 	
 	@Override
 	public String recoverymessage() {
 		
-		return "no";
+		return targetName + "の聖なる守りの効果が切れてしまった…";
 	}
 	
 	
-
 	public String getName() {
 		return name;
 	}
@@ -72,7 +90,5 @@ public class Dead implements Status{
 	public void setCount(Integer count) {
 		this.count = count;
 	}
-	
-	
 
 }

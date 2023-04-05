@@ -5,6 +5,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.example.rpg2.entity.Magic;
+import com.example.rpg2.status.HolyBarrier;
 import com.example.rpg2.status.Normal;
 import com.example.rpg2.status.Status;
 
@@ -168,7 +169,7 @@ public class Action {
 					atk = receptionAllyData.getDefaultATK() * 2;
 				}
 				receptionAllyData.setCurrentDEF( (int) atk );	
-				this.buffMessage = "攻撃力が大きく上がった!!";
+				this.buffMessage = "の攻撃力が大きく上がった!!";
 			}
 		
 		//毒治癒
@@ -201,8 +202,13 @@ public class Action {
 			
 			receptionAllyData.setStatusSet( statusSet );
 
+		}else if( magic.getBuffcategory().equals( "holybarrier" ) ) {
+			Set<Status> statusSet = this.goodStatus( receptionAllyData );
+			statusSet.add( new HolyBarrier( receptionAllyData ) );
+			receptionAllyData.setStatusSet( statusSet );
+			receptionAllyData.setSurvival( 2 );
+			this.buffMessage = "は聖なる守りに包まれる。";
 		}
-		
 		return receptionAllyData;
 		
 	}
@@ -280,6 +286,17 @@ public class Action {
 	//死亡時の処理
 	public void noAction() {
 		//明示的に何も処理しない。
+	}
+	
+	//正常からへバフ状態（期限付き）へ変化
+	public Set<Status> goodStatus( AllyData receptionAllyData ){
+		
+		Set<Status> statusSet = receptionAllyData.getStatusSet()
+				.stream()
+				.filter( s -> !s.getName().equals( "正常" ) )
+				.collect( Collectors.toSet() );
+		
+		return statusSet;
 	}
 	
 
