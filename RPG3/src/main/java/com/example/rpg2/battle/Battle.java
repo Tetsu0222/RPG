@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import com.example.rpg2.action.Attack;
+import com.example.rpg2.action.BuffMagic;
 import com.example.rpg2.action.MagicAttack;
 import com.example.rpg2.action.RecoveryMagic;
 import com.example.rpg2.action.TaregetEnemyAction;
@@ -217,10 +218,8 @@ public class Battle {
 				}else if( movementPattern.equals( "recoverymagic" )) {
 					
 					//回復魔法を生成
-					RecoveryMagic recoveryMagic = new RecoveryMagic( allyData , targetMap.get( key ).getExecutionMagic()  );
+					TargetAllyAction recoveryMagic = new RecoveryMagic( allyData , targetMap.get( key ).getExecutionMagic()  );
 					this.mesageList.add( recoveryMagic.getStratMessage() );
-					
-					//---
 					
 					//MP判定 MPが足りないとtureが返る。
 					if( recoveryMagic.isNotEnoughMp() ){
@@ -263,33 +262,27 @@ public class Battle {
 					}
 				
 					
-				//補助魔法の処理(改修予定)
+				//補助魔法の処理
 				}else if( movementPattern.equals( "buffmagic" )) {
-					mesageList.add( allyData.getName() + "は" + targetMap.get( key ).getSkillName() + "を放った!!" );
-					//MP判定処理
-					if( targetMap.get( key ).getExecutionMagic().getMp() > allyData.getCurrentMp() ) {
-						action.noAction();
-						mesageList.add( "しかしMPが足りない･･･" );
-					}else{
-						//全体補助魔法の処理
-						if( targetMap.get( key ).getTargetListAlly() != null ) {
-							for( int i = 0 ; i < targetListAlly.size() ; i++ ) {
-								target = targetListAlly.get( i );
-								this.buffmagicExecution( key , target , allyData , action );
-							}
-						//単体補助魔法の処理
+					
+					//補助魔法を生成
+					TargetAllyAction buffMagic = new BuffMagic( allyData , targetMap.get( key ).getExecutionMagic()  );
+					this.mesageList.add( buffMagic.getStratMessage() );
+					
+					//MP判定 MPが足りないとtureが返る。
+					if( buffMagic.isNotEnoughMp() ){
+						this.mesageList.add( buffMagic.getNotEnoughMpMessage() );
+					
+						//MP判定OK
 						}else{
-							//対象がターン中に死亡している場合は、別の生存対象へ処理対象を変更
-							if( allyData.getSurvival() == 0 ) {
-								target = targetListAlly.get( 0 );
-								this.selectionAllyMagic( key , target , targetMap.get( key ).getExecutionMagic() );
+							//全体回復魔法の処理
+							if( targetMap.get( key ).getTargetListAlly() != null ) {
+								this.generalSupport( buffMagic, key );
+							//単体回復魔法の処理
+							}else{
+								this.singleSupport( buffMagic , target , key );
 							}
-							this.buffmagicExecution( key , target , allyData , action );
 						}
-					//MP消費処理（別メソッド化予定）
-					allyData = action.consumptionMp( allyData , targetMap.get( key ).getExecutionMagic() );
-					partyMap.put( key , allyData );
-					}
 					
 					
 				//蘇生魔法の処理(改修予定）
@@ -465,7 +458,7 @@ public class Battle {
 		}
 		
 		//MP消費処理
-		if( targetMap.get( key ).getExecutionMagic().getMp() != null ) {
+		if( targetMap.get( key ).getExecutionMagic() != null ) {
 			this.consumptionMP( key );
 		}
 	}
@@ -489,7 +482,7 @@ public class Battle {
 		this.mesageList.add( targetAllyAction.getRecoveryMessage() );
 		
 		//MP消費処理
-		if( targetMap.get( key ).getExecutionMagic().getMp() != null ) {
+		if( targetMap.get( key ).getExecutionMagic() != null ) {
 				this.consumptionMP( key );
 		}
 		
@@ -519,7 +512,7 @@ public class Battle {
 		deathList.stream().forEach( s -> targetListEnemy.remove( s ) );
 		
 		//MP消費処理
-		if( targetMap.get( key ).getExecutionMagic().getMp() != null ) {
+		if( targetMap.get( key ).getExecutionMagic() != null ) {
 				this.consumptionMP( key );
 		}
 	}
@@ -536,19 +529,11 @@ public class Battle {
 		}
 		
 		//MP消費処理
-		if( targetMap.get( key ).getExecutionMagic().getMp() != null ) {
+		if( targetMap.get( key ).getExecutionMagic() != null ) {
 				this.consumptionMP( key );
 		}
 		
 	}
-	
-	//補助魔法の処理メソッド
-	public void buffmagicExecution( Integer key , Integer target , AllyData allyData , Action action ) {
-		AllyData receptionAllyData = action.actionBuffmagicMagic( allyData , partyMap.get( target ) , targetMap.get( key ).getExecutionMagic() );
-		partyMap.put( target , receptionAllyData );
-		mesageList.add( receptionAllyData.getName() + action.getBuffMessage() );
-	}
-	
 	
 	//蘇生魔法の処理メソッド
 	public void resuscitationmagicExecution( Integer key , Integer target , AllyData allyData , Action action ) {

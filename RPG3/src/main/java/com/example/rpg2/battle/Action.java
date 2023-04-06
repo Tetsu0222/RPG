@@ -5,8 +5,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.example.rpg2.entity.Magic;
-import com.example.rpg2.status.HolyBarrier;
-import com.example.rpg2.status.Normal;
 import com.example.rpg2.status.Status;
 
 import lombok.Data;
@@ -21,94 +19,6 @@ public class Action {
 	private String  buffMessage;
 	
 	Random random = new Random();
-	
-	//味方への補助魔法
-	public AllyData actionBuffmagicMagic( AllyData allyData , AllyData receptionAllyData , Magic magic ) {
-		
-		//防御補助魔法の処理(スカラ スクルト)
-		if( magic.getBuffcategory().equals( "DEF" )) {
-			
-			double def = receptionAllyData.getCurrentDEF();
-			
-			//上昇上限チェック
-			if( def >= receptionAllyData.getDefaultDEF() * 2 ) {
-				this.buffMessage = "は、これ以上は守備力が上がらなかった･･･";
-			
-			//上限未達
-			}else{
-				double buffPoint = magic.getPercentage() + 1.2 ;
-				def = def * buffPoint;
-				
-				//補正値が上限を上回らないように再分岐
-				if( def > receptionAllyData.getDefaultDEF() * 2 ) {
-					def = receptionAllyData.getDefaultDEF() * 2 ;
-				}
-				receptionAllyData.setCurrentDEF( (int) def );
-				this.buffMessage = "の守備力が上がった!!";
-			}
-
-		//攻撃補助魔法(バイキルト)
-		}else if( magic.getBuffcategory().equals( "ATK" )) {
-			
-			double atk = receptionAllyData.getCurrentATK();
-			
-			//上昇上限チェック
-			if( atk > receptionAllyData.getDefaultATK() * 2 ) {
-				this.buffMessage = "は、これ以上は攻撃力が上がらなかった･･･";
-				
-			//上限未達
-			}else{
-				double buffPoint = magic.getPercentage();
-				atk = atk * buffPoint;
-				
-				//補正値が上限を上回らないように再分岐
-				if( atk > receptionAllyData.getDefaultATK() * 2 ) {
-					atk = receptionAllyData.getDefaultATK() * 2;
-				}
-				receptionAllyData.setCurrentDEF( (int) atk );	
-				this.buffMessage = "の攻撃力が大きく上がった!!";
-			}
-		
-		//毒治癒
-		}else if( magic.getBuffcategory().equals( "poison" ) ) {
-				
-			Set<Status> statusSet = receptionAllyData.getStatusSet();
-				
-			Long sts = statusSet.stream()
-					.filter( s -> s.getName().equals( "毒" ))
-					.count();
-			int size = statusSet.size();
-			
-			//状態異常が毒のみ
-			if( sts == 1 && size == 1 ) {
-				statusSet.clear();
-				statusSet.add( new Normal() );
-				this.buffMessage = "の毒が治った!!";
-				
-			//状態異常が毒以外にもある。
-			}else if( sts == 1 && size > 1 ) {
-				statusSet = allyData.getStatusSet()
-						.stream()
-						.filter( s -> !s.getName().equals( "毒" ) )
-						.collect( Collectors.toSet() );
-				this.buffMessage = "の毒が治った!!";
-			//毒状態じゃない。
-			}else{
-				this.buffMessage = "に効果はなかった…";
-			}
-			
-			receptionAllyData.setStatusSet( statusSet );
-
-		}else if( magic.getBuffcategory().equals( "holybarrier" ) ) {
-			Set<Status> statusSet = this.goodStatus( receptionAllyData );
-			statusSet.add( new HolyBarrier( receptionAllyData ) );
-			receptionAllyData.setStatusSet( statusSet );
-			receptionAllyData.setSurvival( 2 );
-			this.buffMessage = "は聖なる守りに包まれる。";
-		}
-		return receptionAllyData;
-		
-	}
 	
 	
 	//味方への蘇生魔法
