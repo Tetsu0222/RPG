@@ -22,42 +22,6 @@ public class Action {
 	
 	Random random = new Random();
 	
-	//通常攻撃
-	public MonsterData actionAttack( AllyData allyData , MonsterData monsterData ) {
-		
-		
-		int critical = random.nextInt( 255 );
-		
-		// 6/256で会心の一撃
-		if( critical > 6 ) {
-			//(攻撃力-防御力/2) + 乱数 = ダメージ
-			this.damage = ( allyData.getCurrentATK() - ( monsterData.getCurrentDEF() / 2 )) 
-					+ ( random.nextInt( allyData.getCurrentATK() ) / 2 );
-			this.damageMessage = damage + "のダメージを与えた!!";
-		}else{
-			//(攻撃力 * 2) + 乱数 = ダメージ
-			this.damage = allyData.getCurrentATK() * 2
-					+ ( random.nextInt( allyData.getCurrentATK() ) / 2 );
-			this.damageMessage = "会心の一撃!!!" + damage + "のダメージを与えた!!";
-		}
-		
-		if( damage < 0 ) {
-			damage = 0;
-		}
-		
-		Integer HP = monsterData.getCurrentHp() - damage;
-		
-		
-		if( HP < 0 ) {
-			monsterData.setCurrentHp( 0 );
-		}else{
-			monsterData.setCurrentHp( HP );
-		}
-		
-		return monsterData;
-	}
-	
-	
 	//味方への回復魔法
 	public AllyData actionRecoveryMagic( AllyData allyData , AllyData receptionAllyData , Magic magic ) {
 		
@@ -88,37 +52,20 @@ public class Action {
 	//攻撃魔法
 	public MonsterData actionAttackMagic( AllyData allyData , MonsterData monsterData , Magic magic ) {
 		
-		//ダメージ補正がある場合は、物理攻撃として処理
-		if( magic.getPercentage() > 0 ) {
+		//魔法威力 + 乱数 = ダメージ
+		Integer damage = magic.getPoint() + ( random.nextInt( magic.getPoint() ) / 4 ) - random.nextInt( magic.getPoint() / 4 );
 			
-			//攻撃力に補正処理
-			int datk = allyData.getCurrentATK();
-			double atk = allyData.getCurrentATK() * magic.getPercentage();
-			allyData.setCurrentATK( (int)atk );
+		if( damage < 0 ) {
+			damage = 0;
+		}
 			
-			//通常攻撃として処理
-			monsterData = this.actionAttack( allyData , monsterData );
+		Integer HP = monsterData.getCurrentHp() - damage;
+		this.damageMessage = damage + "のダメージを与えた!!";
 			
-			//補正されていた攻撃力を元に戻す。
-			allyData.setCurrentATK( datk );
-			
+		if( HP < 0 ) {
+			monsterData.setCurrentHp( 0 );
 		}else{
-		
-			//魔法威力 + 乱数 = ダメージ
-			Integer damage = magic.getPoint() + ( random.nextInt( magic.getPoint() ) / 4 ) - random.nextInt( magic.getPoint() / 4 );
-			
-			if( damage < 0 ) {
-				damage = 0;
-			}
-			
-			Integer HP = monsterData.getCurrentHp() - damage;
-			this.damageMessage = damage + "のダメージを与えた!!";
-			
-			if( HP < 0 ) {
-				monsterData.setCurrentHp( 0 );
-			}else{
-				monsterData.setCurrentHp( HP );
-			}
+			monsterData.setCurrentHp( HP );
 		}
 		
 		return monsterData;

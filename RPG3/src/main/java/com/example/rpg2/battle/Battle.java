@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import com.example.rpg2.action.Attack;
 import com.example.rpg2.entity.Magic;
 import com.example.rpg2.status.Dead;
 import com.example.rpg2.status.Normal;
@@ -32,19 +33,19 @@ public class Battle {
 	//プレイアブルメンバーの行動選択を管理
 	Map<Integer,Target> targetMap;
 	
-	//味方の数とキーを管理
+	//味方の数とキーを管理、キャラの特定に使用
 	List<Integer> targetListAlly;
 	
-	//敵の数とキーを管理
+	//敵の数とキーを管理、同上
 	List<Integer> targetListEnemy;
 	
 	//表示するログを管理
 	List<String> mesageList = new ArrayList<>();
 	
-	//行動順を規定
+	//キーは敵味方混合、値は乱数補正後の素早さ。素早さ順で降順ソートしたリスト
 	List<Entry<Integer, Integer>> turnList;
 	
-	//防御選択者
+	//防御選択者(今後、削除予定）
 	List<Integer> defenseList = new ArrayList<>();
 	
 	
@@ -73,7 +74,7 @@ public class Battle {
 	}
 	
 	
-	//通常攻撃を選択
+	//通常攻撃が選択された場合の事前処理(選択中の行動と対象者の表示に必要）
 	public void selectionAttack( Integer myKeys ,  Integer key ) {
 
 		Target target = new Target( monsterDataMap.get( key ) , myKeys , key );
@@ -81,7 +82,7 @@ public class Battle {
 	}
 	
 	
-	//味方への魔法を選択
+	//味方への魔法が選択された場合の事前処理
 	public void selectionAllyMagic( Integer myKeys , Integer key , Magic magic ) {
 		
 		Target target = new Target ( partyMap.get( key ) , myKeys , key , magic );
@@ -89,7 +90,7 @@ public class Battle {
 	}
 	
 	
-	//味方への全体魔法を選択
+	//味方への全体魔法が選択された場合の事前処理
 	public void selectionAllyMagic( Integer myKeys , Magic magic ) {
 		
 		//最後の引数はオーバーロード用のダミー
@@ -98,7 +99,7 @@ public class Battle {
 	}
 	
 	
-	//敵への魔法を選択
+	//敵への魔法が選択された場合の事前処理
 	public void selectionMonsterMagic( Integer myKeys , Integer key , Magic magic ) {
 		
 		Target target = new Target( monsterDataMap.get( key ) , myKeys , key , magic );
@@ -106,7 +107,7 @@ public class Battle {
 	}
 	
 	
-	//敵への全体魔法を選択
+	//敵への全体魔法が選択された場合の事前処理
 	public void selectionMonsterMagic( Integer myKeys , Magic magic ) {
 		
 		Target target = new Target( monsterDataMap , targetListEnemy , myKeys ,  magic );
@@ -114,7 +115,9 @@ public class Battle {
 	}
 	
 	
-	//防御を選択
+	//---改修予定-----
+	
+	//防御を選択(状態異常として処理予定)
 	public void selectionDefense( Integer myKeys ) {
 		Target target = new Target( myKeys , "防御" );
 		targetMap.put( myKeys , target );
@@ -122,7 +125,7 @@ public class Battle {
 	}
 	
 	
-	//防御行動のリセット
+	//防御行動のリセット(状態異常として処理予定)
 	public void selectionDefenseAfter() {
 		
 		for( int i = 0 ; i < defenseList.size(); i++ ) {
@@ -136,13 +139,23 @@ public class Battle {
 		}
 		defenseList.clear();
 	}
+	
+	
+	//-----ここまで----
+	
+	
 
 	
 	//行動順を決定
 	public void turn() {
+		
+		//各キャラの座標と素早さで構成されたマップ
 		Map<Integer,Integer> turnMap = new HashMap<>();
+		
+		//素早さの補正用
 		Random random = new Random();
 		
+		//味方の座標と素早さをマップへ格納
 		for( int i = 0 ; i < targetListAlly.size() ; i++ ) {
 			Integer index = targetListAlly.get( i );
 			Integer spe   = partyMap.get( index ).getCurrentSPE();
@@ -150,6 +163,7 @@ public class Battle {
 			turnMap.put( index , spe );
 		}
 		
+		//敵の座標と素早さをマップへ格納
 		for( int i = 0 ; i < targetListEnemy.size() ; i++ ) {
 			Integer index = targetListEnemy.get( i );
 			Integer spe   = monsterDataMap.get( index ).getCurrentSPE();
@@ -157,7 +171,7 @@ public class Battle {
 			turnMap.put( index , spe );
 		}
 		
-		//行動順になるようにソート(素早さの数値で降順に並べる)
+		//敵味方の混合マップからエントリーを抽出、各キャラの座標が素早さの高い順（降順）でソートされているリストを生成
 		this.turnList = new ArrayList<Entry<Integer, Integer>>( turnMap.entrySet() );
         Collections.sort( turnList , new Comparator<Entry<Integer, Integer>>() {
             public int compare( Entry<Integer, Integer> obj1 , Entry<Integer, Integer> obj2 )
@@ -171,7 +185,7 @@ public class Battle {
 	//戦闘開始
 	public void startBattle() {
 		
-		//防御選択者の処理(内部計算は暫定処理）
+		//防御選択者の処理 → 暫定処置 → 改修予定
 		if( defenseList.size() > 0 ) {
 			for( int i = 0 ; i < defenseList.size(); i++ ) {
 				int index = defenseList.get( i );
@@ -187,8 +201,7 @@ public class Battle {
 		}
 		
 		
-		
-		//各行動処理
+		//敵味方が入り乱れて素早さ順に行動
         for( Entry<Integer, Integer> entry : turnList ) {
         	
         	//ターン中に敵か味方のいずれかが全滅している場合は、戦闘を終了させる。
@@ -196,26 +209,34 @@ public class Battle {
         		break;
         	}
         	
+        	//行動するキャラの座標を抽出
             int key = entry.getKey();
             
-            //味方側の処理
+            
+            
+            //----------------------------------------------------
+            //------------------味方側の処理----------------------
+            //----------------------------------------------------
             if( partyMap.get( key ) != null ) {
     			Action   action   = new Action();
     			AllyData allyData = partyMap.get( key );
     			Integer  target	  = targetMap.get( key ).getSelectionId();
     			String   movementPattern = targetMap.get( key ).getCategory();
     			
+    			//ターン中に死亡している場合は、処理を中断
     			if( allyData.getSurvival() == 0 ) {
     				continue;
     			}
     			
-				//状態異常に応じた処理
+				//行動不能系の状態異常の所持数をチェック
     			Integer juds = this.badStatusBefore( allyData , key );
+    			
     			//行動不能系の状態異常が1つ以上あれば処理中断
     			if( juds > 0 ) {
     				this.badStatusAfter( allyData, key );
     				continue;
     			}
+    			
     			
     			//通常攻撃の処理
 				if( movementPattern.equals( "attack" )) {
@@ -227,26 +248,31 @@ public class Battle {
 						this.selectionAttack( key , target );
 					}
 					
-					monsterData = action.actionAttack( allyData , monsterDataMap.get( target ) );
-					mesageList.add( allyData.getName() + "の攻撃!!!" );
+					//通常攻撃を生成
+					Attack at = new Attack();
 					
-					//行動結果の処理
+					//通常攻撃を実施
+					monsterData = at.action( allyData , monsterData );
+					
+					//通常攻撃のメッセージをセット
+					mesageList.add( at.getStratMessage() );
+					mesageList.add( at.getDamageMessage() );
+					
+					//通常攻撃の結果をデータ管理・反映マップへ格納
+					monsterDataMap.put( target , monsterData );
+					
+					//攻撃で対象を倒した場合の処理
 					if( monsterData.getCurrentHp() == 0 ) {
-						monsterData.setSurvival( 0 );
 						targetListEnemy.remove( target );
-						monsterDataMap.put( target , monsterData );
-						mesageList.add( monsterData.getName() + "に" + action.getDamageMessage() );
-						mesageList.add( monsterData.getName() + "を倒した!!" );
 			        	if( targetListEnemy.size() != 0 ) {
 							target = targetListEnemy.get( 0 );
 							this.selectionAttack( key , target );
 			        	}
-					}else{
-						monsterDataMap.put( target , monsterData );
-						mesageList.add( monsterData.getName() + "に" + action.getDamageMessage() );
+			        	mesageList.add( at.getResultMessage() );
 					}
 					
-				//回復魔法の処理
+					
+				//回復魔法の処理(改修予定）
 				}else if( movementPattern.equals( "recoverymagic" )) {
 					mesageList.add( allyData.getName() + "は" + targetMap.get( key ).getSkillName() + "を放った!!" );
 					//MP判定処理
@@ -274,7 +300,8 @@ public class Battle {
 					partyMap.put( key , allyData );
 					}
 				
-				//攻撃魔法の処理
+					
+				//攻撃魔法の処理(改修予定）
 				}else if( movementPattern.equals( "attackmagic" )) {
 					mesageList.add( allyData.getName() + "は" + targetMap.get( key ).getSkillName() + "を放った!!" );
 					//MP判定
@@ -304,7 +331,8 @@ public class Battle {
 						partyMap.put( key , allyData );
 					}
 				
-				//補助魔法の処理
+					
+				//補助魔法の処理(改修予定)
 				}else if( movementPattern.equals( "buffmagic" )) {
 					mesageList.add( allyData.getName() + "は" + targetMap.get( key ).getSkillName() + "を放った!!" );
 					//MP判定処理
@@ -332,7 +360,8 @@ public class Battle {
 					partyMap.put( key , allyData );
 					}
 					
-				//蘇生魔法の処理
+					
+				//蘇生魔法の処理(改修予定）
 				}else if( movementPattern.equals( "resuscitationmagic" )) {
 					mesageList.add( allyData.getName() + "は" + targetMap.get( key ).getSkillName() + "を放った!!" );
 					//MP判定処理
@@ -355,7 +384,8 @@ public class Battle {
 					partyMap.put( key , allyData );
 					}
 					
-				//妨害の処理
+					
+				//妨害の処理(改修予定）
 				}else if( movementPattern.equals( "debuffmagic" )) {
 					mesageList.add( allyData.getName() + "は" + targetMap.get( key ).getSkillName() + "を放った!!" );
 					//MP判定
@@ -381,9 +411,11 @@ public class Battle {
 				}
 				
 				this.badStatusAfter( allyData, key );
-
 				
-			//敵側の行動処理
+				
+	        //----------------------------------------------------
+	        //------------------敵側の処理----------------------
+	        //----------------------------------------------------
             }else{
     			MonsterData monsterData = monsterDataMap.get( key );
     			
