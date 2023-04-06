@@ -16,6 +16,7 @@ import com.example.rpg2.action.Attack;
 import com.example.rpg2.action.MagicAttack;
 import com.example.rpg2.action.RecoveryMagic;
 import com.example.rpg2.action.TaregetEnemyAction;
+import com.example.rpg2.action.TargetAllyAction;
 import com.example.rpg2.entity.Magic;
 import com.example.rpg2.status.Dead;
 import com.example.rpg2.status.Defense;
@@ -167,12 +168,15 @@ public class Battle {
 	//----------------------------------戦闘開始------------------------------------
 	//------------------------------------------------------------------------------
 	public void startBattle() {
+		
 		//敵味方が入り乱れて素早さ順に行動
         for( Entry<Integer, Integer> entry : turnList ) {
+        	
         	//ターン中に敵か味方のいずれかが全滅している場合は、戦闘を終了させる。
         	if( targetListEnemy.size() == 0 || targetListAlly.size() == 0 ) {
         		break;
         	}
+        	
         	//行動するキャラの座標を抽出
             int key = entry.getKey();
             
@@ -202,36 +206,11 @@ public class Battle {
     			
     			//通常攻撃の処理
 				if( movementPattern.equals( "attack" )) {
-					MonsterData monsterData = monsterDataMap.get( target );
-					
-					//対象がターン中に死亡している場合は、別の生存対象へ処理対象を変更
-					if( monsterData.getSurvival() == 0 ) {
-						target = targetListEnemy.get( 0 );
-						this.selectionAttack( key , target );
-					}
 					
 					//通常攻撃を生成
-					Attack at = new Attack();
-					
+					TaregetEnemyAction at = new Attack( allyData );
 					//通常攻撃を実施
-					monsterData = at.action( allyData , monsterData );
-					
-					//通常攻撃のメッセージをセット
-					mesageList.add( at.getStratMessage() );
-					mesageList.add( at.getDamageMessage() );
-					
-					//通常攻撃の結果をデータ管理・反映マップへ格納
-					monsterDataMap.put( target , monsterData );
-					
-					//攻撃で対象を倒した場合の処理
-					if( monsterData.getCurrentHp() == 0 ) {
-						targetListEnemy.remove( target );
-			        	if( targetListEnemy.size() != 0 ) {
-							target = targetListEnemy.get( 0 );
-							this.selectionAttack( key , target );
-			        	}
-			        	mesageList.add( at.getResultMessage() );
-					}
+					this.singleAttack( at,  target , key );
 					
 					
 				//回復魔法の処理
@@ -241,6 +220,8 @@ public class Battle {
 					RecoveryMagic recoveryMagic = new RecoveryMagic( allyData , targetMap.get( key ).getExecutionMagic()  );
 					this.mesageList.add( recoveryMagic.getStratMessage() );
 					
+					//---
+					
 					//MP判定 MPが足りないとtureが返る。
 					if( recoveryMagic.isNotEnoughMp() ){
 						this.mesageList.add( recoveryMagic.getNotEnoughMpMessage() );
@@ -249,28 +230,11 @@ public class Battle {
 					}else{
 						//全体回復魔法の処理
 						if( targetMap.get( key ).getTargetListAlly() != null ) {
-							for( int i = 0 ; i < targetListAlly.size() ; i++ ) {
-								target = targetListAlly.get( i );
-								AllyData receptionAllyData = recoveryMagic.action( partyMap.get( target ) );
-								partyMap.put( target , receptionAllyData );
-								this.mesageList.add( recoveryMagic.getRecoveryMessage() );
-							}
-							
+							this.generalSupport( recoveryMagic, key );
 						//単体回復魔法の処理
 						}else{
-							//対象がターン中に死亡している場合は、別の生存対象へ処理対象を変更
-							if( allyData.getSurvival() == 0 ) {
-								target = targetListAlly.get( 0 );
-								this.selectionAllyMagic( key , target , targetMap.get( key ).getExecutionMagic() );
-							}
-							AllyData receptionAllyData = recoveryMagic.action( partyMap.get( target ) );
-							partyMap.put( target , receptionAllyData );
-							this.mesageList.add( recoveryMagic.getRecoveryMessage() );
+							this.singleSupport( recoveryMagic , target , key );
 						}
-						
-						//MP消費処理
-						allyData = action.consumptionMp( allyData , targetMap.get( key ).getExecutionMagic() );
-						partyMap.put( key , allyData );
 					}
 				
 					
@@ -477,7 +441,7 @@ public class Battle {
 		
 		//攻撃対象のオブジェクトを取得
 		MonsterData monsterData = monsterDataMap.get( target );
-		AllyData allyData = partyMap.get( key );
+		
 		
 		//対象がターン中に死亡している場合は、別の生存対象へ処理対象を変更
 		if( monsterData.getSurvival() == 0 ) {
@@ -490,13 +454,6 @@ public class Battle {
 		monsterDataMap.put( target , monsterData );
 		this.mesageList.add( taregetEnemyAction.getDamageMessage() );
 		
-		//MP消費処理
-		if( targetMap.get( key ).getExecutionMagic().getMp() != null ) {
-			int MP = allyData.getCurrentMp();
-			MP -= targetMap.get( key ).getExecutionMagic().getMp();
-			allyData.setCurrentMp( MP );
-		}
-		
 		//攻撃で対象を倒した場合の処理
 		if( monsterData.getCurrentHp() == 0 ) {
 			targetListEnemy.remove( target );
@@ -506,20 +463,41 @@ public class Battle {
         	}
         	mesageList.add( taregetEnemyAction.getResultMessage() );
 		}
+		
+		//MP消費処理
+		if( targetMap.get( key ).getExecutionMagic().getMp() != null ) {
+			this.consumptionMP( key );
+		}
+	}
+	
+	
+	//単体回復・補助のメソッド
+	public void singleSupport( TargetAllyAction targetAllyAction , Integer target , Integer key ) {
+		
+		//対象の味方キャラクターのオブジェクトを取得
+		AllyData receptionAllyData = partyMap.get( target );
+		
+		//対象がターン中に死亡している場合は、別の生存対象へ処理対象を変更
+		if( receptionAllyData.getSurvival() == 0 ) {
+			target = targetListAlly.get( 0 );
+			this.selectionAllyMagic( key , target , targetMap.get( key ).getExecutionMagic() );
+		}
+		
+		//回復・補助魔法の処理と結果の格納
+		receptionAllyData = targetAllyAction.action( partyMap.get( target ) );
+		partyMap.put( target , receptionAllyData );
+		this.mesageList.add( targetAllyAction.getRecoveryMessage() );
+		
+		//MP消費処理
+		if( targetMap.get( key ).getExecutionMagic().getMp() != null ) {
+				this.consumptionMP( key );
+		}
+		
 	}
 	
 	
 	//全体攻撃のメソッド
 	public void generalAttack( TaregetEnemyAction taregetEnemyAction , Integer key ) {
-		
-		AllyData allyData = partyMap.get( key );
-		
-		//MP消費処理
-		if( targetMap.get( key ).getExecutionMagic().getMp() != null ) {
-			int MP = allyData.getCurrentMp();
-			MP -= targetMap.get( key ).getExecutionMagic().getMp();
-			allyData.setCurrentMp( MP );
-		}
 		
 		//targetを敵全体へ変更、攻撃魔法の処理結果を格納していく。
 		for( int i = 0 ; i < targetListEnemy.size() ; i++ ) {
@@ -539,8 +517,30 @@ public class Battle {
 						.filter( s -> monsterDataMap.get( s ).getSurvival() == 0 )
 						.collect( Collectors.toList() );
 		deathList.stream().forEach( s -> targetListEnemy.remove( s ) );
+		
+		//MP消費処理
+		if( targetMap.get( key ).getExecutionMagic().getMp() != null ) {
+				this.consumptionMP( key );
+		}
 	}
 	
+	
+	//全体回復・補助のメソッド
+	public void generalSupport( TargetAllyAction targetAllyAction , Integer key) {
+		
+		for( int i = 0 ; i < targetListAlly.size() ; i++ ) {
+			Integer target = targetListAlly.get( i );
+			AllyData receptionAllyData = targetAllyAction.action( partyMap.get( target ) );
+			partyMap.put( target , receptionAllyData );
+			this.mesageList.add( targetAllyAction.getRecoveryMessage() );
+		}
+		
+		//MP消費処理
+		if( targetMap.get( key ).getExecutionMagic().getMp() != null ) {
+				this.consumptionMP( key );
+		}
+		
+	}
 	
 	//補助魔法の処理メソッド
 	public void buffmagicExecution( Integer key , Integer target , AllyData allyData , Action action ) {
@@ -578,35 +578,6 @@ public class Battle {
 		mesageList.add( monsterData.getName() + "の" + action.getBuffMessage() );
 	}
 	
-	
-	//防御選択時の処理
-	public void choiceDefense( AllyData allyData , Integer key ) {
-		Set<Status> statusSet = allyData.getStatusSet()
-				.stream()
-				.filter( s -> !s.getName().equals( "正常" ) )
-				.collect( Collectors.toSet() );
-		
-		statusSet.add( new Defense( allyData ) );
-		allyData.setStatusSet( statusSet );
-		partyMap.put( key , allyData );
-	}
-	
-	
-	//防御解除の処理
-	public void cancelDefense( AllyData allyData , Integer key ) {
-		Set<Status> statusSet = allyData.getStatusSet()
-				.stream()
-				.filter( s -> !s.getName().equals( "防御" ) )
-				.collect( Collectors.toSet() );
-		
-		//状態異常中でなければ正常状態へ戻す。
-		if( statusSet.size() == 0 ) {
-			statusSet.add( new Normal() );
-		}
-		
-		allyData.setStatusSet( statusSet );
-		partyMap.put( key , allyData );
-	}
 	
 	
 	//行動不能系のステータス異常の処理（行動前処理）
@@ -682,6 +653,46 @@ public class Battle {
 		}
 		
 		//結果を格納
+		partyMap.put( key , allyData );
+	}
+	
+	
+	//MP消費処理
+	public void consumptionMP( Integer key ) {
+		AllyData allyData = partyMap.get( key );
+		int MP = allyData.getCurrentMp();
+		MP -= targetMap.get( key ).getExecutionMagic().getMp();
+		allyData.setCurrentMp( MP );
+		partyMap.put( key , allyData );
+	}
+	
+	
+	//防御選択時の処理
+	public void choiceDefense( AllyData allyData , Integer key ) {
+		Set<Status> statusSet = allyData.getStatusSet()
+				.stream()
+				.filter( s -> !s.getName().equals( "正常" ) )
+				.collect( Collectors.toSet() );
+		
+		statusSet.add( new Defense( allyData ) );
+		allyData.setStatusSet( statusSet );
+		partyMap.put( key , allyData );
+	}
+	
+	
+	//防御解除の処理
+	public void cancelDefense( AllyData allyData , Integer key ) {
+		Set<Status> statusSet = allyData.getStatusSet()
+				.stream()
+				.filter( s -> !s.getName().equals( "防御" ) )
+				.collect( Collectors.toSet() );
+		
+		//状態異常中でなければ正常状態へ戻す。
+		if( statusSet.size() == 0 ) {
+			statusSet.add( new Normal() );
+		}
+		
+		allyData.setStatusSet( statusSet );
 		partyMap.put( key , allyData );
 	}
 	

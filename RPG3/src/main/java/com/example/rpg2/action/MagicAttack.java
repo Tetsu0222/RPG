@@ -40,6 +40,7 @@ public class MagicAttack implements TaregetEnemyAction{
 	}
 	
 	//攻撃魔法
+	@Override
 	public MonsterData action( MonsterData monsterData  ) {
 		
 		Random random = new Random();

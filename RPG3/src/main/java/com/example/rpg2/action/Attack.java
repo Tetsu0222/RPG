@@ -8,7 +8,7 @@ import com.example.rpg2.battle.MonsterData;
 import lombok.Data;
 
 @Data
-public class Attack {
+public class Attack implements TaregetEnemyAction{
 	
 	private MonsterData monsterData;
 	private Integer damage;
@@ -16,9 +16,20 @@ public class Attack {
 	private String damageMessage;
 	private String resultMessage;
 	private Integer target;
+	private AllyData allyData;
 	
+	//使用しない
+	private String getNotEnoughMpMessage;
+	private boolean isNotEnoughMp;
+	
+	
+	public Attack( AllyData allyData ) {
+		this.allyData = allyData;
+	}
+
 	//通常攻撃
-	public MonsterData action( AllyData allyData , MonsterData monsterData ) {
+	@Override
+	public MonsterData action( MonsterData monsterData ) {
 		
 		
 		this.stratMessage =  allyData.getName() + "の攻撃!!!";
@@ -58,5 +69,15 @@ public class Attack {
 		
 		return monsterData;
 	}
+
+
+	@Override
+	public String getNotEnoughMpMessage() {
+		// TODO 自動生成されたメソッド・スタブ
+		return null;
+	}
+
+
+
 
 }

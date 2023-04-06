@@ -9,7 +9,7 @@ import lombok.Data;
 
 
 @Data
-public class RecoveryMagic {
+public class RecoveryMagic implements TargetAllyAction {
 	
 	private Integer recovery;
 	private String  stratMessage;
@@ -65,6 +65,14 @@ public class RecoveryMagic {
 		
 		return receptionAllyData;
 		
+	}
+	
+	
+
+	@Override
+	public String getResultMessage() {
+		// TODO 自動生成されたメソッド・スタブ
+		return null;
 	}
 	
 }

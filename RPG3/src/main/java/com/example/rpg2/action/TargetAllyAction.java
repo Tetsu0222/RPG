@@ -1,17 +1,15 @@
 package com.example.rpg2.action;
 
-import com.example.rpg2.battle.MonsterData;
+import com.example.rpg2.battle.AllyData;
 
-public interface TaregetEnemyAction {
+public interface TargetAllyAction {
 	
 	public String getStratMessage();
 	public String getNotEnoughMpMessage();
 	public String getResultMessage();
+	public String getRecoveryMessage();
 	
 	public boolean isNotEnoughMp();
-	public MonsterData action( MonsterData monsterData );
-	public String getDamageMessage();
-	
-
+	public AllyData action( AllyData receptionAllyData );
 
 }
