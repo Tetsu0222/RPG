@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import com.example.rpg2.action.Attack;
+import com.example.rpg2.action.RecoveryMagic;
 import com.example.rpg2.entity.Magic;
 import com.example.rpg2.status.Dead;
 import com.example.rpg2.status.Normal;
@@ -223,6 +224,7 @@ public class Battle {
     			Integer  target	  = targetMap.get( key ).getSelectionId();
     			String   movementPattern = targetMap.get( key ).getCategory();
     			
+    			
     			//ターン中に死亡している場合は、処理を中断
     			if( allyData.getSurvival() == 0 ) {
     				continue;
@@ -272,20 +274,28 @@ public class Battle {
 					}
 					
 					
-				//回復魔法の処理(改修予定）
+				//回復魔法の処理
 				}else if( movementPattern.equals( "recoverymagic" )) {
-					mesageList.add( allyData.getName() + "は" + targetMap.get( key ).getSkillName() + "を放った!!" );
-					//MP判定処理
-					if( targetMap.get( key ).getExecutionMagic().getMp() > allyData.getCurrentMp() ) {
-						action.noAction();
-						mesageList.add( "しかしMPが足りない･･･" );
+					
+					//回復魔法を生成
+					RecoveryMagic recoveryMagic = new RecoveryMagic( allyData , targetMap.get( key ).getExecutionMagic()  );
+					this.mesageList.add( recoveryMagic.getStratMessage() );
+					
+					//MP判定 MPが足りないとtureが返る。
+					if( recoveryMagic.isNotEnoughMp() ){
+						this.mesageList.add( recoveryMagic.getNotEnoughMpMessage() );
+					
+					//MP判定OK
 					}else{
 						//全体回復魔法の処理
 						if( targetMap.get( key ).getTargetListAlly() != null ) {
 							for( int i = 0 ; i < targetListAlly.size() ; i++ ) {
 								target = targetListAlly.get( i );
-								this.recoverymagicExecution( key , target , allyData , action );
+								AllyData receptionAllyData = recoveryMagic.action( partyMap.get( target ) );
+								partyMap.put( target , receptionAllyData );
+								this.mesageList.add( recoveryMagic.getRecoveryMessage() );
 							}
+							
 						//単体回復魔法の処理
 						}else{
 							//対象がターン中に死亡している場合は、別の生存対象へ処理対象を変更
@@ -293,11 +303,14 @@ public class Battle {
 								target = targetListAlly.get( 0 );
 								this.selectionAllyMagic( key , target , targetMap.get( key ).getExecutionMagic() );
 							}
-							this.recoverymagicExecution( key , target , allyData , action );
+							AllyData receptionAllyData = recoveryMagic.action( partyMap.get( target ) );
+							partyMap.put( target , receptionAllyData );
+							this.mesageList.add( recoveryMagic.getRecoveryMessage() );
 						}
-					//MP消費処理（別メソッド化予定）
-					allyData = action.consumptionMp( allyData , targetMap.get( key ).getExecutionMagic() );
-					partyMap.put( key , allyData );
+						
+						//MP消費処理
+						allyData = action.consumptionMp( allyData , targetMap.get( key ).getExecutionMagic() );
+						partyMap.put( key , allyData );
 					}
 				
 					
@@ -534,15 +547,6 @@ public class Battle {
 			mesageList.add( monsterData.getName() + "に" + action.getDamageMessage() );
 		}
 	}
-	
-	
-	//回復魔法の処理メソッド
-	public void recoverymagicExecution( Integer key , Integer target , AllyData allyData , Action action ) {
-		AllyData receptionAllyData = action.actionRecoveryMagic( allyData , partyMap.get( target ) , targetMap.get( key ).getExecutionMagic() );
-		partyMap.put( target , receptionAllyData );
-		mesageList.add( receptionAllyData.getName() + "は" + action.getRecoveryMessage() );
-	}
-	
 	
 	//補助魔法の処理メソッド
 	public void buffmagicExecution( Integer key , Integer target , AllyData allyData , Action action ) {

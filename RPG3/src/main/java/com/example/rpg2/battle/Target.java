@@ -19,7 +19,7 @@ public class Target {
 	private Magic   executionMagic;
 	private List<Integer> targetListEnemy = new ArrayList<>();
 	private List<Integer> targetListAlly  = new ArrayList<>();
-	
+
 	//通常攻撃
 	public Target( MonsterData monsterData , Integer myKeys , Integer key ) {
 		
@@ -30,6 +30,7 @@ public class Target {
 		this.category	   = "attack";
 		this.targetListEnemy = null;
 		this.targetListAlly  = null;
+		
 	}
 	
 	//味方への魔法

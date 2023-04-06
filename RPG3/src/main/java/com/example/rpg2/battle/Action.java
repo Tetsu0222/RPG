@@ -22,33 +22,6 @@ public class Action {
 	
 	Random random = new Random();
 	
-	//味方への回復魔法
-	public AllyData actionRecoveryMagic( AllyData allyData , AllyData receptionAllyData , Magic magic ) {
-		
-		//回復魔法を発動
-		if( magic.getPercentage() == 0 ) {
-			int HP = receptionAllyData.getCurrentHp();
-			this.recovery = magic.getPoint() + random.nextInt( magic.getPoint() / 4 ) - random.nextInt( magic.getPoint() / 4 );
-			
-			HP += recovery;
-			
-			if( receptionAllyData.getCurrentHp() < HP ) {
-				HP = receptionAllyData.getMaxHP();
-			}
-			receptionAllyData.setCurrentHp( HP );
-			this.recoveryMessage = "は" + recovery + "のHPを回復した!";
-			
-		}else if( magic.getPercentage() == 1 ){
-			int HP = receptionAllyData.getMaxHP();
-			receptionAllyData.setCurrentHp( HP );
-			this.recoveryMessage = "は全快した!";
-		}
-		
-		return receptionAllyData;
-		
-	}
-	
-	
 	//攻撃魔法
 	public MonsterData actionAttackMagic( AllyData allyData , MonsterData monsterData , Magic magic ) {
 		
