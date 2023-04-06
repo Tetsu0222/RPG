@@ -115,6 +115,10 @@ public class EnemyAction {
 			//(攻撃力-防御力/2) + 乱数 = ダメージ
 			this.damage = ( monsterData.getCurrentATK() - ( allyData.getCurrentDEF() / 2 )) + plusDamage;
 			
+			if( this.isDefense( allyData )){
+				this.damage = damage / 2;
+			}
+			
 			if( damage < 0 ) {
 				this.damage = 0;
 				this.battleMessage = allyData.getName() + "にダメージを与えられない…";
@@ -130,6 +134,11 @@ public class EnemyAction {
 		}else if( this.pattern.equals( "attackmagic" ) && monsterPattern.getPercentage() == 0 ){
 			//攻撃力 + 乱数 = ダメージ(防御力無視だけで暫定対応、耐性値を実装して値に干渉する予定)
 			this.damage = monsterData.getCurrentATK() + plusDamage;
+			
+			if( this.isDefense( allyData )){
+				this.damage = damage / 2;
+			}
+			
 			if( damage < 0 ) {
 				this.damage = 0;
 				this.battleMessage = allyData.getName() + "にダメージを与えられない…";
@@ -139,6 +148,7 @@ public class EnemyAction {
 		}
 
 		Integer HP = allyData.getCurrentHp() - damage;
+
 		
 		if( HP <= 0 ) {
 			allyData.setCurrentHp( 0 );
@@ -218,6 +228,10 @@ public class EnemyAction {
 			//(攻撃力-防御力/2) + 乱数 = ダメージ
 			this.damage = ( monsterData.getCurrentATK() - ( allyData.getCurrentDEF() / 2 )) + plusDamage;
 			
+			if( this.isDefense( allyData )){
+				this.damage = damage / 2;
+			}
+			
 			if( damage < 0 ) {
 				this.damage = 0;
 				this.battleMessage = allyData.getName() + "にダメージを与えられない…";
@@ -233,11 +247,15 @@ public class EnemyAction {
 		}else if( this.pattern.equals( "attackmagic" ) && monsterPattern.getPercentage() == 0 ){
 			//攻撃力 + 乱数 = ダメージ(防御力無視だけで暫定対応、耐性値を実装して値に干渉する予定)
 			this.damage = monsterData.getCurrentATK() + plusDamage;
+			
+			if( this.isDefense( allyData )){
+				this.damage = damage / 2;
+			}
 			this.battleMessage = allyData.getName() + "に" + damage + "のダメージ!!!";
 		}
 		
 		Integer HP = allyData.getCurrentHp() - damage;
-		
+
 		if( HP <= 0 ) {
 			allyData.setCurrentHp( 0 );
 			allyData.setSurvival( 0 );
@@ -335,6 +353,20 @@ public class EnemyAction {
 		this.buffMessage = allyData.getName() + "は気を失ってしまった…";
 		
 		return allyData;
+	}
+	
+	
+	//防御の有無チェック
+	public boolean isDefense( AllyData allyData ) {
+		
+		//対象者のステータス異常の中に防御が含まれているか確認(1が返れば含まれていると判定)
+		Long i = allyData.getStatusSet()
+				.stream()
+				.filter( s -> s.getName().equals( "防御" ) )
+				.count();
+		
+		//防御が含まれていればtureを返す。
+		return i == 1;
 	}
 	
 }

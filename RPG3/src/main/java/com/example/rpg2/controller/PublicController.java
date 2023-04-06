@@ -332,9 +332,6 @@ public class PublicController {
 		//戦闘開始
 		battle.startBattle();
 		
-		//防御選択状態を解除
-		battle.selectionDefenseAfter();
-		
 		//戦闘終了判定
 		if( battle.getTargetListAlly().size() == 0 ) {
 			session.invalidate();

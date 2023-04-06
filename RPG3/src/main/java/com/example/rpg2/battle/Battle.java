@@ -16,6 +16,7 @@ import com.example.rpg2.action.Attack;
 import com.example.rpg2.action.RecoveryMagic;
 import com.example.rpg2.entity.Magic;
 import com.example.rpg2.status.Dead;
+import com.example.rpg2.status.Defense;
 import com.example.rpg2.status.Normal;
 import com.example.rpg2.status.Status;
 
@@ -46,9 +47,6 @@ public class Battle {
 	//キーは敵味方混合、値は乱数補正後の素早さ。素早さ順で降順ソートしたリスト
 	List<Entry<Integer, Integer>> turnList;
 	
-	//防御選択者(今後、削除予定）
-	List<Integer> defenseList = new ArrayList<>();
-	
 	
 	//コンストラクタ
 	public Battle( List<AllyData> partyList , List<MonsterData> monsterDataList ) {
@@ -75,77 +73,56 @@ public class Battle {
 	}
 	
 	
-	//通常攻撃が選択された場合の事前処理(選択中の行動と対象者の表示に必要）
+	//------------------------------------------------------------------------------
+	//---------------行動選択処理(選択中の行動と対象者の表示に必要)-----------------
+	//------------------------------------------------------------------------------
+	
+	//通常攻撃が選択された場合の事前処理
 	public void selectionAttack( Integer myKeys ,  Integer key ) {
-
 		Target target = new Target( monsterDataMap.get( key ) , myKeys , key );
 		targetMap.put( myKeys , target );
+		this.cancelDefense( partyMap.get( myKeys ) , myKeys );
 	}
-	
 	
 	//味方への魔法が選択された場合の事前処理
 	public void selectionAllyMagic( Integer myKeys , Integer key , Magic magic ) {
-		
 		Target target = new Target ( partyMap.get( key ) , myKeys , key , magic );
 		targetMap.put( myKeys , target );
+		this.cancelDefense( partyMap.get( myKeys ) , myKeys );
 	}
-	
 	
 	//味方への全体魔法が選択された場合の事前処理
 	public void selectionAllyMagic( Integer myKeys , Magic magic ) {
-		
 		//最後の引数はオーバーロード用のダミー
 		Target target = new Target ( partyMap , targetListAlly , myKeys ,  magic , 1 );
 		targetMap.put( myKeys , target );
+		this.cancelDefense( partyMap.get( myKeys ) , myKeys );
 	}
-	
 	
 	//敵への魔法が選択された場合の事前処理
 	public void selectionMonsterMagic( Integer myKeys , Integer key , Magic magic ) {
-		
 		Target target = new Target( monsterDataMap.get( key ) , myKeys , key , magic );
 		targetMap.put( myKeys , target );
+		this.cancelDefense( partyMap.get( myKeys ) , myKeys );
 	}
-	
 	
 	//敵への全体魔法が選択された場合の事前処理
 	public void selectionMonsterMagic( Integer myKeys , Magic magic ) {
-		
 		Target target = new Target( monsterDataMap , targetListEnemy , myKeys ,  magic );
 		targetMap.put( myKeys , target );
+		this.cancelDefense( partyMap.get( myKeys ) , myKeys );
 	}
 	
-	
-	//---改修予定-----
-	
-	//防御を選択(状態異常として処理予定)
+	//防御を選択
 	public void selectionDefense( Integer myKeys ) {
 		Target target = new Target( myKeys , "防御" );
 		targetMap.put( myKeys , target );
-		this.defenseList.add( myKeys );
+		this.choiceDefense( partyMap.get( myKeys ) , myKeys );
 	}
 	
-	
-	//防御行動のリセット(状態異常として処理予定)
-	public void selectionDefenseAfter() {
-		
-		for( int i = 0 ; i < defenseList.size(); i++ ) {
-			int index = defenseList.get( i );
-			AllyData allyData = partyMap.get( index );
-			Integer def = allyData.getCurrentDEF();
-			if( def > 0 ) {
-				def = def / 2 ;
-			}
-			allyData.setCurrentDEF( def );
-		}
-		defenseList.clear();
-	}
+	//--------------------------------------------------------------------------------------
 	
 	
-	//-----ここまで----
-	
-	
-
 	
 	//行動順を決定
 	public void turn() {
@@ -183,37 +160,19 @@ public class Battle {
 	}
 	
 	
-	//戦闘開始
+	
+	//------------------------------------------------------------------------------
+	//----------------------------------戦闘開始------------------------------------
+	//------------------------------------------------------------------------------
 	public void startBattle() {
-		
-		//防御選択者の処理 → 暫定処置 → 改修予定
-		if( defenseList.size() > 0 ) {
-			for( int i = 0 ; i < defenseList.size(); i++ ) {
-				int index = defenseList.get( i );
-				AllyData allyData = partyMap.get( index );
-				Integer def = allyData.getCurrentDEF();
-				if( def == 0 ) {
-					def = 10;
-				}else {
-					def *= 2;
-				}
-				allyData.setCurrentDEF( def );
-			}
-		}
-		
-		
 		//敵味方が入り乱れて素早さ順に行動
         for( Entry<Integer, Integer> entry : turnList ) {
-        	
         	//ターン中に敵か味方のいずれかが全滅している場合は、戦闘を終了させる。
         	if( targetListEnemy.size() == 0 || targetListAlly.size() == 0 ) {
         		break;
         	}
-        	
         	//行動するキャラの座標を抽出
             int key = entry.getKey();
-            
-            
             
             //----------------------------------------------------
             //------------------味方側の処理----------------------
@@ -223,8 +182,7 @@ public class Battle {
     			AllyData allyData = partyMap.get( key );
     			Integer  target	  = targetMap.get( key ).getSelectionId();
     			String   movementPattern = targetMap.get( key ).getCategory();
-    			
-    			
+
     			//ターン中に死亡している場合は、処理を中断
     			if( allyData.getSurvival() == 0 ) {
     				continue;
@@ -427,7 +385,7 @@ public class Battle {
 				
 				
 	        //----------------------------------------------------
-	        //------------------敵側の処理----------------------
+	        //------------------敵側の処理------------------------
 	        //----------------------------------------------------
             }else{
     			MonsterData monsterData = monsterDataMap.get( key );
@@ -515,6 +473,7 @@ public class Battle {
     		}
         }
 	}
+	//-----------------------------------------------------------------------------------------------------------------------
 	
 	
 	//攻撃魔法の処理メソッド
@@ -585,6 +544,36 @@ public class Battle {
 	}
 	
 	
+	//防御選択時の処理
+	public void choiceDefense( AllyData allyData , Integer key ) {
+		Set<Status> statusSet = allyData.getStatusSet()
+				.stream()
+				.filter( s -> !s.getName().equals( "正常" ) )
+				.collect( Collectors.toSet() );
+		
+		statusSet.add( new Defense( allyData ) );
+		allyData.setStatusSet( statusSet );
+		partyMap.put( key , allyData );
+	}
+	
+	
+	//防御解除の処理
+	public void cancelDefense( AllyData allyData , Integer key ) {
+		Set<Status> statusSet = allyData.getStatusSet()
+				.stream()
+				.filter( s -> !s.getName().equals( "防御" ) )
+				.collect( Collectors.toSet() );
+		
+		//状態異常中でなければ正常状態へ戻す。
+		if( statusSet.size() == 0 ) {
+			statusSet.add( new Normal() );
+		}
+		
+		allyData.setStatusSet( statusSet );
+		partyMap.put( key , allyData );
+	}
+	
+	
 	//行動不能系のステータス異常の処理（行動前処理）
 	public Integer badStatusBefore( AllyData allyData , Integer key ) {
 		
@@ -623,19 +612,26 @@ public class Battle {
 		//自然治癒メッセージをセット
 		allyData.getStatusSet().stream()
 		.filter( s -> s.getCount() == 0 )
+		.filter( s -> !s.statusMessageAfter().equals( "no" ) )
 		.forEach( s -> this.mesageList.add( s.recoverymessage() ));
 		
+		//状態異常がすべて完治した場合は、正常状態へ戻す。
 		if( statusSet.size() == 0 ) {
 			statusSet.add( new Normal() );
 		}
 		
+		//聖なる守りの効果を元に戻す。
 		if( statusSet.stream().filter( s -> s.getName().equals( "聖なる守り" )).count() == 0 ) {
 			allyData.setSurvival( 1 );
 		}
 		
+		//状態異常によるダメージを累計
 		Integer result = damageList.stream().collect( Collectors.summingInt( s -> s ) );
+		
+		//ダメージ計算処理
 		Integer HP = allyData.getCurrentHp() - result;
 		
+		//結果を反映
 		if( HP <= 0 ) {
 			allyData.setCurrentHp( 0 );
 			allyData.setSurvival( 0 );
@@ -649,6 +645,8 @@ public class Battle {
 			allyData.setCurrentHp( HP );
 			allyData.setStatusSet( statusSet );
 		}
+		
+		//結果を格納
 		partyMap.put( key , allyData );
 	}
 	
