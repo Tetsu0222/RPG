@@ -22,29 +22,6 @@ public class Action {
 	
 	Random random = new Random();
 	
-	//攻撃魔法
-	public MonsterData actionAttackMagic( AllyData allyData , MonsterData monsterData , Magic magic ) {
-		
-		//魔法威力 + 乱数 = ダメージ
-		Integer damage = magic.getPoint() + ( random.nextInt( magic.getPoint() ) / 4 ) - random.nextInt( magic.getPoint() / 4 );
-			
-		if( damage < 0 ) {
-			damage = 0;
-		}
-			
-		Integer HP = monsterData.getCurrentHp() - damage;
-		this.damageMessage = damage + "のダメージを与えた!!";
-			
-		if( HP < 0 ) {
-			monsterData.setCurrentHp( 0 );
-		}else{
-			monsterData.setCurrentHp( HP );
-		}
-		
-		return monsterData;
-	}
-	
-	
 	//味方への補助魔法
 	public AllyData actionBuffmagicMagic( AllyData allyData , AllyData receptionAllyData , Magic magic ) {
 		

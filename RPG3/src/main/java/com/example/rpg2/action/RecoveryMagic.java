@@ -19,13 +19,14 @@ public class RecoveryMagic {
 	private Magic    magic;
 	
 	
+	//コンストラクタ 必要な情報を設定
 	public RecoveryMagic( AllyData allyData , Magic magic ) {
 		this.allyData = allyData;
 		this.magic = magic;
 		this.stratMessage =  allyData.getName() + "は" + magic.getName() + "を放った!!";
 	}
 	
-	
+	//MP判定
 	public boolean isNotEnoughMp() {
 		boolean check = magic.getMp() > allyData.getCurrentMp();
 		

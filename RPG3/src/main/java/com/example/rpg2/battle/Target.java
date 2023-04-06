@@ -28,6 +28,7 @@ public class Target {
 		this.selectionId   = key;
 		this.executionId   = myKeys;
 		this.category	   = "attack";
+		this.executionMagic  = null;
 		this.targetListEnemy = null;
 		this.targetListAlly  = null;
 		
