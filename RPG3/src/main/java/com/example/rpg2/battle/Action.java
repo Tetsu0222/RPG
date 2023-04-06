@@ -1,11 +1,8 @@
 package com.example.rpg2.battle;
 
 import java.util.Random;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import com.example.rpg2.entity.Magic;
-import com.example.rpg2.status.Status;
 
 import lombok.Data;
 
@@ -19,34 +16,6 @@ public class Action {
 	private String  buffMessage;
 	
 	Random random = new Random();
-	
-	
-	//味方への蘇生魔法
-	public AllyData actionResuscitationMagic( AllyData allyData , AllyData receptionAllyData , Magic magic ) {
-		
-		if( magic.getPercentage() == 1 ) {
-			int HP = receptionAllyData.getMaxHP();
-			receptionAllyData.setCurrentHp( HP );
-			receptionAllyData.resuscitation();
-			this.recoveryMessage = "完全に生き返った!!";
-			
-		}else{
-			
-			//蘇生判定処理
-			int judgement = random.nextInt( 3 );
-			if( judgement > 0 ) {
-				int HP = receptionAllyData.getMaxHP() / 2;
-				receptionAllyData.setCurrentHp( HP );
-				receptionAllyData.resuscitation();
-				this.recoveryMessage = "生き返った!!";
-			}else{
-				this.recoveryMessage = "生き返らなかった･･･";
-			}
-		}
-		
-		return receptionAllyData;
-		
-	}
 	
 	
 	//妨害魔法
@@ -95,16 +64,4 @@ public class Action {
 		//明示的に何も処理しない。
 	}
 	
-	//正常からへバフ状態（期限付き）へ変化
-	public Set<Status> goodStatus( AllyData receptionAllyData ){
-		
-		Set<Status> statusSet = receptionAllyData.getStatusSet()
-				.stream()
-				.filter( s -> !s.getName().equals( "正常" ) )
-				.collect( Collectors.toSet() );
-		
-		return statusSet;
-	}
-	
-
 }

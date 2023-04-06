@@ -333,12 +333,12 @@ public class PublicController {
 		battle.startBattle();
 		
 		//戦闘終了判定
-		if( battle.getTargetListAlly().size() == 0 ) {
+		if( battle.getTargetSetAlly().size() == 0 ) {
 			session.invalidate();
 			battle.getMesageList().add( "全滅してしまった…" );
 			session.setAttribute( "battle" , battle );
 			session.setAttribute( "mode" , "result" );
-		}else if( battle.getTargetListEnemy().size() == 0 ) {
+		}else if( battle.getTargetSetEnemy().size() == 0 ) {
 			session.invalidate();
 			battle.getMesageList().add( "戦いに勝利した!!!" );
 			session.setAttribute( "battle" , battle );

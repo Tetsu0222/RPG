@@ -25,14 +25,12 @@ public class Attack implements TaregetEnemyAction{
 	
 	public Attack( AllyData allyData ) {
 		this.allyData = allyData;
+		this.stratMessage =  allyData.getName() + "の攻撃!!!";
 	}
 
 	//通常攻撃
 	@Override
 	public MonsterData action( MonsterData monsterData ) {
-		
-		
-		this.stratMessage =  allyData.getName() + "の攻撃!!!";
 		
 		//会心の発生率設定
 		Random random = new Random();

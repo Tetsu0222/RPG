@@ -47,10 +47,11 @@ public class RecoveryMagic implements TargetAllyAction {
 	//味方への回復魔法
 	public AllyData action( AllyData receptionAllyData ) {
 		
-		String category = magic.getBuffcategory();
+		String buffCategory = magic.getBuffcategory();
+		String category     = magic.getCategory();
 		
 		//通常の回復魔法
-		if( category.equals( "no" )) {
+		if( buffCategory.equals( "no" ) && category.equals( "recoverymagic" ) ) {
 		
 			Random random = new Random();
 			
@@ -75,7 +76,7 @@ public class RecoveryMagic implements TargetAllyAction {
 			}
 		
 		//毒を治す魔法
-		}else if( category.equals( "poison" ) ) {
+		}else if( buffCategory.equals( "poison" ) ) {
 			
 			//対象キャラクターの状態異常を取得
 			Set<Status> statusSet = receptionAllyData.getStatusSet();
@@ -90,7 +91,7 @@ public class RecoveryMagic implements TargetAllyAction {
 			if( sts == 1 && size == 1 ) {
 				statusSet.clear();
 				statusSet.add( new Normal() );
-				this.resultMessage = "の毒が治った!!";
+				this.resultMessage = receptionAllyData.getName() + "の毒が治った!!";
 				
 			//状態異常が毒以外にもある。
 			}else if( sts == 1 && size > 1 ) {
@@ -98,14 +99,47 @@ public class RecoveryMagic implements TargetAllyAction {
 						.stream()
 						.filter( s -> !s.getName().equals( "毒" ) )
 						.collect( Collectors.toSet() );
-				this.resultMessage = "の毒が治った!!";
+				this.resultMessage = receptionAllyData.getName() + "の毒が治った!!";
 				
 			//毒状態ではない。
 			}else{
-				this.resultMessage = "に効果はなかった…";
+				this.resultMessage = receptionAllyData.getName() + "に効果はなかった…";
 			}
 			
 			receptionAllyData.setStatusSet( statusSet );
+			
+		//蘇生魔法
+		}else{
+			
+			//確定蘇生魔法
+			if( magic.getPercentage() == 1 ) {
+				int HP = receptionAllyData.getMaxHP();
+				receptionAllyData.setCurrentHp( HP );
+				receptionAllyData.resuscitation();
+				this.recoveryMessage = receptionAllyData.getName() + "は完全に生き返った!!";
+			
+			//確率蘇生魔法
+			}else{
+
+				//蘇生判定処理
+				Random random = new Random();
+				int judgement = random.nextInt( 3 );
+				
+				//蘇生成功
+				if( judgement > 0 ) {
+					int HP = receptionAllyData.getMaxHP() / 2;
+					receptionAllyData.setCurrentHp( HP );
+					
+					//その他の蘇生処理はキャラクターデータのオブジェクト内で実行
+					receptionAllyData.resuscitation();
+					this.recoveryMessage = receptionAllyData.getName() + "は生き返った!!";
+				
+				//蘇生失敗
+				}else{
+					this.recoveryMessage = receptionAllyData.getName() + "は生き返らなかった･･･";
+				}
+			}
+			
 		}
 		
 		return receptionAllyData;

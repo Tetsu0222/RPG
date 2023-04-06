@@ -1,8 +1,8 @@
 package com.example.rpg2.battle;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 import com.example.rpg2.entity.Magic;
 
@@ -17,8 +17,8 @@ public class Target {
 	private Integer selectionId;
 	private String  category;
 	private Magic   executionMagic;
-	private List<Integer> targetListEnemy = new ArrayList<>();
-	private List<Integer> targetListAlly  = new ArrayList<>();
+	private Set<Integer> targetSetEnemy = new TreeSet<>();
+	private Set<Integer> targetSetAlly  = new TreeSet<>();
 
 	//通常攻撃
 	public Target( MonsterData monsterData , Integer myKeys , Integer key ) {
@@ -29,8 +29,8 @@ public class Target {
 		this.executionId   = myKeys;
 		this.category	   = "attack";
 		this.executionMagic  = null;
-		this.targetListEnemy = null;
-		this.targetListAlly  = null;
+		this.targetSetEnemy = null;
+		this.targetSetAlly  = null;
 		
 	}
 	
@@ -43,20 +43,20 @@ public class Target {
 		this.executionId    = myKeys;
 		this.category	    = magic.getCategory();
 		this.executionMagic = magic;
-		this.targetListEnemy = null;
-		this.targetListAlly  = null;
+		this.targetSetEnemy = null;
+		this.targetSetAlly  = null;
 	}
 	
 	//味方への全体魔法
-	public Target( Map<Integer,AllyData> partyMap , List<Integer> targetListAlly , Integer myKeys , Magic magic , int i ) {
+	public Target( Map<Integer,AllyData> partyMap , Set<Integer> targetSetAlly , Integer myKeys , Magic magic , int i ) {
 		
 		this.skillName      = magic.getName();
 		this.selectionName  = "味方全体";
 		this.executionId    = myKeys;
 		this.category	    = magic.getCategory();
 		this.executionMagic = magic;
-		this.targetListEnemy = null;
-		this.targetListAlly  = targetListAlly;
+		this.targetSetEnemy = null;
+		this.targetSetAlly  = targetSetAlly;
 	}
 	
 	//攻撃魔法
@@ -68,20 +68,20 @@ public class Target {
 		this.executionId    = myKeys;
 		this.category	    = magic.getCategory();
 		this.executionMagic = magic;
-		this.targetListEnemy = null;
-		this.targetListAlly  = null;
+		this.targetSetEnemy = null;
+		this.targetSetAlly  = null;
 	}
 	
 	//全体攻撃魔法
-	public Target( Map<Integer,MonsterData> monsterDataMap , List<Integer> targetListEnemy , Integer myKeys , Magic magic ) {
+	public Target( Map<Integer,MonsterData> monsterDataMap , Set<Integer> targetSetEnemy , Integer myKeys , Magic magic ) {
 		
 		this.skillName      = magic.getName();
 		this.selectionName  = "敵全体";
 		this.executionId    = myKeys;
 		this.category	    = magic.getCategory();
 		this.executionMagic = magic;
-		this.targetListEnemy = targetListEnemy;
-		this.targetListAlly  = null;
+		this.targetSetEnemy = targetSetEnemy;
+		this.targetSetAlly  = null;
 	}
 	
 	//防御選択時の処理
@@ -92,8 +92,8 @@ public class Target {
 		this.selectionId   = 0;
 		this.executionId   = myKeys;
 		this.category	   = "unable";
-		this.targetListEnemy = null;
-		this.targetListAlly  = null;
+		this.targetSetEnemy = null;
+		this.targetSetAlly  = null;
 	}
 	
 	//死亡時
@@ -104,8 +104,8 @@ public class Target {
 		this.selectionId   = 0;
 		this.executionId   = myKeys;
 		this.category	   = "unable";
-		this.targetListEnemy = null;
-		this.targetListAlly  = null;
+		this.targetSetEnemy = null;
+		this.targetSetAlly  = null;
 	}
 
 }

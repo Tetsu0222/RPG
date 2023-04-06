@@ -1,5 +1,6 @@
 package com.example.rpg2.battle;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -48,7 +49,9 @@ public class EnemyAction {
 	
 	
 	//単体攻撃を処理
-	public AllyData attackSkillSingle( Map<Integer,AllyData> partyMap , List<Integer> targetList ) {
+	public AllyData attackSkillSingle( Map<Integer,AllyData> partyMap , Set<Integer> targetSet ) {
+		
+		List<Integer> targetList = new ArrayList<Integer>( targetSet );
 		
 		//攻撃する相手を乱数で決定
 		Integer target = random.nextInt( targetList.size() );
