@@ -57,7 +57,7 @@ public class BadStatusAfter {
 		//自然治癒メッセージをセット
 		allyData.getStatusSet().stream()
 		.filter( s -> s.getCount() == 0 )
-		.filter( s -> !s.statusMessageAfter().equals( "no" ) )
+		.filter( s -> !s.recoverymessage().equals( "no" ) )
 		.map( s -> s.recoverymessage() )
 		.forEach( s -> recoveryMessage = s );
 		
@@ -70,6 +70,9 @@ public class BadStatusAfter {
 		if( statusSet.stream().filter( s -> s.getName().equals( "聖なる守り" )).count() == 0 ) {
 			allyData.setSurvival( 1 );
 		}
+		
+		//状態異常の処理結果を格納
+		allyData.setStatusSet( statusSet );
 		
 		//状態異常によるダメージを累計
 		Integer result = damageList.stream().collect( Collectors.summingInt( s -> s ) );
@@ -122,7 +125,7 @@ public class BadStatusAfter {
 		//自然治癒メッセージをセット
 		monsterData.getStatusSet().stream()
 		.filter( s -> s.getCount() == 0 )
-		.filter( s -> !s.statusMessageAfter().equals( "no" ) )
+		.filter( s -> !s.recoverymessage().equals( "no" ) )
 		.map( s -> s.recoverymessage() )
 		.forEach( s -> recoveryMessage = s );
 		
@@ -135,6 +138,10 @@ public class BadStatusAfter {
 		if( statusSet.stream().filter( s -> s.getName().equals( "聖なる守り" )).count() == 0 ) {
 			monsterData.setSurvival( 1 );
 		}
+		
+		//状態異常の処理結果を格納
+		monsterData.setStatusSet( statusSet );
+		
 		
 		//状態異常によるダメージを累計
 		Integer result = damageList.stream().collect( Collectors.summingInt( s -> s ) );

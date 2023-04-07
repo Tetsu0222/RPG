@@ -300,10 +300,6 @@ public class Battle {
 				//行動終了後に作用する状態異常の処理
 				this.badStatusAfter( allyData, key );
 				
-				//行動毎に改行を挿入
-				this.mesageList.add( "" );
-				
-				
 	        //----------------------------------------------------
 	        //------------------敵側の処理------------------------
 	        //----------------------------------------------------
@@ -381,9 +377,7 @@ public class Battle {
 		    		}
 	    			
 	    			this.badStatusAfter( monsterData , key );
-	    			
-	    			//行動毎に改行を挿入
-					this.mesageList.add( "" );
+
     			}
     		}
         }
@@ -592,6 +586,11 @@ public class Battle {
 		this.targetSetAlly = badStatusAfter.getTargetSetAlly();
 		this.targetMap     = badStatusAfter.getTargetMap();
 		
+		//自然治癒メッセージを追加
+		if( badStatusAfter.getRecoveryMessage() != null ) {
+			this.mesageList.add( badStatusAfter.getRecoveryMessage() );
+		}
+		
 		//状態異常ダメージで死亡した場合は、そのメッセージを追加
 		if( badStatusAfter.getResultMessage() != null ) {
 			this.mesageList.add( badStatusAfter.getResultMessage() );
@@ -605,10 +604,16 @@ public class Battle {
 		this.monsterDataMap = badStatusAfter.execution( monsterDataMap , monsterData , key );
 		this.targetSetEnemy = badStatusAfter.getTargetSetEnemy();
 		
+		//自然治癒メッセージを追加
+		if( badStatusAfter.getRecoveryMessage() != null ) {
+			this.mesageList.add( badStatusAfter.getRecoveryMessage() );
+		}
+		
 		//状態異常ダメージで死亡した場合は、そのメッセージを追加
 		if( badStatusAfter.getResultMessage() != null ) {
 			this.mesageList.add( badStatusAfter.getResultMessage() );
 		}
+		
 	}
 	
 	
