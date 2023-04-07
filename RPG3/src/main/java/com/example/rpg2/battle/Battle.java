@@ -15,7 +15,6 @@ import java.util.stream.IntStream;
 
 import com.example.rpg2.action.Attack;
 import com.example.rpg2.action.BuffMagic;
-import com.example.rpg2.action.DeBuffMagic;
 import com.example.rpg2.action.MagicAttack;
 import com.example.rpg2.action.RecoveryMagic;
 import com.example.rpg2.action.TaregetEnemyAction;
@@ -238,7 +237,7 @@ public class Battle {
 					}
 				
 					
-				//攻撃魔法の処理
+				//攻撃・妨害魔法の処理
 				}else if( movementPattern.equals( "attackmagic" )) {
 					
 					//攻撃魔法を生成
@@ -307,31 +306,6 @@ public class Battle {
 						//単体蘇生魔法の処理
 						}else{
 							this.resuscitationMagicExecution( recoveryMagic , target , key );
-						}
-					}
-					
-					
-				//妨害の処理(攻撃魔法の処理と合体させる予定)
-				}else if( movementPattern.equals( "debuffmagic" )) {
-					
-					//妨害魔法を生成
-					TaregetEnemyAction deBuffMagic = new DeBuffMagic( allyData , targetMap.get( key ).getExecutionMagic()  );
-					this.mesageList.add( deBuffMagic.getStratMessage() );
-					
-					//MP判定 MPが足りないとtureが返る。
-					if( deBuffMagic.isNotEnoughMp() ){
-						this.mesageList.add( deBuffMagic.getNotEnoughMpMessage() );
-						
-					//MP判定OK
-					}else{
-						
-						//全体妨害魔法の処理
-						if( targetMap.get( key ).getTargetSetEnemy() != null ) {
-							this.generalAttack( deBuffMagic , key );
-							
-						//単体妨害魔法の処理
-						}else{
-							this.singleAttack( deBuffMagic , target , key );
 						}
 					}
 				}

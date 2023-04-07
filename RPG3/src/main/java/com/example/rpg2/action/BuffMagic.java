@@ -31,13 +31,13 @@ public class BuffMagic implements TargetAllyAction{
 	
 	//MP判定
 	public boolean isNotEnoughMp() {
-		boolean check = magic.getMp() > allyData.getCurrentMp();
+		boolean check = magic.getMp() <= allyData.getCurrentMp();
 		
-		if( check ) {
+		if( !check ) {
 			this.notEnoughMpMessage = "しかしMPが足りない･･･" ;
 		}
 		
-		return check;
+		return !check;
 	}
 	
 	//味方への補助魔法
@@ -56,7 +56,7 @@ public class BuffMagic implements TargetAllyAction{
 			
 			//上限未達
 			}else{
-				double buffPoint = magic.getPercentage() + 1.2 ;
+				double buffPoint = magic.getPercentage();
 				def = def * buffPoint;
 				
 				//補正値が上限を上回らないように再分岐

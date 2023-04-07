@@ -33,13 +33,13 @@ public class RecoveryMagic implements TargetAllyAction {
 	
 	//MP判定
 	public boolean isNotEnoughMp() {
-		boolean check = magic.getMp() > allyData.getCurrentMp();
+		boolean check = magic.getMp() <= allyData.getCurrentMp();
 		
-		if( check ) {
+		if( !check ) {
 			this.notEnoughMpMessage = "しかしMPが足りない･･･" ;
 		}
 		
-		return check;
+		return !check;
 	}
 	
 	

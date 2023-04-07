@@ -29,14 +29,15 @@ public class MagicAttack implements TaregetEnemyAction{
 	}
 	
 	
+	//MP判定
 	public boolean isNotEnoughMp() {
-		boolean check = magic.getMp() > allyData.getCurrentMp();
+		boolean check = magic.getMp() <= allyData.getCurrentMp();
 		
-		if( check ) {
+		if( !check ) {
 			this.notEnoughMpMessage = "しかしMPが足りない･･･" ;
 		}
 		
-		return check;
+		return !check;
 	}
 	
 	//攻撃魔法
@@ -45,22 +46,41 @@ public class MagicAttack implements TaregetEnemyAction{
 		
 		Random random = new Random();
 		
-		//魔法威力 + 乱数 = ダメージ
-		Integer damage = magic.getPoint() + ( random.nextInt( magic.getPoint() ) / 4 ) - random.nextInt( magic.getPoint() / 4 );
+		//妨害魔法の処理
+		if( !magic.getBuffcategory().equals( "no" )) {
 			
-		if( damage < 0 ) {
-			damage = 0;
+			//妨害魔法を生成
+			TaregetEnemyAction deBuffMagic = new DeBuffMagic( allyData , magic  );
+			monsterData = deBuffMagic.action( monsterData );
+			
+			//妨害魔法の結果を取得
+			this.resultMessage = deBuffMagic.getResultMessage();
+			
 		}
+		
+		//攻撃魔法の処理
+		if( magic.getPoint() != 0 ) {
 			
-		Integer HP = monsterData.getCurrentHp() - damage;
-		this.damageMessage = monsterData.getName() + "に" + damage + "のダメージを与えた!!";
+			//魔法威力 + 乱数 = ダメージ
+			Integer damage = magic.getPoint() + ( random.nextInt( magic.getPoint() ) / 4 ) - random.nextInt( magic.getPoint() / 4 );
+				
+			if( damage < 0 ) {
+				damage = 0;
+			}
+				
+			Integer HP = monsterData.getCurrentHp() - damage;
+			this.damageMessage = monsterData.getName() + "に" + damage + "のダメージを与えた!!";
 			
-		if( HP <= 0 ) {
-			monsterData.setCurrentHp( 0 );
-			monsterData.setSurvival( 0 );
-			this.resultMessage = monsterData.getName() + "を倒した!!";
-		}else{
-			monsterData.setCurrentHp( HP );
+			//対象が戦闘不能の場合の処理
+			if( HP <= 0 ) {
+				monsterData.setCurrentHp( 0 );
+				monsterData.setSurvival( 0 );
+				this.resultMessage = monsterData.getName() + "を倒した!!";
+			
+			//対象が生存している場合の処理
+			}else{
+				monsterData.setCurrentHp( HP );
+			}
 		}
 		
 		return monsterData;

@@ -27,18 +27,19 @@ public class DeBuffMagic implements TaregetEnemyAction{
 	}
 	
 	
+	//MP判定
 	public boolean isNotEnoughMp() {
-		boolean check = magic.getMp() > allyData.getCurrentMp();
+		boolean check = magic.getMp() <= allyData.getCurrentMp();
 		
-		if( check ) {
+		if( !check ) {
 			this.notEnoughMpMessage = "しかしMPが足りない･･･" ;
 		}
 		
-		return check;
+		return !check;
 	}
 	
 	
-	//妨害魔法(状態異常とダメージを一緒に処理する攻撃が想定されるため、攻撃魔法のクラスと合体させる予定)
+	//妨害魔法
 	@Override
 	public MonsterData action( MonsterData monsterData ) {
 		
