@@ -163,7 +163,8 @@ public class PublicController {
 		//発動可能な魔法一覧を表示
 		List<Magic> magicList = battle.getPartyMap().get( key ).getMagicList();
 		List<Magic> magicListA = magicList.stream()
-				.filter( s -> s.getCategory().equals( "attackmagic" ))
+				.filter( s -> s.getCategory().equals( "targetenemy" ))
+				.filter( s -> s.getBuffcategory().equals( "no" ) )
 				.collect( Collectors.toList() );
 
 		mv.addObject( "magicList" , magicListA );
@@ -187,7 +188,8 @@ public class PublicController {
 		//発動可能な魔法一覧を表示
 		List<Magic> magicList = battle.getPartyMap().get( key ).getMagicList();
 		List<Magic> magicListR = magicList.stream()
-				.filter( s -> s.getCategory().equals( "recoverymagic" ) || s.getCategory().equals( "resuscitationmagic" ) )
+				.filter( s -> s.getCategory().equals( "targetally" ) || s.getCategory().equals( "resuscitationmagic" ) )
+				.filter( s -> s.getBuffcategory().equals( "no" ) )
 				.collect( Collectors.toList() );
 
 		mv.addObject( "magicList" , magicListR );
@@ -211,10 +213,37 @@ public class PublicController {
 		//発動可能な魔法一覧を表示
 		List<Magic> magicList = battle.getPartyMap().get( key ).getMagicList();
 		List<Magic> magicListB = magicList.stream()
-				.filter( s -> s.getCategory().equals( "buffmagic" ) || s.getCategory().equals( "debuffmagic" ) )
+				.filter( s -> s.getCategory().equals( "targetally" ) )
+				.filter( s -> !s.getBuffcategory().equals( "no" ) )
 				.collect( Collectors.toList() );
 
 		mv.addObject( "magicList" , magicListB );
+		mv.addObject( "key" , myKeys );
+		session.setAttribute( "mode" , "magic" );
+		
+		return mv;
+		
+	}
+	
+	
+	//妨害魔法の選択画面を表示
+	@GetMapping( "/magic/debuff/{key}" )
+	public ModelAndView magicD( @PathVariable( name = "key" ) int key ,
+								ModelAndView mv ) {
+		
+		mv.setViewName( "battle" );
+		Battle battle = (Battle)session.getAttribute( "battle" );
+		
+		myKeys = key;
+		
+		//発動可能な魔法一覧を表示
+		List<Magic> magicList = battle.getPartyMap().get( key ).getMagicList();
+		List<Magic> magicListA = magicList.stream()
+				.filter( s -> s.getCategory().equals( "targetenemy" ))
+				.filter( s -> !s.getBuffcategory().equals( "no" ) )
+				.collect( Collectors.toList() );
+
+		mv.addObject( "magicList" , magicListA );
 		mv.addObject( "key" , myKeys );
 		session.setAttribute( "mode" , "magic" );
 		
@@ -233,26 +262,23 @@ public class PublicController {
 		magic = magicRepository.findById( id ).get();
 		
 		//単体魔法かつ攻撃魔法と妨害魔法以外→対象選択の範囲を味方に指定
-		if( magic.getRange().equals( "single" ) && !magic.getCategory().equals( "attackmagic" ) && !magic.getCategory().equals( "debuffmagic" ) ) {
+		if( magic.getRange().equals( "single" ) && magic.getCategory().equals( "targetally" ) || magic.getCategory().equals( "resuscitationmagic" ) ) {
 			
 			//蘇生魔法以外
 			if( !magic.getCategory().equals( "resuscitationmagic" )) {
 				session.setAttribute( "mode" , "targetAllyMagic" );
+				
 			//蘇生魔法
 			}else{
 				session.setAttribute( "mode" , "targetDeathAllyMagic" );
 			}
 			
-		//単体魔法かつ攻撃魔法→対象選択の範囲を敵に指定
-		}else if( magic.getRange().equals( "single" ) && magic.getCategory().equals( "attackmagic" ) ) {
+		//単体魔法かつ攻撃・妨害魔法→対象選択の範囲を敵に指定
+		}else if( magic.getRange().equals( "single" ) && magic.getCategory().equals( "targetenemy" ) ) {
 			session.setAttribute( "mode" , "targetMonsterMagic" );
 		
-		//単体魔法かつ妨害魔法
-		}else if( magic.getRange().equals( "single" ) && magic.getCategory().equals( "debuffmagic" ) ) {
-			session.setAttribute( "mode" , "targetMonsterMagic" );
-			
 		//味方全体への魔法
-		}else if( !magic.getRange().equals( "single" ) && !magic.getCategory().equals( "attackmagic" ) && !magic.getCategory().equals( "debuffmagic" ) ) {
+		}else if( !magic.getRange().equals( "single" ) && magic.getCategory().equals( "targetally" ) ) {
 			battle.selectionAllyMagic( myKeys , magic );
 			session.setAttribute( "mode" , "log" );
 		

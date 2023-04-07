@@ -14,9 +14,9 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import com.example.rpg2.action.Attack;
-import com.example.rpg2.action.BuffMagic;
 import com.example.rpg2.action.MagicAttack;
 import com.example.rpg2.action.RecoveryMagic;
+import com.example.rpg2.action.ResuscitationMagic;
 import com.example.rpg2.action.TaregetEnemyAction;
 import com.example.rpg2.action.TargetAllyAction;
 import com.example.rpg2.entity.Magic;
@@ -214,8 +214,8 @@ public class Battle {
 					this.singleAttack( at,  target , key );
 					
 					
-				//回復魔法の処理
-				}else if( movementPattern.equals( "recoverymagic" )) {
+				//回復・補助魔法の処理
+				}else if( movementPattern.equals( "targetally" )) {
 					
 					//回復魔法を生成
 					TargetAllyAction recoveryMagic = new RecoveryMagic( allyData , targetMap.get( key ).getExecutionMagic()  );
@@ -238,7 +238,7 @@ public class Battle {
 				
 					
 				//攻撃・妨害魔法の処理
-				}else if( movementPattern.equals( "attackmagic" )) {
+				}else if( movementPattern.equals( "targetenemy" )) {
 					
 					//攻撃魔法を生成
 					TaregetEnemyAction magicAttack = new MagicAttack( allyData , targetMap.get( key ).getExecutionMagic()  );
@@ -260,52 +260,28 @@ public class Battle {
 							this.singleAttack( magicAttack , target , key );
 						}
 					}
-				
-					
-				//補助魔法の処理
-				}else if( movementPattern.equals( "buffmagic" )) {
-					
-					//補助魔法を生成
-					TargetAllyAction buffMagic = new BuffMagic( allyData , targetMap.get( key ).getExecutionMagic()  );
-					this.mesageList.add( buffMagic.getStratMessage() );
-					
-					//MP判定 MPが足りないとtureが返る。
-					if( buffMagic.isNotEnoughMp() ){
-						this.mesageList.add( buffMagic.getNotEnoughMpMessage() );
-					
-						//MP判定OK
-						}else{
-							//全体回復魔法の処理
-							if( targetMap.get( key ).getTargetSetAlly() != null ) {
-								this.generalSupport( buffMagic, key );
-							//単体回復魔法の処理
-							}else{
-								this.singleSupport( buffMagic , target , key );
-							}
-						}
-					
 					
 				//蘇生魔法の処理
 				}else if( movementPattern.equals( "resuscitationmagic" )) {
 					
 					//蘇生魔法を生成(回復魔法と同一オブジェクトにて処理)
-					TargetAllyAction recoveryMagic = new RecoveryMagic( allyData , targetMap.get( key ).getExecutionMagic()  );
-					this.mesageList.add( recoveryMagic.getStratMessage() );
+					TargetAllyAction resuscitationMagic = new ResuscitationMagic( allyData , targetMap.get( key ).getExecutionMagic()  );
+					this.mesageList.add( resuscitationMagic.getStratMessage() );
 					
 					//MP判定 MPが足りないとtureが返る。
-					if( recoveryMagic.isNotEnoughMp() ){
-						this.mesageList.add( recoveryMagic.getNotEnoughMpMessage() );
+					if( resuscitationMagic.isNotEnoughMp() ){
+						this.mesageList.add( resuscitationMagic.getNotEnoughMpMessage() );
 					
 					//MP判定OK
 					}else{
 						
 						//全体蘇生魔法の処理
 						if( targetMap.get( key ).getTargetSetEnemy() != null ) {
-							this.resuscitationMagicExecution( recoveryMagic , -1 , key );
+							this.resuscitationMagicExecution( resuscitationMagic , -1 , key );
 							
 						//単体蘇生魔法の処理
 						}else{
-							this.resuscitationMagicExecution( recoveryMagic , target , key );
+							this.resuscitationMagicExecution( resuscitationMagic , target , key );
 						}
 					}
 				}
@@ -472,7 +448,17 @@ public class Battle {
 		//回復・補助魔法の処理と結果の格納
 		receptionAllyData = targetAllyAction.action( partyMap.get( target ) );
 		partyMap.put( target , receptionAllyData );
-		this.mesageList.add( targetAllyAction.getRecoveryMessage() );
+		
+		//回復効果があれば表示に追加
+		if( targetAllyAction.getRecoveryMessage() != null ) {
+			this.mesageList.add( targetAllyAction.getRecoveryMessage() );
+		}
+		
+		//状態異常の治癒があれば結果に追加
+		if( targetAllyAction.getResultMessage() != null ) {
+			this.mesageList.add( targetAllyAction.getResultMessage() );
+		}
+		
 		
 		//MP消費処理
 		if( targetMap.get( key ).getExecutionMagic() != null ) {
@@ -523,7 +509,16 @@ public class Battle {
 		for( Integer target : targetSetAlly ) {
 			AllyData receptionAllyData = targetAllyAction.action( partyMap.get( target ) );
 			partyMap.put( target , receptionAllyData );
-			this.mesageList.add( targetAllyAction.getRecoveryMessage() );
+			
+			//回復効果があれば表示に追加
+			if( targetAllyAction.getRecoveryMessage() != null ) {
+				this.mesageList.add( targetAllyAction.getRecoveryMessage() );
+			}
+			
+			//状態異常の治癒があれば結果に追加
+			if( targetAllyAction.getResultMessage() != null ) {
+				this.mesageList.add( targetAllyAction.getResultMessage() );
+			}
 		}
 		
 		//MP消費処理
