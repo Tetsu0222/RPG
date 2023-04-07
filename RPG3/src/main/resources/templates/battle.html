@@ -17,6 +17,7 @@
 				<a th:text="${entry.value.name}"></a>
 				<!-- 以下はテスト処理のため表示 -->
 				<a th:text="${entry.value.currentHp}"></a>
+				<a th:text="${entry.value.currentATK}"></a>
 				<a th:text="${entry.value.currentDEF}"></a>
 			</div>
 		</h3>
@@ -80,6 +81,7 @@
 
 			</tr>
 		</table>
+		<!-- プレイヤーゾーンはここまで -->
 		
 		<!-- メッセージ表示エリア -->
 		<div th:if="${session.mode == 'log'}">
@@ -138,9 +140,11 @@
 				</form>
 			</table>
 		</div>
+		<!-- 魔法選択エリアはここまで -->
 		
-		<!-- 対象選択エリア -->
 		
+		
+		<!-- 行動対象選択エリア -->
 		<!-- 通常攻撃  -->
 		<div th:if="${session.mode == 'attackTargetMonster'}">
 			<table border="1">
@@ -203,7 +207,8 @@
 				</form>
 			</table>
 		</div>
-		<!-- 対象選択エリアはここまで -->
+		<!-- 行動対象選択エリアはここまで -->
+		
 		
 		
 		<!-- 戦闘開始ボタン -->

@@ -189,7 +189,7 @@ public class Battle {
     			Integer  target	  = targetMap.get( key ).getSelectionId();
     			String   movementPattern = targetMap.get( key ).getCategory();
 
-    			//ターン中に死亡している場合は、処理を中断
+    			//ターン中に死亡している場合は、処理を中断(カウンターなどを想定)
     			if( allyData.getSurvival() == 0 ) {
     				continue;
     			}
@@ -197,7 +197,7 @@ public class Battle {
 				//行動不能系の状態異常の所持数をチェック
     			Integer juds = this.badStatusBefore( allyData , key );
     			
-    			//行動不能系の状態異常が1つ以上あれば処理中断
+    			//行動不能と判定された状態異常が1つ以上あれば処理中断
     			if( juds > 0 ) {
     				this.badStatusAfter( allyData, key );
     				continue;
@@ -213,6 +213,7 @@ public class Battle {
 					//通常攻撃を実施
 					this.mesageList.add( at.getStratMessage() );
 					this.singleAttack( at,  target , key );
+					
 					
 				//回復魔法の処理
 				}else if( movementPattern.equals( "recoverymagic" )) {
@@ -335,6 +336,7 @@ public class Battle {
 					}
 				}
 				
+				//行動終了後に作用する状態異常の処理
 				this.badStatusAfter( allyData, key );
 				
 				
@@ -432,6 +434,12 @@ public class Battle {
 	}
 	//-----------------------------------------------------------------------------------------------------------------------
 	
+	
+	
+	
+	//-----------------------------------------------------------------------------------------------------------------------
+	//-----------------------------------------戦闘処理を補助するメソッド群--------------------------------------------------
+	//-----------------------------------------------------------------------------------------------------------------------
 	
 	//単体攻撃のメソッド
 	public void singleAttack( TaregetEnemyAction taregetEnemyAction , Integer target , Integer key ) {
@@ -551,6 +559,7 @@ public class Battle {
 		
 	}
 	
+	
 	//蘇生魔法の処理メソッド
 	public void resuscitationMagicExecution( TargetAllyAction targetAllyAction , Integer target , Integer key ) {
 		
@@ -596,8 +605,6 @@ public class Battle {
 		
 	}
 	
-	
-
 	
 	//行動不能系のステータス異常の処理（行動前処理）
 	public Integer badStatusBefore( AllyData allyData , Integer key ) {
