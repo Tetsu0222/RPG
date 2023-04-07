@@ -15,6 +15,7 @@ import java.util.stream.IntStream;
 
 import com.example.rpg2.action.Attack;
 import com.example.rpg2.action.BuffMagic;
+import com.example.rpg2.action.DeBuffMagic;
 import com.example.rpg2.action.MagicAttack;
 import com.example.rpg2.action.RecoveryMagic;
 import com.example.rpg2.action.TaregetEnemyAction;
@@ -184,7 +185,6 @@ public class Battle {
             //------------------味方側の処理----------------------
             //----------------------------------------------------
             if( partyMap.get( key ) != null ) {
-    			Action   action   = new Action();
     			AllyData allyData = partyMap.get( key );
     			Integer  target	  = targetMap.get( key ).getSelectionId();
     			String   movementPattern = targetMap.get( key ).getCategory();
@@ -310,28 +310,28 @@ public class Battle {
 					}
 					
 					
-				//妨害の処理(改修予定）
+				//妨害の処理(攻撃魔法の処理と合体させる予定)
 				}else if( movementPattern.equals( "debuffmagic" )) {
-					mesageList.add( allyData.getName() + "は" + targetMap.get( key ).getSkillName() + "を放った!!" );
-					//MP判定
-					if( targetMap.get( key ).getExecutionMagic().getMp() > allyData.getCurrentMp() ) {
-						action.noAction();
-						mesageList.add( "しかしMPが足りない･･･" );
-					}else{
-						//全体妨害の処理
-						if( targetMap.get( key ).getTargetSetEnemy() != null ) {
-							for( int i = 0 ; i < targetSetEnemy.size() ; i++ ) {
-								target = targetSetEnemy.stream().findAny().orElse( 0 );
-								this.debuffMagicMagicExecution( key , target , allyData , action );
-							}
-						//単体妨害の処理(対象死亡時のターゲット変更は、呼び出し先のメソッドで実施)
-						}else{
-							this.debuffMagicMagicExecution( key , target , allyData , action );
-						}
+					
+					//妨害魔法を生成
+					TaregetEnemyAction deBuffMagic = new DeBuffMagic( allyData , targetMap.get( key ).getExecutionMagic()  );
+					this.mesageList.add( deBuffMagic.getStratMessage() );
+					
+					//MP判定 MPが足りないとtureが返る。
+					if( deBuffMagic.isNotEnoughMp() ){
+						this.mesageList.add( deBuffMagic.getNotEnoughMpMessage() );
 						
-						//MP消費処理（別メソッド化予定）
-						allyData = action.consumptionMp( allyData , targetMap.get( key ).getExecutionMagic() );
-						partyMap.put( key , allyData );
+					//MP判定OK
+					}else{
+						
+						//全体妨害魔法の処理
+						if( targetMap.get( key ).getTargetSetEnemy() != null ) {
+							this.generalAttack( deBuffMagic , key );
+							
+						//単体妨害魔法の処理
+						}else{
+							this.singleAttack( deBuffMagic , target , key );
+						}
 					}
 				}
 				
@@ -448,7 +448,16 @@ public class Battle {
 		//攻撃処理と結果の格納
 		monsterData = taregetEnemyAction.action( monsterData );
 		monsterDataMap.put( target , monsterData );
-		this.mesageList.add( taregetEnemyAction.getDamageMessage() );
+		
+		//ダメージがあれば表示に追加
+		if( taregetEnemyAction.getDamageMessage() != null ) {
+			this.mesageList.add( taregetEnemyAction.getDamageMessage() );
+		}
+		
+		//状態異常が伴う場合か対象を倒した場合は、結果を表示に追加
+		if( taregetEnemyAction.getResultMessage() != null ) {
+			this.mesageList.add( taregetEnemyAction.getResultMessage() );
+		}
 		
 		//攻撃で対象を倒した場合の処理
 		if( monsterData.getCurrentHp() == 0 ) {
@@ -457,7 +466,6 @@ public class Battle {
         		target = targetSetEnemy.stream().findAny().orElseThrow();
 				this.selectionAttack( key , target );
         	}
-        	mesageList.add( taregetEnemyAction.getResultMessage() );
 		}
 		
 		//MP消費処理
@@ -495,22 +503,28 @@ public class Battle {
 	//全体攻撃のメソッド
 	public void generalAttack( TaregetEnemyAction taregetEnemyAction , Integer key ) {
 		
-		//targetを敵全体へ変更、攻撃魔法の処理結果を格納していく。
+		//targetを敵全体へ変更
 		for( Integer target : targetSetEnemy ) {
 			MonsterData monsterData = taregetEnemyAction.action( monsterDataMap.get( target ) );
 			this.monsterDataMap.put( target , monsterData );
-			this.mesageList.add( taregetEnemyAction.getDamageMessage() );
 			
-			//攻撃で対象を倒した場合の処理
-			if( monsterData.getCurrentHp() == 0 ) {
-	        	mesageList.add( taregetEnemyAction.getResultMessage() );
+			//ダメージがあれば表示に追加
+			if( taregetEnemyAction.getDamageMessage() != null ) {
+				this.mesageList.add( taregetEnemyAction.getDamageMessage() );
+			}
+			
+			//状態異常が伴う場合か対象を倒した場合は、結果を表示に追加
+			if( taregetEnemyAction.getResultMessage() != null ) {
+				this.mesageList.add( taregetEnemyAction.getResultMessage() );
 			}
 		}
 		
-		//敵対象の生存チェックと死亡処理
+		//全体攻撃後、敵対象の生存チェック
 		List<Integer> deathList = targetSetEnemy.stream()	//remove()の特性上、別リストへ置換
 						.filter( s -> monsterDataMap.get( s ).getSurvival() == 0 )
 						.collect( Collectors.toList() );
+		
+		//残存勢力のみに置換
 		deathList.stream().forEach( s -> targetSetEnemy.remove( s ) );
 		
 		//MP消費処理
@@ -583,24 +597,7 @@ public class Battle {
 	}
 	
 	
-	//妨害魔法の処理メソッド
-	public void debuffMagicMagicExecution( Integer key , Integer target , AllyData allyData , Action action ) {
-		
-		//対象者の情報を取得
-		MonsterData monsterData = monsterDataMap.get( target );
-		
-		//対象がターン中に死亡している場合は、別の生存対象へ処理対象を変更
-		if( monsterData.getSurvival() == 0 ) {
-			target = targetSetEnemy.stream().findAny().orElseThrow();
-			this.selectionMonsterMagic( key , target , targetMap.get( key ).getExecutionMagic() );
-		}
-		//処理後の対象者の情報を取得
-		monsterData = action.debuffMagicMagic( allyData , monsterDataMap.get( target )  , targetMap.get( key ).getExecutionMagic() );
-		monsterDataMap.put( target , monsterData );
-		mesageList.add( monsterData.getName() + "の" + action.getBuffMessage() );
-	}
-	
-	
+
 	
 	//行動不能系のステータス異常の処理（行動前処理）
 	public Integer badStatusBefore( AllyData allyData , Integer key ) {
