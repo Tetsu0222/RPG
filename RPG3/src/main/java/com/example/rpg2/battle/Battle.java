@@ -52,6 +52,9 @@ public class Battle {
 	//キーは敵味方混合、値は乱数補正後の素早さ。素早さ順で降順ソートしたリスト
 	private List<Entry<Integer, Integer>> turnList;
 	
+	//敵の行動を管理するオブジェクト
+	EnemyAction enemyAction;
+	
 	
 	//コンストラクタ
 	public Battle( List<AllyData> partyList , List<MonsterData> monsterDataList ) {
@@ -75,6 +78,14 @@ public class Battle {
 		//味方と敵の座標リストをそれぞれ生成(各マップのキー数字とリンク）
 		this.targetSetEnemy = new TreeSet<>( monsterDataMap.keySet() );
 		this.targetSetAlly  = new TreeSet<>( partyMap.keySet() );
+		
+		//敵の行動用オブジェクトを生成
+		this.enemyAction = new EnemyAction();
+		
+	}
+	
+	public Battle() {
+		
 	}
 	
 	
@@ -217,7 +228,7 @@ public class Battle {
 				//回復・補助魔法の処理
 				}else if( movementPattern.equals( "targetally" )) {
 					
-					//回復魔法を生成
+					//回復。補助魔法を生成
 					TargetAllyAction recoveryMagic = new RecoveryMagic( allyData , targetMap.get( key ).getExecutionMagic()  );
 					this.mesageList.add( recoveryMagic.getStratMessage() );
 					
@@ -240,7 +251,7 @@ public class Battle {
 				//攻撃・妨害魔法の処理
 				}else if( movementPattern.equals( "targetenemy" )) {
 					
-					//攻撃魔法を生成
+					//攻撃・妨害魔法を生成
 					TaregetEnemyAction magicAttack = new MagicAttack( allyData , targetMap.get( key ).getExecutionMagic()  );
 					this.mesageList.add( magicAttack.getStratMessage() );
 					
@@ -294,9 +305,14 @@ public class Battle {
 	        //------------------敵側の処理------------------------
 	        //----------------------------------------------------
             }else{
+            	
+            	//行動対象のモンスターのデータを生成
     			MonsterData monsterData = monsterDataMap.get( key );
     			
-    			//行動対象のモンスターの行動回数を設定
+				//味方のセットをリストへ変換
+				List<Integer> targetList = new ArrayList<Integer>( targetSetAlly );
+    			
+    			//モンスターの行動回数を設定
     			List<Integer> actionsList = monsterData.getActionsList();
     			int actions = actionsList.get( 0 );
     			
@@ -310,10 +326,10 @@ public class Battle {
     			//複数行動に対応
     			for( int a = 0 ; a < actions ; a++ ) {
     				
-	    			EnemyAction enemyAction = new EnemyAction();
+    				//モンスターの行動を決定
 	    			enemyAction.decision( monsterData );
 	    			
-	    			//ターン中に死亡してた場合は、行動処理を上書き。
+	    			//ターン中に死亡してた場合は、行動処理を上書き(カウンターや反射ダメージなどを想定）
 	    			if( monsterData.getSurvival() == 0 ) {
 	    				enemyAction.setRange( "death" );
 	    				enemyAction.setPattern( "death" );
@@ -327,46 +343,11 @@ public class Battle {
 	    			
 	    			//単体攻撃処理
 	    			if( enemyAction.getRange().equals( "single" )){
-	    				//単体攻撃を処理
-	    				AllyData allyData = enemyAction.attackSkillSingle( partyMap , targetSetAlly );
-	    				mesageList.add( enemyAction.getMessage() );
-	    				mesageList.add( enemyAction.getBattleMessage() );
-	    				if( enemyAction.getBuffMessage() != null ) {
-	    					mesageList.add( enemyAction.getBuffMessage() );
-	    				}
-	    				if( allyData.getSurvival() == 0 ) {
-	    					targetSetAlly.remove( enemyAction.getTargetId() );
-	    					targetMap.put( enemyAction.getTargetId() , new Target( enemyAction.getTargetId() ) );
-	    					partyMap.put( enemyAction.getTargetId() , allyData );
-	    					mesageList.add( enemyAction.getResultMessage() );
-	    				}else{
-	    					partyMap.put( enemyAction.getTargetId() , allyData );
-	    				}
-	    			
+	    				this.singleAttack( targetList );
+	    				
 	    			//全体攻撃を処理
 	    			}else if( enemyAction.getRange().equals( "whole" )){
-	    				
-	    				List<Integer> targetList = new ArrayList<Integer>( targetSetAlly );
-	    				
-						mesageList.add( monsterData.getName() +  enemyAction.getMessage() );
-						for( int j = 0 ; j < targetList.size() ; j++ ) {
-							int targetId = targetList.get( j );
-							AllyData allyData = enemyAction.attackSkillWhole( partyMap , targetId );
-							if( enemyAction.getBattleMessage() != null ) {
-								mesageList.add( enemyAction.getBattleMessage() );
-							}
-		    				if( enemyAction.getBuffMessage() != null ) {
-		    					mesageList.add( enemyAction.getBuffMessage() );
-		    				}
-							if( allyData.getSurvival() == 0 ) {
-								targetSetAlly.remove( enemyAction.getTargetId() );
-								targetMap.put( enemyAction.getTargetId() , new Target( enemyAction.getTargetId() ) );
-								partyMap.put( enemyAction.getTargetId() , allyData );
-								mesageList.add( enemyAction.getResultMessage() );
-							}else{
-								partyMap.put( enemyAction.getTargetId() , allyData );
-							}
-						}
+	    				this.wholeAttack( targetList );
 	
 		    		//ミス系
 		    		}else if( enemyAction.getPattern().equals( "miss" )){
@@ -374,7 +355,7 @@ public class Battle {
 		    			mesageList.add( monsterData.getName() + "の攻撃!!" );
 		    			mesageList.add( "しかし、攻撃は外れてしまった…" );
 		    			
-		    		//死亡時など
+		    		//死亡時
 		    		}else{
 		    			enemyAction.noAction();
 		    		}
@@ -382,11 +363,12 @@ public class Battle {
     		}
         }
 	}
+	
 	//-----------------------------------------------------------------------------------------------------------------------
 	
 	
 	
-	
+	//---------------------------------------------別クラスに分ける予定------------------------------------------------------
 	//-----------------------------------------------------------------------------------------------------------------------
 	//-----------------------------------------戦闘処理を補助するメソッド群--------------------------------------------------
 	//-----------------------------------------------------------------------------------------------------------------------
@@ -458,7 +440,6 @@ public class Battle {
 		if( targetAllyAction.getResultMessage() != null ) {
 			this.mesageList.add( targetAllyAction.getResultMessage() );
 		}
-		
 		
 		//MP消費処理
 		if( targetMap.get( key ).getExecutionMagic() != null ) {
@@ -689,6 +670,76 @@ public class Battle {
 		
 		allyData.setStatusSet( statusSet );
 		partyMap.put( key , allyData );
+	}
+	
+	
+	//敵の単体攻撃を処理するメソッド
+	public void singleAttack( List<Integer> targetList ) {
+		
+		//単体攻撃を処理
+		AllyData allyData = enemyAction.attackSkillSingle( partyMap , targetList );
+		
+		//行動開始のメッセージを追加
+		mesageList.add( enemyAction.getStartMessage() );
+		
+		//ダメージがあれば表示に追加
+		if( enemyAction.getBattleMessage() != null ) {
+			mesageList.add( enemyAction.getBattleMessage() );
+		}
+		
+		//状態異常があれば表示に追加
+		if( enemyAction.getBuffMessage() != null ) {
+			mesageList.add( enemyAction.getBuffMessage() );
+		}
+		
+		//攻撃で味方が倒れた場合の処理の処理結果を反映
+		if( allyData.getSurvival() == 0 ) {
+			targetSetAlly.remove( enemyAction.getTargetId() );
+			targetMap.put( enemyAction.getTargetId() , new Target( enemyAction.getTargetId() ) );
+			partyMap.put( enemyAction.getTargetId() , allyData );
+			mesageList.add( enemyAction.getResultMessage() );
+		
+		//行動の処理結果を反映
+		}else{
+			partyMap.put( enemyAction.getTargetId() , allyData );
+		}
+	}
+	
+	
+	//敵の全体攻撃を処理するメソッド
+	public void wholeAttack( List<Integer> targetList ) {
+		
+		//行動開始のメッセージを表示に追加
+		mesageList.add( enemyAction.getStartMessage() );
+		
+		//味方全体へ処理を繰り返す。
+		for( int j = 0 ; j < targetList.size() ; j++ ) {
+			
+			int targetId = targetList.get( j );
+			AllyData allyData = enemyAction.attackSkillWhole( partyMap , targetId );
+			
+			//ダメージがあれば表示に追加
+			if( enemyAction.getBattleMessage() != null ) {
+				mesageList.add( enemyAction.getBattleMessage() );
+			}
+			
+			//状態異常があれば表示に追加
+			if( enemyAction.getBuffMessage() != null ) {
+				mesageList.add( enemyAction.getBuffMessage() );
+			}
+			
+			//攻撃結果で味方が倒れた場合の処理とその結果の格納
+			if( allyData.getSurvival() == 0 ) {
+				targetSetAlly.remove( enemyAction.getTargetId() );
+				targetMap.put( enemyAction.getTargetId() , new Target( enemyAction.getTargetId() ) );
+				partyMap.put( enemyAction.getTargetId() , allyData );
+				mesageList.add( enemyAction.getResultMessage() );
+			
+			//処理結果を格納
+			}else{
+				partyMap.put( enemyAction.getTargetId() , allyData );
+			}
+		}
 	}
 	
 }

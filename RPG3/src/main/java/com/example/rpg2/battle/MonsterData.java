@@ -2,11 +2,15 @@ package com.example.rpg2.battle;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.example.rpg2.entity.Monster;
 import com.example.rpg2.entity.MonsterPattern;
 import com.example.rpg2.repository.MonsterPatternRepository;
+import com.example.rpg2.status.Normal;
+import com.example.rpg2.status.Status;
 
 import lombok.Data;
 
@@ -37,6 +41,9 @@ public class MonsterData {
 	
 	//モンスターの行動回数を格納
 	List<Integer> actionsList = new ArrayList<>();
+	
+	//状態異常を管理
+	Set<Status> statusSet = new HashSet<>();
 	
 	
 	public MonsterData( Monster monster , MonsterPatternRepository monsterPatternRepository ) {
@@ -76,6 +83,7 @@ public class MonsterData {
 		
 		//生存設定
 		this.survival = 1;
+		this.statusSet.add( new Normal() );
 	}
 	
 	
@@ -85,6 +93,7 @@ public class MonsterData {
 		this.currentATK = defaultATK;
 		this.currentDEF = defaultDEF;
 		this.currentSPE = defaultSPE;
+		this.statusSet.add( new Normal() );
 	}
 
 }

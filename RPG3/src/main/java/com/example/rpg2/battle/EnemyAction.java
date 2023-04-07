@@ -1,6 +1,5 @@
 package com.example.rpg2.battle;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -30,7 +29,7 @@ public class EnemyAction {
 
 	private Integer recovery;
 	private Integer damage  = 0;
-	private String  message ;
+	private String  startMessage ;
 	private String  battleMessage;
 	private String  buffMessage;
 	private String  resultMessage;
@@ -44,22 +43,17 @@ public class EnemyAction {
 		this.monsterPattern = monsterData.getPatternList().get( random.nextInt( monsterData.getPatternList().size() ) );
 		this.pattern = monsterPattern.getCategory();
 		this.range   = monsterPattern.getRange();
-		this.message = monsterPattern.getText();
+		this.startMessage = monsterData.getName() + monsterPattern.getText();
 	}
 	
 	
 	//単体攻撃を処理
-	public AllyData attackSkillSingle( Map<Integer,AllyData> partyMap , Set<Integer> targetSet ) {
-		
-		List<Integer> targetList = new ArrayList<Integer>( targetSet );
+	public AllyData attackSkillSingle( Map<Integer,AllyData> partyMap , List<Integer> targetList ) {
 		
 		//攻撃する相手を乱数で決定
 		Integer target = random.nextInt( targetList.size() );
-		this.targetId = targetList.get( target );
+		this.targetId  = targetList.get( target );
 		AllyData allyData = partyMap.get( targetId );
-		
-		//敵の攻撃方法をアナウンス
-		this.message = monsterData.getName() + monsterPattern.getText();
 		
 		//悪性ステータス異常
 		if( !monsterPattern.getBuffcategory().equals( "no" ) ) {
@@ -70,7 +64,8 @@ public class EnemyAction {
 				
 			//状態異常完全耐性
 			}else if( allyData.getResistance() == 4 ) {
-			
+				this.buffMessage = allyData.getName() + "に、この状態異常は効かないようだ…";
+				
 			//状態異常判定
 			}else if( x == 0 ){
 				
@@ -109,6 +104,7 @@ public class EnemyAction {
 		
 		if( monsterPattern.getPoint() == 0 ){
 			plusDamage = random.nextInt( monsterData.getCurrentATK() + 1 ) / 4;
+			
 		}else{
 			plusDamage = random.nextInt( monsterPattern.getPoint() ) / 4 ;
 		}
@@ -281,9 +277,29 @@ public class EnemyAction {
 	}
 	
 	
+	public void physical ( AllyData allyData , Integer plusDamage ) {
+		
+		//(攻撃力-防御力/2) + 乱数 = ダメージ
+		this.damage = ( monsterData.getCurrentATK() - ( allyData.getCurrentDEF() / 2 )) + plusDamage;
+		
+		if( this.isDefense( allyData )){
+			this.damage = damage / 2;
+		}
+		
+		if( damage < 0 ) {
+			this.damage = 0;
+			this.battleMessage = allyData.getName() + "にダメージを与えられない…";
+		}else{
+			this.battleMessage = allyData.getName() + "に" + damage + "のダメージ!!!";
+			if( allyData.getStatusSet().stream().filter( s -> s.getName().equals( "睡眠" )).count() == 1 ) {
+				this.resultMessage = allyData.getName() + "は目を覚ました!";
+				allyData = this.awakening( allyData );
+			}
+		}
+	}
 	
 	
-	//正常から状態異常へ変化
+	//正常状態から状態異常へ変化させるメソッド
 	public Set<Status> badStatus( AllyData allyData ){
 		
 		Set<Status> statusSet = allyData.getStatusSet()
