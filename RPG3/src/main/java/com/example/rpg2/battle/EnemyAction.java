@@ -57,110 +57,18 @@ public class EnemyAction {
 		
 		//悪性ステータス異常
 		if( !monsterPattern.getBuffcategory().equals( "no" ) ) {
-			int x = random.nextInt( 1 + allyData.getResistance() );
-
-			if( allyData.getSurvival() == 2 ) {
-				this.buffMessage = allyData.getName() + "は聖なる守りの加護を得ている。";
-				
-			//状態異常完全耐性
-			}else if( allyData.getResistance() == 4 ) {
-				this.buffMessage = allyData.getName() + "に、この状態異常は効かないようだ…";
-				
-			//状態異常判定
-			}else if( x == 0 ){
-				
-				//毒付与
-				if( monsterPattern.getBuffcategory().equals( "poison" ) && allyData.getSurvival() == 1 ) {
-					Set<Status> statusSet = this.badStatus( allyData );
-					allyData = this.poison( allyData , statusSet );
-					
-				//火傷付与
-				}else if( monsterPattern.getBuffcategory().equals( "burn" ) && allyData.getSurvival() == 1 ) {
-					Set<Status> statusSet = this.badStatus( allyData );
-					allyData = this.burn( allyData , statusSet );
-					
-				//睡眠付与
-				}else if( monsterPattern.getBuffcategory().equals( "sleep" ) && allyData.getSurvival() == 1 ) {
-					Set<Status> statusSet = this.badStatus( allyData );
-					allyData = this.sleep( allyData , statusSet );
-					
-				//麻痺の付与
-				}else if( monsterPattern.getBuffcategory().equals( "paralysis" ) && allyData.getSurvival() == 1 ) {
-					Set<Status> statusSet = this.badStatus( allyData );
-					allyData = this.paralysis( allyData , statusSet );
-					
-				//気絶の付与
-				}else if( monsterPattern.getBuffcategory().equals( "swoon" ) && allyData.getSurvival() == 1 ) {
-					Set<Status> statusSet = this.badStatus( allyData );
-					allyData = this.swoon( allyData , statusSet );
-				}
-			}else{
-				this.buffMessage = allyData.getName() + "は状態異常にならない";
-			}
-		}
-		
-		//ダメージ補正の乱数を初期化
-		Integer plusDamage = 0;
-		
-		if( monsterPattern.getPoint() == 0 ){
-			plusDamage = random.nextInt( monsterData.getCurrentATK() + 1 ) / 4;
-			
-		}else{
-			plusDamage = random.nextInt( monsterPattern.getPoint() ) / 4 ;
+			allyData = this.bad( allyData );
 		}
 		
 		//物理攻撃の計算処理
 		if( this.pattern.equals( "attackskill" ) && monsterPattern.getPercentage() == 0 ) {
-			//(攻撃力-防御力/2) + 乱数 = ダメージ
-			this.damage = ( monsterData.getCurrentATK() - ( allyData.getCurrentDEF() / 2 )) + plusDamage;
-			
-			if( this.isDefense( allyData )){
-				this.damage = damage / 2;
-			}
-			
-			if( damage < 0 ) {
-				this.damage = 0;
-				this.battleMessage = allyData.getName() + "にダメージを与えられない…";
-			}else{
-				this.battleMessage = allyData.getName() + "に" + damage + "のダメージ!!!";
-				if( allyData.getStatusSet().stream().filter( s -> s.getName().equals( "睡眠" )).count() == 1 ) {
-					this.resultMessage = allyData.getName() + "は目を覚ました!";
-					allyData = this.awakening( allyData );
-				}	
-			}
+			allyData = this.physical( allyData );
 			
 		//魔法攻撃の計算処理
 		}else if( this.pattern.equals( "attackmagic" ) && monsterPattern.getPercentage() == 0 ){
-			//攻撃力 + 乱数 = ダメージ(防御力無視だけで暫定対応、耐性値を実装して値に干渉する予定)
-			this.damage = monsterData.getCurrentATK() + plusDamage;
-			
-			if( this.isDefense( allyData )){
-				this.damage = damage / 2;
-			}
-			
-			if( damage < 0 ) {
-				this.damage = 0;
-				this.battleMessage = allyData.getName() + "にダメージを与えられない…";
-			}else{
-				this.battleMessage = allyData.getName() + "に" + damage + "のダメージ!!!";
-			}
+			allyData = this.magic( allyData );
 		}
 
-		Integer HP = allyData.getCurrentHp() - damage;
-
-		
-		if( HP <= 0 ) {
-			allyData.setCurrentHp( 0 );
-			allyData.setSurvival( 0 );
-			Set<Status> statusSet = allyData.getStatusSet();
-			statusSet.clear();
-			statusSet.add( new Dead() );
-			allyData.setStatusSet( statusSet );
-			this.resultMessage = allyData.getName() + "は死んでしまった…";
-		}else{
-			allyData.setCurrentHp( HP );
-		}
-		
 		return allyData;
 	}
 	
@@ -173,98 +81,16 @@ public class EnemyAction {
 		
 		//悪性ステータス異常
 		if( !monsterPattern.getBuffcategory().equals( "no" ) ) {
-			int x = random.nextInt( 1 + allyData.getResistance() );
-
-			if( allyData.getSurvival() == 2 ) {
-				this.buffMessage = allyData.getName() + "は聖なる守りの加護を得ている。";
-				
-			//状態異常完全耐性
-			}else if( allyData.getResistance() == 4 ) {
-			
-			//状態異常判定
-			}else if( x == 0 ){
-				
-				//毒付与
-				if( monsterPattern.getBuffcategory().equals( "poison" ) && allyData.getSurvival() == 1 ) {
-					Set<Status> statusSet = this.badStatus( allyData );
-					allyData = this.poison( allyData , statusSet );
-					
-				//火傷付与
-				}else if( monsterPattern.getBuffcategory().equals( "burn" ) && allyData.getSurvival() == 1 ) {
-					Set<Status> statusSet = this.badStatus( allyData );
-					allyData = this.burn( allyData , statusSet );
-					
-				//睡眠付与
-				}else if( monsterPattern.getBuffcategory().equals( "sleep" ) && allyData.getSurvival() == 1 ) {
-					Set<Status> statusSet = this.badStatus( allyData );
-					allyData = this.sleep( allyData , statusSet );
-					
-				//麻痺の付与
-				}else if( monsterPattern.getBuffcategory().equals( "paralysis" ) && allyData.getSurvival() == 1 ) {
-					Set<Status> statusSet = this.badStatus( allyData );
-					allyData = this.paralysis( allyData , statusSet );
-					
-				//気絶の付与
-				}else if( monsterPattern.getBuffcategory().equals( "swoon" ) && allyData.getSurvival() == 1 ) {
-					Set<Status> statusSet = this.badStatus( allyData );
-					allyData = this.swoon( allyData , statusSet );
-				}
-			}else{
-				this.buffMessage = allyData.getName() + "は状態異常にならない";
-			}
-		}
-		
-		Integer plusDamage = 0;
-		if( monsterPattern.getPoint() == 0 ){
-			plusDamage = random.nextInt( monsterData.getCurrentATK() + 1 ) / 4;
-		}else{
-			plusDamage = random.nextInt( monsterPattern.getPoint() + 1 ) / 8
-							+ random.nextInt( monsterData.getCurrentATK() ) / 8;
+			allyData = this.bad( allyData );
 		}
 		
 		//物理攻撃の計算処理
 		if( this.pattern.equals( "attackskill" ) && monsterPattern.getPercentage() == 0 ) {
-			//(攻撃力-防御力/2) + 乱数 = ダメージ
-			this.damage = ( monsterData.getCurrentATK() - ( allyData.getCurrentDEF() / 2 )) + plusDamage;
-			
-			if( this.isDefense( allyData )){
-				this.damage = damage / 2;
-			}
-			
-			if( damage < 0 ) {
-				this.damage = 0;
-				this.battleMessage = allyData.getName() + "にダメージを与えられない…";
-			}else{
-				this.battleMessage = allyData.getName() + "に" + damage + "のダメージ!!!";
-				if( allyData.getStatusSet().stream().filter( s -> s.getName().equals( "睡眠" )).count() == 1 ) {
-					this.resultMessage = allyData.getName() + "は目を覚ました!";
-					allyData = this.awakening( allyData );
-				}	
-			}
+			allyData = this.physical( allyData );
 			
 		//魔法攻撃の計算処理
 		}else if( this.pattern.equals( "attackmagic" ) && monsterPattern.getPercentage() == 0 ){
-			//攻撃力 + 乱数 = ダメージ(防御力無視だけで暫定対応、耐性値を実装して値に干渉する予定)
-			this.damage = monsterData.getCurrentATK() + plusDamage;
-			
-			if( this.isDefense( allyData )){
-				this.damage = damage / 2;
-			}
-			this.battleMessage = allyData.getName() + "に" + damage + "のダメージ!!!";
-		}
-		
-		Integer HP = allyData.getCurrentHp() - damage;
-
-		if( HP <= 0 ) {
-			allyData.setCurrentHp( 0 );
-			allyData.setSurvival( 0 );
-			Set<Status> statusSet = allyData.getStatusSet();
-			statusSet.clear();
-			statusSet.add( new Dead() );
-			allyData.setStatusSet( statusSet );
-			this.resultMessage = allyData.getName() + "は死んでしまった…";
-		}else{
-			allyData.setCurrentHp( HP );
+			allyData = this.magic( allyData );
 		}
 		
 		return allyData;
@@ -277,7 +103,18 @@ public class EnemyAction {
 	}
 	
 	
-	public void physical ( AllyData allyData , Integer plusDamage ) {
+	//物理攻撃を処理
+	public AllyData physical( AllyData allyData ) {
+		
+		Integer plusDamage = 0;
+		
+		if( monsterPattern.getPoint() == 0 ){
+			plusDamage = random.nextInt( monsterData.getCurrentATK() + 1 ) / 4;
+			
+		}else{
+			plusDamage = random.nextInt( monsterPattern.getPoint() + 1 ) / 8
+							+ random.nextInt( monsterData.getCurrentATK() ) / 8;
+		}
 		
 		//(攻撃力-防御力/2) + 乱数 = ダメージ
 		this.damage = ( monsterData.getCurrentATK() - ( allyData.getCurrentDEF() / 2 )) + plusDamage;
@@ -289,13 +126,136 @@ public class EnemyAction {
 		if( damage < 0 ) {
 			this.damage = 0;
 			this.battleMessage = allyData.getName() + "にダメージを与えられない…";
+			
 		}else{
 			this.battleMessage = allyData.getName() + "に" + damage + "のダメージ!!!";
-			if( allyData.getStatusSet().stream().filter( s -> s.getName().equals( "睡眠" )).count() == 1 ) {
+			
+			//対象が睡眠状態の場合は、それを解除する。
+			if( allyData.getStatusSet().stream()
+					.filter( s -> s.getName().equals( "睡眠" ))
+					.count() == 1 ) {
 				this.resultMessage = allyData.getName() + "は目を覚ました!";
 				allyData = this.awakening( allyData );
 			}
 		}
+		
+		//ダメージ計算
+		Integer HP = allyData.getCurrentHp() - damage;
+
+		//攻撃で味方がやられてしまった時の処理
+		if( HP <= 0 ) {
+			allyData.setCurrentHp( 0 );
+			allyData.setSurvival( 0 );
+			Set<Status> statusSet = allyData.getStatusSet();
+			statusSet.clear();
+			statusSet.add( new Dead() );
+			allyData.setStatusSet( statusSet );
+			this.resultMessage = allyData.getName() + "は死んでしまった…";
+		
+		//ダメージを反映
+		}else{
+			allyData.setCurrentHp( HP );
+		}
+		
+		return allyData;
+	}
+	
+	
+	//魔法攻撃を処理
+	public AllyData magic( AllyData allyData ) {
+		
+		Integer plusDamage = 0;
+		
+		if( monsterPattern.getPoint() == 0 ){
+			plusDamage = random.nextInt( monsterData.getCurrentATK() + 1 ) / 4;
+			
+		}else{
+			plusDamage = random.nextInt( monsterPattern.getPoint() + 1 ) / 8
+							+ random.nextInt( monsterData.getCurrentATK() ) / 8;
+		}
+		
+		//攻撃力 + 乱数 = ダメージ(防御力無視だけで暫定対応、耐性値を実装して値に干渉する予定)
+		this.damage = monsterData.getCurrentATK() + plusDamage;
+		
+		if( this.isDefense( allyData )){
+			this.damage = damage / 2;
+		}
+		
+		if( damage < 0 ) {
+			this.damage = 0;
+			this.battleMessage = allyData.getName() + "にダメージを与えられない…";
+		}else{
+			this.battleMessage = allyData.getName() + "に" + damage + "のダメージ!!!";
+		}
+		
+		//ダメージ計算
+		Integer HP = allyData.getCurrentHp() - damage;
+
+		//攻撃で味方がやられてしまった時の処理
+		if( HP <= 0 ) {
+			allyData.setCurrentHp( 0 );
+			allyData.setSurvival( 0 );
+			Set<Status> statusSet = allyData.getStatusSet();
+			statusSet.clear();
+			statusSet.add( new Dead() );
+			allyData.setStatusSet( statusSet );
+			this.resultMessage = allyData.getName() + "は死んでしまった…";
+		
+		//ダメージを反映
+		}else{
+			allyData.setCurrentHp( HP );
+		}
+		
+		return allyData;
+	}
+	
+	
+	//状態異常の処理
+	public AllyData bad( AllyData allyData ) {
+		
+		int x = random.nextInt( 1 + allyData.getResistance() );
+
+		if( allyData.getSurvival() == 2 ) {
+			this.buffMessage = allyData.getName() + "は聖なる守りの加護を得ている。";
+			
+		//状態異常完全耐性
+		}else if( allyData.getResistance() == 4 ) {
+		
+		//状態異常判定
+		}else if( x == 0 ){
+			
+			//毒付与
+			if( monsterPattern.getBuffcategory().equals( "poison" ) && allyData.getSurvival() == 1 ) {
+				Set<Status> statusSet = this.badStatus( allyData );
+				allyData = this.poison( allyData , statusSet );
+				
+			//火傷付与
+			}else if( monsterPattern.getBuffcategory().equals( "burn" ) && allyData.getSurvival() == 1 ) {
+				Set<Status> statusSet = this.badStatus( allyData );
+				allyData = this.burn( allyData , statusSet );
+				
+			//睡眠付与
+			}else if( monsterPattern.getBuffcategory().equals( "sleep" ) && allyData.getSurvival() == 1 ) {
+				Set<Status> statusSet = this.badStatus( allyData );
+				allyData = this.sleep( allyData , statusSet );
+				
+			//麻痺の付与
+			}else if( monsterPattern.getBuffcategory().equals( "paralysis" ) && allyData.getSurvival() == 1 ) {
+				Set<Status> statusSet = this.badStatus( allyData );
+				allyData = this.paralysis( allyData , statusSet );
+				
+			//気絶の付与
+			}else if( monsterPattern.getBuffcategory().equals( "swoon" ) && allyData.getSurvival() == 1 ) {
+				Set<Status> statusSet = this.badStatus( allyData );
+				allyData = this.swoon( allyData , statusSet );
+			}
+			
+		//状態異常判定が失敗
+		}else{
+			this.buffMessage = allyData.getName() + "は状態異常にならない";
+		}
+		
+		return allyData;
 	}
 	
 	
