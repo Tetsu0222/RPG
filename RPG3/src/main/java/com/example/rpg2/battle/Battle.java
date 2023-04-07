@@ -20,7 +20,8 @@ import com.example.rpg2.action.ResuscitationMagic;
 import com.example.rpg2.action.TaregetEnemyAction;
 import com.example.rpg2.action.TargetAllyAction;
 import com.example.rpg2.entity.Magic;
-import com.example.rpg2.status.Dead;
+import com.example.rpg2.process.BadStatusAfter;
+import com.example.rpg2.process.BadStatusBefore;
 import com.example.rpg2.status.Defense;
 import com.example.rpg2.status.Normal;
 import com.example.rpg2.status.Status;
@@ -52,9 +53,6 @@ public class Battle {
 	//キーは敵味方混合、値は乱数補正後の素早さ。素早さ順で降順ソートしたリスト
 	private List<Entry<Integer, Integer>> turnList;
 	
-	//敵の行動を管理するオブジェクト
-	EnemyAction enemyAction;
-	
 	
 	//コンストラクタ
 	public Battle( List<AllyData> partyList , List<MonsterData> monsterDataList ) {
@@ -78,9 +76,6 @@ public class Battle {
 		//味方と敵の座標リストをそれぞれ生成(各マップのキー数字とリンク）
 		this.targetSetEnemy = new TreeSet<>( monsterDataMap.keySet() );
 		this.targetSetAlly  = new TreeSet<>( partyMap.keySet() );
-		
-		//敵の行動用オブジェクトを生成
-		this.enemyAction = new EnemyAction();
 		
 	}
 	
@@ -205,7 +200,12 @@ public class Battle {
     			}
     			
 				//行動不能系の状態異常の所持数をチェック
-    			Integer juds = this.badStatusBefore( allyData , key );
+    			BadStatusBefore badStatusBefore = new BadStatusBefore();
+    			Integer juds = badStatusBefore.execution( allyData );
+    			
+    			if( badStatusBefore.getMessage() != null ) {
+    				this.mesageList.add( badStatusBefore.getMessage() );
+    			}
     			
     			//行動不能と判定された状態異常が1つ以上あれば処理中断
     			if( juds > 0 ) {
@@ -300,14 +300,32 @@ public class Battle {
 				//行動終了後に作用する状態異常の処理
 				this.badStatusAfter( allyData, key );
 				
+				//行動毎に改行を挿入
+				this.mesageList.add( "" );
+				
 				
 	        //----------------------------------------------------
 	        //------------------敵側の処理------------------------
 	        //----------------------------------------------------
             }else{
             	
+            	
             	//行動対象のモンスターのデータを生成
     			MonsterData monsterData = monsterDataMap.get( key );
+    			
+				//行動不能系の状態異常の所持数をチェック
+    			BadStatusBefore badStatusBefor = new BadStatusBefore();
+    			Integer juds = badStatusBefor.execution( monsterData );
+    			
+    			if( badStatusBefor.getMessage() != null ) {
+    				this.mesageList.add( badStatusBefor.getMessage() );
+    			}
+    			
+    			//行動不能と判定された状態異常が1つ以上あれば処理中断
+    			if( juds > 0 ) {
+    				this.badStatusAfter( monsterData , key );
+    				continue;
+    			}
     			
 				//味方のセットをリストへ変換
 				List<Integer> targetList = new ArrayList<Integer>( targetSetAlly );
@@ -326,6 +344,8 @@ public class Battle {
     			//複数行動に対応
     			for( int a = 0 ; a < actions ; a++ ) {
     				
+    				EnemyAction enemyAction = new EnemyAction();
+    				
     				//モンスターの行動を決定
 	    			enemyAction.decision( monsterData );
 	    			
@@ -343,11 +363,11 @@ public class Battle {
 	    			
 	    			//単体攻撃処理
 	    			if( enemyAction.getRange().equals( "single" )){
-	    				this.singleAttack( targetList );
+	    				this.singleAttack( targetList , enemyAction );
 	    				
 	    			//全体攻撃を処理
 	    			}else if( enemyAction.getRange().equals( "whole" )){
-	    				this.wholeAttack( targetList );
+	    				this.wholeAttack( targetList , enemyAction );
 	
 		    		//ミス系
 		    		}else if( enemyAction.getPattern().equals( "miss" )){
@@ -359,6 +379,11 @@ public class Battle {
 		    		}else{
 		    			enemyAction.noAction();
 		    		}
+	    			
+	    			this.badStatusAfter( monsterData , key );
+	    			
+	    			//行動毎に改行を挿入
+					this.mesageList.add( "" );
     			}
     		}
         }
@@ -401,7 +426,11 @@ public class Battle {
 		
 		//攻撃で対象を倒した場合の処理
 		if( monsterData.getCurrentHp() == 0 ) {
+			
+			//敵リストから対象を削除
 			targetSetEnemy.remove( target );
+			
+			//敵が全滅していなければ、別対象へターゲットを変更しておく。
         	if( targetSetEnemy.size() != 0 ) {
         		target = targetSetEnemy.stream().findAny().orElseThrow();
 				this.selectionAttack( key , target );
@@ -556,80 +585,30 @@ public class Battle {
 	}
 	
 	
-	//行動不能系のステータス異常の処理（行動前処理）
-	public Integer badStatusBefore( AllyData allyData , Integer key ) {
+	//味方側のダメージ系の状態異常処理（行動終了後に処理する状態異常のメソッド）
+	public void badStatusAfter( AllyData allyData , Integer key ) {
+		BadStatusAfter badStatusAfter = new BadStatusAfter( targetSetAlly , targetMap , targetSetEnemy );
+		this.partyMap = badStatusAfter.execution( partyMap , allyData , key );
+		this.targetSetAlly = badStatusAfter.getTargetSetAlly();
+		this.targetMap     = badStatusAfter.getTargetMap();
 		
-		//状態異常のメッセージ
-		allyData.getStatusSet().stream()
-		.filter( s -> !s.statusMessageBefore().equals( "no" ))
-		.forEach( s -> this.mesageList.add( s.statusMessageBefore() ));
-		
-		//行動不能系のステータス異常の数を抽出（リストサイズが1以上なら行動ができない）
-		List<Status> statusList = allyData.getStatusSet().stream()
-		.filter( s -> s.actionStatusBefore() == 1 )
-		.collect( Collectors.toList() );
-		
-		return statusList.size();
+		//状態異常ダメージで死亡した場合は、そのメッセージを追加
+		if( badStatusAfter.getResultMessage() != null ) {
+			this.mesageList.add( badStatusAfter.getResultMessage() );
+		}
 	}
 	
 	
-	//ダメージ系（行動終了後に処理する状態異常のメソッド）
-	public void badStatusAfter( AllyData allyData , Integer key ) {
+	//敵側のダメージ系の状態異常処理（行動終了後に処理する状態異常のメソッド）
+	public void badStatusAfter( MonsterData monsterData , Integer key ) {
+		BadStatusAfter badStatusAfter = new BadStatusAfter( targetSetAlly , targetMap , targetSetEnemy );
+		this.monsterDataMap = badStatusAfter.execution( monsterDataMap , monsterData , key );
+		this.targetSetEnemy = badStatusAfter.getTargetSetEnemy();
 		
-		//ダメージ系の状態異常の処理
-		List<Integer> damageList = new ArrayList<>();
-		allyData.getStatusSet().stream()
-		.forEach( s -> damageList.add( s.actionStatusAfter() ));
-		
-		//状態異常のメッセージ
-		allyData.getStatusSet().stream()
-		.filter( s -> !s.statusMessageAfter().equals( "no" ) )
-		.forEach( s -> this.mesageList.add( s.statusMessageAfter() ));
-		
-		//自然治癒判定
-		Set<Status> statusSet = allyData.getStatusSet().stream()
-		.filter( s -> s.countDown() > 0 )
-		.collect( Collectors.toSet() );
-		
-		//自然治癒メッセージをセット
-		allyData.getStatusSet().stream()
-		.filter( s -> s.getCount() == 0 )
-		.filter( s -> !s.statusMessageAfter().equals( "no" ) )
-		.forEach( s -> this.mesageList.add( s.recoverymessage() ));
-		
-		//状態異常がすべて完治した場合は、正常状態へ戻す。
-		if( statusSet.size() == 0 ) {
-			statusSet.add( new Normal() );
+		//状態異常ダメージで死亡した場合は、そのメッセージを追加
+		if( badStatusAfter.getResultMessage() != null ) {
+			this.mesageList.add( badStatusAfter.getResultMessage() );
 		}
-		
-		//聖なる守りの効果を元に戻す。
-		if( statusSet.stream().filter( s -> s.getName().equals( "聖なる守り" )).count() == 0 ) {
-			allyData.setSurvival( 1 );
-		}
-		
-		//状態異常によるダメージを累計
-		Integer result = damageList.stream().collect( Collectors.summingInt( s -> s ) );
-		
-		//ダメージ計算処理
-		Integer HP = allyData.getCurrentHp() - result;
-		
-		//結果を反映
-		if( HP <= 0 ) {
-			allyData.setCurrentHp( 0 );
-			allyData.setSurvival( 0 );
-			statusSet.clear();
-			statusSet.add( new Dead() );
-			allyData.setStatusSet( statusSet );
-			this.mesageList.add( allyData.getName() + "は死んでしまった…" );
-			targetSetAlly.remove( key );
-			targetMap.put( key , new Target( key ) );
-		}else{
-			allyData.setCurrentHp( HP );
-			allyData.setStatusSet( statusSet );
-		}
-		
-		//結果を格納
-		partyMap.put( key , allyData );
 	}
 	
 	
@@ -674,7 +653,7 @@ public class Battle {
 	
 	
 	//敵の単体攻撃を処理するメソッド
-	public void singleAttack( List<Integer> targetList ) {
+	public void singleAttack( List<Integer> targetList , EnemyAction enemyAction ) {
 		
 		//単体攻撃を処理
 		AllyData allyData = enemyAction.attackSkillSingle( partyMap , targetList );
@@ -707,7 +686,7 @@ public class Battle {
 	
 	
 	//敵の全体攻撃を処理するメソッド
-	public void wholeAttack( List<Integer> targetList ) {
+	public void wholeAttack( List<Integer> targetList , EnemyAction enemyAction ) {
 		
 		//行動開始のメッセージを表示に追加
 		mesageList.add( enemyAction.getStartMessage() );
