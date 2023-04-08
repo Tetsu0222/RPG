@@ -24,6 +24,7 @@ import com.example.rpg2.entity.Magic;
 import com.example.rpg2.entity.Skill;
 import com.example.rpg2.process.BadStatusAfter;
 import com.example.rpg2.process.BadStatusBefore;
+import com.example.rpg2.process.ConsumptionMP;
 import com.example.rpg2.status.Defense;
 import com.example.rpg2.status.Normal;
 import com.example.rpg2.status.Status;
@@ -290,9 +291,13 @@ public class Battle {
 							this.singleSupport( targetAllyAction , target , key );
 						}
 					}
+					
+					//MP消費処理
+					allyData = ConsumptionMP.consumptionMP( allyData , magic , skill );
+					partyMap.put( key , allyData );
 				
 					
-				//攻撃・妨害魔法の処理
+				//攻撃・妨害の処理
 				}else if( movementPattern.equals( "targetenemy" )) {
 					
 					//行動用のオブジェクト
@@ -301,14 +306,22 @@ public class Battle {
 					//攻撃回数
 					int actions = 1;
 					
+					Random random = new Random();
+					
 					//魔法攻撃を生成
-					if( targetMap.get( key ).getExecutionMagic() != null) {
-						actions = targetMap.get( key ).getExecutionMagic().getFrequency();
+					if( magic != null) {
+						actions = magic.getFrequency();
+						if( actions == 0 ) {
+							actions = random.nextInt( 6 ) + 1;
+						}
 						taregetEnemyAction = new MagicAttack( allyData , magic );
 					
 					//特技を生成
 					}else{
-						actions = targetMap.get( key ).getExecutionSkill().getFrequency();
+						actions = skill.getFrequency();
+						if( actions == 0 ) {
+							actions = random.nextInt( 6 ) + 1;
+						}
 						taregetEnemyAction = new SkillAttack( allyData , skill );
 					}
 					
@@ -325,8 +338,8 @@ public class Battle {
 						//魔法特技の攻撃回数分の処理
 						for( int i = 0 ; i < actions ; i++ ){
 							
-							//攻撃・妨害の魔法を再生成
-							if( targetMap.get( key ).getExecutionMagic() != null ) {
+							//攻撃・妨害の魔法を再生成(撃破時、ターゲットの自動変更のため）
+							if( magic != null ) {
 								taregetEnemyAction = new MagicAttack( allyData , magic );
 		
 							//攻撃・妨害の特技を再生成
@@ -334,15 +347,21 @@ public class Battle {
 								taregetEnemyAction = new SkillAttack( allyData , skill );
 							}
 							
-							//全体攻撃魔法の処理
+							//全体攻撃の処理
 							if( targetMap.get( key ).getTargetSetEnemy() != null ) {
 								this.generalAttack( taregetEnemyAction , key );
 										
-							//単体攻撃魔法の処理
+							//単体攻撃の処理
 							}else{
 								this.singleAttack( taregetEnemyAction , target , key , magic , skill );
 							}
 						}
+						
+						//MP消費処理
+						allyData = ConsumptionMP.consumptionMP( allyData , magic , skill );
+						partyMap.put( key , allyData );
+						
+						
 					}
 					
 				//蘇生魔法の処理
@@ -368,6 +387,10 @@ public class Battle {
 							this.resuscitationMagicExecution( resuscitationMagic , target , key );
 						}
 					}
+					
+					//MP消費処理
+					allyData = ConsumptionMP.consumptionMP( allyData , magic , skill );
+					partyMap.put( key , allyData );
 				}
 				
 				//行動終了後に作用する状態異常の処理
@@ -518,11 +541,6 @@ public class Battle {
         		}
         	}
 		}
-		
-		//MP消費処理
-		if( targetMap.get( key ).getExecutionMagic() != null ) {
-			this.consumptionMP( key );
-		}
 	}
 	
 	
@@ -551,16 +569,10 @@ public class Battle {
 		if( targetAllyAction.getResultMessage() != null ) {
 			this.mesageList.add( targetAllyAction.getResultMessage() );
 		}
-		
-		//MP消費処理
-		if( targetMap.get( key ).getExecutionMagic() != null ) {
-				this.consumptionMP( key );
-		}
-		
 	}
 	
 	
-	//全体攻撃のメソッド koko
+	//全体攻撃
 	public void generalAttack( TaregetEnemyAction taregetEnemyAction , Integer key ) {
 		
 		//targetを敵全体へ変更
@@ -591,10 +603,6 @@ public class Battle {
 		//残存勢力のみに置換
 		deathList.stream().forEach( s -> targetSetEnemy.remove( s ) );
 		
-		//MP消費処理
-		if( targetMap.get( key ).getExecutionMagic() != null ) {
-				this.consumptionMP( key );
-		}
 	}
 	
 	
@@ -616,12 +624,6 @@ public class Battle {
 				this.mesageList.add( targetAllyAction.getResultMessage() );
 			}
 		}
-		
-		//MP消費処理
-		if( targetMap.get( key ).getExecutionMagic() != null ) {
-				this.consumptionMP( key );
-		}
-		
 	}
 	
 	
@@ -662,12 +664,6 @@ public class Battle {
 			}
 			this.mesageList.add( targetAllyAction.getRecoveryMessage() );
 		}
-		
-		//MP消費処理
-		if( targetMap.get( key ).getExecutionMagic() != null ) {
-				this.consumptionMP( key );
-		}
-		
 	}
 	
 	
@@ -716,16 +712,6 @@ public class Battle {
 			this.mesageList.add( badStatusAfter.getDedMessage() );
 		}
 		
-	}
-	
-	
-	//MP消費処理
-	public void consumptionMP( Integer key ) {
-		AllyData allyData = partyMap.get( key );
-		int MP = allyData.getCurrentMp();
-		MP -= targetMap.get( key ).getExecutionMagic().getMp();
-		allyData.setCurrentMp( MP );
-		partyMap.put( key , allyData );
 	}
 	
 	
