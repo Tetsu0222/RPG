@@ -14,12 +14,12 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import com.example.rpg2.action.Attack;
-import com.example.rpg2.action.MagicAttack;
-import com.example.rpg2.action.RecoveryMagic;
-import com.example.rpg2.action.ResuscitationMagic;
-import com.example.rpg2.action.SkillAttack;
 import com.example.rpg2.action.TaregetEnemyAction;
 import com.example.rpg2.action.TargetAllyAction;
+import com.example.rpg2.action.magic.MagicAttack;
+import com.example.rpg2.action.magic.RecoveryMagic;
+import com.example.rpg2.action.magic.ResuscitationMagic;
+import com.example.rpg2.action.skill.SkillAttack;
 import com.example.rpg2.entity.Magic;
 import com.example.rpg2.entity.Skill;
 import com.example.rpg2.process.BadStatusAfter;
@@ -224,6 +224,8 @@ public class Battle {
     			AllyData allyData = partyMap.get( key );
     			Integer  target	  = targetMap.get( key ).getSelectionId();
     			String   movementPattern = targetMap.get( key ).getCategory();
+				Skill skill = targetMap.get( key ).getExecutionSkill();
+				Magic magic = targetMap.get( key ).getExecutionMagic();
 
     			//ターン中に死亡している場合は、処理を中断(カウンターなどを想定)
     			if( allyData.getSurvival() == 0 ) {
@@ -253,7 +255,7 @@ public class Battle {
 					
 					//通常攻撃を実施
 					this.mesageList.add( at.getStratMessage() );
-					this.singleAttack( at,  target , key );
+					this.singleAttack( at,  target , key , magic , skill );
 					
 					
 				//回復・補助魔法の処理
@@ -263,7 +265,7 @@ public class Battle {
 					
 					//回復・補助の魔法を生成
 					if( targetMap.get( key ).getExecutionMagic() != null) {
-						targetAllyAction = new RecoveryMagic( allyData , targetMap.get( key ).getExecutionMagic()  );
+						targetAllyAction = new RecoveryMagic( allyData , magic  );
 						
 					//回復・補助の特技を生成
 					}else{
@@ -302,12 +304,12 @@ public class Battle {
 					//魔法攻撃を生成
 					if( targetMap.get( key ).getExecutionMagic() != null) {
 						actions = targetMap.get( key ).getExecutionMagic().getFrequency();
-						taregetEnemyAction = new MagicAttack( allyData , targetMap.get( key ).getExecutionMagic()  );
+						taregetEnemyAction = new MagicAttack( allyData , magic );
 					
 					//特技を生成
 					}else{
 						actions = targetMap.get( key ).getExecutionSkill().getFrequency();
-						taregetEnemyAction = new SkillAttack( allyData , targetMap.get( key ).getExecutionSkill()  );
+						taregetEnemyAction = new SkillAttack( allyData , skill );
 					}
 					
 					//行動を宣言
@@ -325,11 +327,11 @@ public class Battle {
 							
 							//攻撃・妨害の魔法を再生成
 							if( targetMap.get( key ).getExecutionMagic() != null ) {
-								taregetEnemyAction = new MagicAttack( allyData , targetMap.get( key ).getExecutionMagic()  );
+								taregetEnemyAction = new MagicAttack( allyData , magic );
 		
 							//攻撃・妨害の特技を再生成
 							}else{
-								taregetEnemyAction = new SkillAttack( allyData , targetMap.get( key ).getExecutionSkill()  );
+								taregetEnemyAction = new SkillAttack( allyData , skill );
 							}
 							
 							//全体攻撃魔法の処理
@@ -338,7 +340,7 @@ public class Battle {
 										
 							//単体攻撃魔法の処理
 							}else{
-								this.singleAttack( taregetEnemyAction , target , key );
+								this.singleAttack( taregetEnemyAction , target , key , magic , skill );
 							}
 						}
 					}
@@ -347,7 +349,7 @@ public class Battle {
 				}else if( movementPattern.equals( "resuscitationmagic" )) {
 					
 					//蘇生魔法を生成(回復魔法と同一オブジェクトにて処理)
-					TargetAllyAction resuscitationMagic = new ResuscitationMagic( allyData , targetMap.get( key ).getExecutionMagic()  );
+					TargetAllyAction resuscitationMagic = new ResuscitationMagic( allyData , magic  );
 					this.mesageList.add( resuscitationMagic.getStratMessage() );
 					
 					//MP判定 MPが足りないとtureが返る。
@@ -468,20 +470,16 @@ public class Battle {
 	//-----------------------------------------------------------------------------------------------------------------------
 	
 	//単体攻撃のメソッド
-	public void singleAttack( TaregetEnemyAction taregetEnemyAction , Integer target , Integer key ) {
+	public void singleAttack( TaregetEnemyAction taregetEnemyAction , Integer target , Integer key , Magic magic , Skill skill ) {
 		
 		//攻撃対象のオブジェクトを取得
 		MonsterData monsterData = monsterDataMap.get( target );
 		
 		//対象がターン中に死亡している場合は、別の生存対象へ処理対象を変更
 		if( monsterData.getSurvival() == 0 ) {
+			//生存している敵エネミーセットから座標を取得
 			target = targetSetEnemy.stream().findAny().orElse( 0 );
-			if( targetMap.get( key ).getExecutionMagic() != null ) {
-				this.selectionMonsterMagic( key , target , targetMap.get( key ).getExecutionMagic() );
-			}else{
-				this.selectionMonsterSkill( key , target , targetMap.get( key ).getExecutionSkill() );
-			}
-			
+			monsterData = monsterDataMap.get( target );
 		}
 		
 		//攻撃処理と結果の格納
@@ -504,10 +502,20 @@ public class Battle {
 			//敵リストから対象を削除
 			targetSetEnemy.remove( target );
 			
-			//敵が全滅していなければ、別対象へターゲットを変更しておく。
+			//敵が全滅していなければ、別対象へ通常攻撃でターゲットを変更しておく。
         	if( targetSetEnemy.size() != 0 ) {
+        		
+        		//ターゲット座標を取得
         		target = targetSetEnemy.stream().findAny().orElseThrow();
-				this.selectionAttack( key , target );
+        		
+        		//ターゲットを再設定
+        		if( magic != null ) {
+        			this.selectionMonsterMagic( key , target , magic );
+        		}else if( skill != null ) {
+        			this.selectionMonsterSkill( key , target , skill );
+        		}else{
+        			this.selectionAttack( key , target );
+        		}
         	}
 		}
 		
