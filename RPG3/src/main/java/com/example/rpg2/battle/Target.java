@@ -5,6 +5,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import com.example.rpg2.entity.Magic;
+import com.example.rpg2.entity.Skill;
 
 import lombok.Data;
 
@@ -17,8 +18,10 @@ public class Target {
 	private Integer selectionId;
 	private String  category;
 	private Magic   executionMagic;
+	private Skill   executionSkill;
 	private Set<Integer> targetSetEnemy = new TreeSet<>();
 	private Set<Integer> targetSetAlly  = new TreeSet<>();
+	
 
 	//通常攻撃
 	public Target( MonsterData monsterData , Integer myKeys , Integer key ) {
@@ -80,6 +83,56 @@ public class Target {
 		this.executionId    = myKeys;
 		this.category	    = magic.getCategory();
 		this.executionMagic = magic;
+		this.targetSetEnemy = targetSetEnemy;
+		this.targetSetAlly  = null;
+	}
+	
+	//味方への特技
+	public Target( AllyData receptionAllyData , Integer myKeys , Integer key , Skill skill ) {
+		
+		this.skillName      = skill.getName();
+		this.selectionName  = receptionAllyData.getName();
+		this.selectionId    = key;
+		this.executionId    = myKeys;
+		this.category	    = skill.getCategory();
+		this.executionSkill = skill;
+		this.targetSetEnemy = null;
+		this.targetSetAlly  = null;
+	}
+	
+	//味方への全体特技
+	public Target( Map<Integer,AllyData> partyMap , Set<Integer> targetSetAlly , Integer myKeys , Skill skill , int i ) {
+		
+		this.skillName      = skill.getName();
+		this.selectionName  = "味方全体";
+		this.executionId    = myKeys;
+		this.category	    = skill.getCategory();
+		this.executionSkill = skill;
+		this.targetSetEnemy = null;
+		this.targetSetAlly  = targetSetAlly;
+	}
+	
+	//攻撃特技
+	public Target( MonsterData monsterData , Integer myKeys , Integer key , Skill skill ) {
+		
+		this.skillName      = skill.getName();
+		this.selectionName  = monsterData.getName();
+		this.selectionId    = key;
+		this.executionId    = myKeys;
+		this.category	    = skill.getCategory();
+		this.executionSkill = skill;
+		this.targetSetEnemy = null;
+		this.targetSetAlly  = null;
+	}
+	
+	//全体攻撃特技
+	public Target( Map<Integer,MonsterData> monsterDataMap , Set<Integer> targetSetEnemy , Integer myKeys , Skill skill ) {
+		
+		this.skillName      = skill.getName();
+		this.selectionName  = "敵全体";
+		this.executionId    = myKeys;
+		this.category	    = skill.getCategory();
+		this.executionSkill = skill;
 		this.targetSetEnemy = targetSetEnemy;
 		this.targetSetAlly  = null;
 	}

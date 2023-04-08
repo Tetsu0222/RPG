@@ -21,6 +21,7 @@ import com.example.rpg2.action.SkillAttack;
 import com.example.rpg2.action.TaregetEnemyAction;
 import com.example.rpg2.action.TargetAllyAction;
 import com.example.rpg2.entity.Magic;
+import com.example.rpg2.entity.Skill;
 import com.example.rpg2.process.BadStatusAfter;
 import com.example.rpg2.process.BadStatusBefore;
 import com.example.rpg2.status.Defense;
@@ -121,6 +122,35 @@ public class Battle {
 	//敵への全体魔法が選択された場合の事前処理
 	public void selectionMonsterMagic( Integer myKeys , Magic magic ) {
 		Target target = new Target( monsterDataMap , targetSetEnemy , myKeys ,  magic );
+		targetMap.put( myKeys , target );
+		this.cancelDefense( partyMap.get( myKeys ) , myKeys );
+	}
+	
+	//味方への特技が選択された場合の事前処理
+	public void selectionAllySkill( Integer myKeys , Integer key , Skill skill ) {
+		Target target = new Target ( partyMap.get( key ) , myKeys , key , skill );
+		targetMap.put( myKeys , target );
+		this.cancelDefense( partyMap.get( myKeys ) , myKeys );
+	}
+	
+	//味方への全体特技が選択された場合の事前処理
+	public void selectionAllySkill( Integer myKeys , Skill skill ) {
+		//最後の引数はオーバーロード用のダミー
+		Target target = new Target ( partyMap , targetSetAlly , myKeys ,  skill , 1 );
+		targetMap.put( myKeys , target );
+		this.cancelDefense( partyMap.get( myKeys ) , myKeys );
+	}
+	
+	//敵への特技が選択された場合の事前処理
+	public void selectionMonsterSkill( Integer myKeys , Integer key , Skill skill ) {
+		Target target = new Target( monsterDataMap.get( key ) , myKeys , key , skill );
+		targetMap.put( myKeys , target );
+		this.cancelDefense( partyMap.get( myKeys ) , myKeys );
+	}
+	
+	//敵への全体特技が選択された場合の事前処理
+	public void selectionMonsterSkill( Integer myKeys , Skill skill ) {
+		Target target = new Target( monsterDataMap , targetSetEnemy , myKeys ,  skill );
 		targetMap.put( myKeys , target );
 		this.cancelDefense( partyMap.get( myKeys ) , myKeys );
 	}
@@ -273,10 +303,9 @@ public class Battle {
 						
 					//攻撃・妨害の特技を生成
 					}else{
-						taregetEnemyAction = new SkillAttack( allyData , targetMap.get( key ).getExecutionMagic()  );
-						//actions = 
+						taregetEnemyAction = new SkillAttack( allyData , targetMap.get( key ).getExecutionSkill()  );
+						actions = targetMap.get( key ).getExecutionSkill().getFrequency();
 					}
-					
 					
 					this.mesageList.add( taregetEnemyAction.getStratMessage() );
 					
@@ -433,7 +462,12 @@ public class Battle {
 		//対象がターン中に死亡している場合は、別の生存対象へ処理対象を変更
 		if( monsterData.getSurvival() == 0 ) {
 			target = targetSetEnemy.stream().findAny().orElse( 0 );
-			this.selectionMonsterMagic( key , target , targetMap.get( key ).getExecutionMagic() );
+			if( targetMap.get( key ).getExecutionMagic() != null ) {
+				this.selectionMonsterMagic( key , target , targetMap.get( key ).getExecutionMagic() );
+			}else{
+				this.selectionMonsterSkill( key , target , targetMap.get( key ).getExecutionSkill() );
+			}
+			
 		}
 		
 		//攻撃処理と結果の格納

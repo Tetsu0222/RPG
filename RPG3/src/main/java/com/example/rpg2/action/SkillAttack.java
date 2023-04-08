@@ -2,9 +2,11 @@ package com.example.rpg2.action;
 
 import java.util.Random;
 
+import com.example.rpg2.action.skill.DeBuffSkill;
 import com.example.rpg2.battle.AllyData;
 import com.example.rpg2.battle.MonsterData;
-import com.example.rpg2.entity.Magic;
+import com.example.rpg2.entity.Skill;
+import com.example.rpg2.process.Awakening;
 import com.example.rpg2.process.Funeral;
 import com.example.rpg2.process.IsDefense;
 
@@ -21,19 +23,19 @@ public class SkillAttack implements TaregetEnemyAction{
 	private String resultMessage;
 	private Integer target;
 	private AllyData allyData;
-	private Magic    magic;//
+	private Skill skill;
 	
 	
-	public SkillAttack( AllyData allyData , Magic magic ) {
+	public SkillAttack( AllyData allyData , Skill skill ) {
 		this.allyData = allyData;
-		this.magic = magic;//
-		this.stratMessage =  allyData.getName() + "は" + magic.getName() + "を放った!!";//
+		this.skill    = skill;
+		this.stratMessage =  allyData.getName() + "は" + skill.getName() + "を放った!!";
 	}
 	
 	
 	//MP判定
 	public boolean isNotEnoughMp() {
-		boolean check = magic.getMp() <= allyData.getCurrentMp();//
+		boolean check = skill.getMp() <= allyData.getCurrentMp();//
 		
 		if( !check ) {
 			this.notEnoughMpMessage = "しかしMPが足りない･･･" ;
@@ -43,17 +45,17 @@ public class SkillAttack implements TaregetEnemyAction{
 	}
 	
 	
-	//特技の処理(工事前）
+	//特技の処理
 	@Override
 	public MonsterData action( MonsterData monsterData  ) {
 		
 		Random random = new Random();
 		
-		//状態異常の処理（魔法の処理を流用）
-		if( !magic.getBuffcategory().equals( "no" )) {
+		//状態異常の処理
+		if( !skill.getBuffcategory().equals( "no" )) {
 			
 			//状態異常を生成
-			TaregetEnemyAction deBuffMagic = new DeBuffMagic( allyData , magic  );
+			TaregetEnemyAction deBuffMagic = new DeBuffSkill( allyData , skill  );
 			monsterData = deBuffMagic.action( monsterData );
 			
 			//結果を取得
@@ -62,10 +64,10 @@ public class SkillAttack implements TaregetEnemyAction{
 		}
 		
 		//ダメージの処理(魔法系）
-		if( magic.getPoint() != 0 ) {
+		if( skill.getPoint() != 0 ) {
 			
 			//魔法威力 + 乱数 = ダメージ
-			Integer damage = magic.getPoint() + ( random.nextInt( magic.getPoint() ) / 4 ) - random.nextInt( magic.getPoint() / 4 );
+			Integer damage = skill.getPoint() + ( random.nextInt( skill.getPoint() ) / 4 ) - random.nextInt( skill.getPoint() / 4 );
 			
 			//防御状態チェック
 			if( IsDefense.isDefense( monsterData )){
@@ -92,6 +94,56 @@ public class SkillAttack implements TaregetEnemyAction{
 		//物理系
 		}else{
 			
+			//会心の発生率設定
+			int critical = random.nextInt( 255 ); //引数をキャラクターの会心率に応じて引き算し、会心発生率を上昇させる予定
+			
+			double damageSource = 0;
+			
+			//非会心
+			if( critical > 6 ) {
+				//(攻撃力 * スキル補正 - (防御力 / 2) ) + 乱数 = ダメージ
+				damageSource = ( allyData.getCurrentATK() * skill.getPercentage() - ( monsterData.getCurrentDEF() / 2 )) 
+						+ ( random.nextInt( allyData.getCurrentATK() ) / 2 );
+				this.damageMessage = damage + "のダメージを与えた!!";
+				
+			//会心
+			}else{
+				//( 攻撃力 * 2 * スキル補正) + 乱数 = ダメージ
+				damageSource = allyData.getCurrentATK() * 2 * skill.getPercentage() 
+						+ ( random.nextInt( allyData.getCurrentATK() ) / 2 );
+				this.damageMessage = "会心の一撃!!!" + damage + "のダメージを与えた!!";
+			}
+			
+			//ダメージをキャスト
+			this.damage = (int)damageSource;
+			
+			//防御状態チェック
+			if( IsDefense.isDefense( monsterData )){
+				this.damage = damage / 2;
+			}
+			
+			if( damage < 0 ) {
+				damage = 0;
+			}
+			
+			Integer HP = monsterData.getCurrentHp() - damage;
+			
+			if( HP < 0 ) {
+				monsterData = Funeral.execution( monsterData );
+				this.resultMessage =  monsterData.getName() + "を倒した!!";
+				
+			}else{
+				
+				//対象が睡眠状態の場合は、それを解除する。
+				if( monsterData.getStatusSet().stream()
+						.filter( s -> s.getName().equals( "睡眠" ))
+						.count() == 1 ) {
+					this.resultMessage = monsterData.getName() + "は目を覚ました!";
+					monsterData = Awakening.awakening( monsterData );
+				}
+				
+				monsterData.setCurrentHp( HP );
+			}
 		}
 		
 		return monsterData;
