@@ -14,6 +14,8 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import com.example.rpg2.action.Attack;
+import com.example.rpg2.action.CancelDefense;
+import com.example.rpg2.action.ChoiceDefense;
 import com.example.rpg2.action.TaregetEnemyAction;
 import com.example.rpg2.action.TargetAllyAction;
 import com.example.rpg2.action.magic.MagicAttack;
@@ -25,9 +27,6 @@ import com.example.rpg2.entity.Skill;
 import com.example.rpg2.process.BadStatusAfter;
 import com.example.rpg2.process.BadStatusBefore;
 import com.example.rpg2.process.ConsumptionMP;
-import com.example.rpg2.status.Defense;
-import com.example.rpg2.status.Normal;
-import com.example.rpg2.status.Status;
 
 import lombok.Data;
 
@@ -92,17 +91,19 @@ public class Battle {
 	//------------------------------------------------------------------------------
 	
 	//通常攻撃が選択された場合の事前処理
-	public void selectionAttack( Integer myKeys ,  Integer key ) {
+	public void selectionAttack( Integer myKeys , Integer key ) {
 		Target target = new Target( monsterDataMap.get( key ) , myKeys , key );
 		targetMap.put( myKeys , target );
-		this.cancelDefense( partyMap.get( myKeys ) , myKeys );
+		AllyData allyData = CancelDefense.cancelDefense( partyMap.get( myKeys ) );
+		partyMap.put( myKeys , allyData );
 	}
 	
 	//味方への魔法が選択された場合の事前処理
 	public void selectionAllyMagic( Integer myKeys , Integer key , Magic magic ) {
 		Target target = new Target ( partyMap.get( key ) , myKeys , key , magic );
 		targetMap.put( myKeys , target );
-		this.cancelDefense( partyMap.get( myKeys ) , myKeys );
+		AllyData allyData = CancelDefense.cancelDefense( partyMap.get( myKeys ) );
+		partyMap.put( myKeys , allyData );
 	}
 	
 	//味方への全体魔法が選択された場合の事前処理
@@ -110,28 +111,32 @@ public class Battle {
 		//最後の引数はオーバーロード用のダミー
 		Target target = new Target ( partyMap , targetSetAlly , myKeys ,  magic , 1 );
 		targetMap.put( myKeys , target );
-		this.cancelDefense( partyMap.get( myKeys ) , myKeys );
+		AllyData allyData = CancelDefense.cancelDefense( partyMap.get( myKeys ) );
+		partyMap.put( myKeys , allyData );
 	}
 	
 	//敵への魔法が選択された場合の事前処理
 	public void selectionMonsterMagic( Integer myKeys , Integer key , Magic magic ) {
 		Target target = new Target( monsterDataMap.get( key ) , myKeys , key , magic );
 		targetMap.put( myKeys , target );
-		this.cancelDefense( partyMap.get( myKeys ) , myKeys );
+		AllyData allyData = CancelDefense.cancelDefense( partyMap.get( myKeys ) );
+		partyMap.put( myKeys , allyData );
 	}
 	
 	//敵への全体魔法が選択された場合の事前処理
 	public void selectionMonsterMagic( Integer myKeys , Magic magic ) {
 		Target target = new Target( monsterDataMap , targetSetEnemy , myKeys ,  magic );
 		targetMap.put( myKeys , target );
-		this.cancelDefense( partyMap.get( myKeys ) , myKeys );
+		AllyData allyData = CancelDefense.cancelDefense( partyMap.get( myKeys ) );
+		partyMap.put( myKeys , allyData );
 	}
 	
 	//味方への特技が選択された場合の事前処理
 	public void selectionAllySkill( Integer myKeys , Integer key , Skill skill ) {
 		Target target = new Target ( partyMap.get( key ) , myKeys , key , skill );
 		targetMap.put( myKeys , target );
-		this.cancelDefense( partyMap.get( myKeys ) , myKeys );
+		AllyData allyData = CancelDefense.cancelDefense( partyMap.get( myKeys ) );
+		partyMap.put( myKeys , allyData );
 	}
 	
 	//味方への全体特技が選択された場合の事前処理
@@ -139,28 +144,32 @@ public class Battle {
 		//最後の引数はオーバーロード用のダミー
 		Target target = new Target ( partyMap , targetSetAlly , myKeys ,  skill , 1 );
 		targetMap.put( myKeys , target );
-		this.cancelDefense( partyMap.get( myKeys ) , myKeys );
+		AllyData allyData = CancelDefense.cancelDefense( partyMap.get( myKeys ) );
+		partyMap.put( myKeys , allyData );
 	}
 	
 	//敵への特技が選択された場合の事前処理
 	public void selectionMonsterSkill( Integer myKeys , Integer key , Skill skill ) {
 		Target target = new Target( monsterDataMap.get( key ) , myKeys , key , skill );
 		targetMap.put( myKeys , target );
-		this.cancelDefense( partyMap.get( myKeys ) , myKeys );
+		AllyData allyData = CancelDefense.cancelDefense( partyMap.get( myKeys ) );
+		partyMap.put( myKeys , allyData );
 	}
 	
 	//敵への全体特技が選択された場合の事前処理
 	public void selectionMonsterSkill( Integer myKeys , Skill skill ) {
 		Target target = new Target( monsterDataMap , targetSetEnemy , myKeys ,  skill );
 		targetMap.put( myKeys , target );
-		this.cancelDefense( partyMap.get( myKeys ) , myKeys );
+		AllyData allyData = CancelDefense.cancelDefense( partyMap.get( myKeys ) );
+		partyMap.put( myKeys , allyData );
 	}
 	
 	//防御を選択
 	public void selectionDefense( Integer myKeys ) {
 		Target target = new Target( myKeys , "防御" );
 		targetMap.put( myKeys , target );
-		this.choiceDefense( partyMap.get( myKeys ) , myKeys );
+		AllyData allyData = ChoiceDefense.choiceDefense( partyMap.get( myKeys ) );
+		partyMap.put( myKeys , allyData );
 	}
 	
 	//--------------------------------------------------------------------------------------
@@ -360,8 +369,6 @@ public class Battle {
 						//MP消費処理
 						allyData = ConsumptionMP.consumptionMP( allyData , magic , skill );
 						partyMap.put( key , allyData );
-						
-						
 					}
 					
 				//蘇生魔法の処理
@@ -713,37 +720,7 @@ public class Battle {
 		}
 		
 	}
-	
-	
-	//防御選択時の処理
-	public void choiceDefense( AllyData allyData , Integer key ) {
-		Set<Status> statusSet = allyData.getStatusSet()
-				.stream()
-				.filter( s -> !s.getName().equals( "正常" ) )
-				.collect( Collectors.toSet() );
-		
-		statusSet.add( new Defense( allyData ) );
-		allyData.setStatusSet( statusSet );
-		partyMap.put( key , allyData );
-	}
-	
-	
-	//防御解除の処理
-	public void cancelDefense( AllyData allyData , Integer key ) {
-		Set<Status> statusSet = allyData.getStatusSet()
-				.stream()
-				.filter( s -> !s.getName().equals( "防御" ) )
-				.collect( Collectors.toSet() );
-		
-		//状態異常中でなければ正常状態へ戻す。
-		if( statusSet.size() == 0 ) {
-			statusSet.add( new Normal() );
-		}
-		
-		allyData.setStatusSet( statusSet );
-		partyMap.put( key , allyData );
-	}
-	
+
 	
 	//敵の単体攻撃を処理するメソッド
 	public void singleAttack( List<Integer> targetList , EnemyAction enemyAction ) {
