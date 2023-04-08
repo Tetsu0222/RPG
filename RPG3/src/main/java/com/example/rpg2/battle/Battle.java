@@ -17,9 +17,9 @@ import com.example.rpg2.action.Attack;
 import com.example.rpg2.action.CancelDefense;
 import com.example.rpg2.action.ChoiceDefense;
 import com.example.rpg2.action.SortingAttackAction;
+import com.example.rpg2.action.SortingRecoveryAction;
 import com.example.rpg2.action.TaregetEnemyAction;
 import com.example.rpg2.action.TargetAllyAction;
-import com.example.rpg2.action.magic.RecoveryMagic;
 import com.example.rpg2.action.magic.ResuscitationMagic;
 import com.example.rpg2.entity.Magic;
 import com.example.rpg2.entity.Skill;
@@ -262,21 +262,13 @@ public class Battle {
 					//通常攻撃を実施
 					this.mesageList.add( at.getStratMessage() );
 					this.singleAttack( at,  target , key , magic , skill );
-					
-					
+
 				//回復・補助魔法の処理
-				}else if( movementPattern.equals( "targetally" )) {
+				}else if( movementPattern.equals( "targetally" ) && !movementPattern.equals( "resuscitationmagic" ) ) {
 					
-					TargetAllyAction targetAllyAction = null;
 					
-					//回復・補助の魔法を生成
-					if( targetMap.get( key ).getExecutionMagic() != null) {
-						targetAllyAction = new RecoveryMagic( allyData , magic  );
-						
-					//回復・補助の特技を生成
-					}else{
-						//targetAllyAction = new RecoveryMagic( allyData , targetMap.get( key ).getExecutionMagic()  ); 工事予定
-					}
+					//回復補助の魔法か特技か判定して該当オブジェクトを生成
+					TargetAllyAction targetAllyAction = SortingRecoveryAction.sortingCreateRecoveryAction( allyData,  magic , skill );
 					
 					//行動を宣言
 					this.mesageList.add( targetAllyAction.getStratMessage() );
@@ -287,20 +279,26 @@ public class Battle {
 					
 					//MP判定OK
 					}else{
-						//全体回復魔法の処理
-						if( targetMap.get( key ).getTargetSetAlly() != null ) {
-							this.generalSupport( targetAllyAction , key );
+						
+						//魔法特技の指定回数分の処理
+						for( int i = 0 ; i < SortingRecoveryAction.actions ; i++ ){
 							
-						//単体回復魔法の処理
-						}else{
-							this.singleSupport( targetAllyAction , target , key );
+							//無差別回復
+							if( SortingAttackAction.targetRandom ) {
+								List<Integer> targetList = new ArrayList<Integer>( targetSetAlly );
+								target = random.nextInt( targetList.size() );
+								this.singleSupport( targetAllyAction , target , key );
+						
+							//全体回復魔法の処理
+							}else if( targetMap.get( key ).getTargetSetAlly() != null ) {
+								this.generalSupport( targetAllyAction , key );
+								
+							//単体回復魔法の処理
+							}else{
+								this.singleSupport( targetAllyAction , target , key );
+							}
 						}
 					}
-					
-					//MP消費処理
-					allyData = ConsumptionMP.consumptionMP( allyData , magic , skill );
-					partyMap.put( key , allyData );
-				
 					
 				//攻撃・妨害の処理
 				}else if( movementPattern.equals( "targetenemy" )) {
@@ -339,16 +337,12 @@ public class Battle {
 								this.singleAttack( taregetEnemyAction , target , key , magic , skill );
 							}
 						}
-						
-						//MP消費処理
-						allyData = ConsumptionMP.consumptionMP( allyData , magic , skill );
-						partyMap.put( key , allyData );
 					}
 					
 				//蘇生魔法の処理
 				}else if( movementPattern.equals( "resuscitationmagic" )) {
 					
-					//蘇生魔法を生成(回復魔法と同一オブジェクトにて処理)
+					//蘇生魔法を生成
 					TargetAllyAction resuscitationMagic = new ResuscitationMagic( allyData , magic  );
 					this.mesageList.add( resuscitationMagic.getStratMessage() );
 					
@@ -368,11 +362,11 @@ public class Battle {
 							this.resuscitationMagicExecution( resuscitationMagic , target , key );
 						}
 					}
-					
-					//MP消費処理
-					allyData = ConsumptionMP.consumptionMP( allyData , magic , skill );
-					partyMap.put( key , allyData );
 				}
+				
+				//MP消費処理
+				allyData = ConsumptionMP.consumptionMP( allyData , magic , skill );
+				partyMap.put( key , allyData );
 				
 				//行動終了後に作用する状態異常の処理
 				this.badStatusAfter( allyData, key );

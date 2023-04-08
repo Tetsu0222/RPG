@@ -19,6 +19,9 @@ public class ConsumptionMP {
 			int MP = allyData.getCurrentMp();
 			MP -= skill.getMp();
 			allyData.setCurrentMp( MP );
+			
+		}else{
+			//処理しない。
 		}
 		
 		return allyData;
