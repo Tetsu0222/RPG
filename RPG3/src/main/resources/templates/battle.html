@@ -254,6 +254,21 @@
 			</table>
 		</div>
 		
+		<div th:if="${session.mode == 'targetDeathAllySkill'}">
+			<table border="1">
+				<form th:action="@{/}" method="get">
+					<tr>
+						<th>対象選択</th>
+					</tr>
+					<tr th:each="entry:${session.battle.partyMap}">
+						<td th:if="${entry.value.survival == 0}">
+							<a th:href="@{/target/magic/ally/__${entry.key}__}" th:text="${entry.value.name}"></a>
+						</td>
+					</tr>
+				</form>
+			</table>
+		</div>
+		
 		<!-- 魔法攻撃  -->
 		<div th:if="${session.mode == 'targetMonsterMagic'}">
 			<table border="1">

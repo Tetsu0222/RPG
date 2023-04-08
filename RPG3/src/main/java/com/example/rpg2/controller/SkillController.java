@@ -162,17 +162,9 @@ public class SkillController {
 		Battle battle = (Battle)session.getAttribute( "battle" );
 		skill = skillRepository.findById( id ).get();
 		
-		//単体魔法かつ攻撃魔法と妨害魔法以外→対象選択の範囲を味方に指定
-		if( skill.getRange().equals( "single" ) && skill.getCategory().equals( "targetally" ) || skill.getCategory().equals( "resuscitationskill" ) ) {
-			
-			//蘇生特技以外
-			if( !skill.getCategory().equals( "resuscitationskill" )) {
-				session.setAttribute( "mode" , "targetAllySkill" );
-				
-			//蘇生特技
-			}else{
-				session.setAttribute( "mode" , "targetDeathAllySkill" );
-			}
+		//単体かつ攻撃と妨害以外→対象選択の範囲を味方に指定
+		if( skill.getRange().equals( "single" ) && skill.getCategory().equals( "targetally" )) {
+			session.setAttribute( "mode" , "targetAllySkill" );
 			
 		//単体特技かつ攻撃・妨害特技→対象選択の範囲を敵に指定
 		}else if( skill.getRange().equals( "single" ) && skill.getCategory().equals( "targetenemy" ) ) {
@@ -184,8 +176,17 @@ public class SkillController {
 			session.setAttribute( "mode" , "log" );
 		
 		//敵全体への特技
-		}else{
+		}else if( !skill.getRange().equals( "single" ) && skill.getCategory().equals( "targetenemy" ) ){
 			battle.selectionMonsterSkill( myKeys , skill );
+			session.setAttribute( "mode" , "log" );
+		
+		//蘇生特技
+		}else{
+			
+			if( skill.getRange().equals( "single" ) ) {
+				session.setAttribute( "mode" , "targetDeathAllySkill" );
+			}
+			battle.selectionAllySkill( myKeys , skill );
 			session.setAttribute( "mode" , "log" );
 		}
 		

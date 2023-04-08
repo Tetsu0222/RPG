@@ -160,17 +160,9 @@ public class MagicController {
 		magic = magicRepository.findById( id ).get();
 		
 		//単体魔法かつ攻撃魔法と妨害魔法以外→対象選択の範囲を味方に指定
-		if( magic.getRange().equals( "single" ) && magic.getCategory().equals( "targetally" ) || magic.getCategory().equals( "resuscitationmagic" ) ) {
-			
-			//蘇生魔法以外
-			if( !magic.getCategory().equals( "resuscitationmagic" )) {
+		if( magic.getRange().equals( "single" ) && magic.getCategory().equals( "targetally" ) ) {
 				session.setAttribute( "mode" , "targetAllyMagic" );
-				
-			//蘇生魔法
-			}else{
-				session.setAttribute( "mode" , "targetDeathAllyMagic" );
-			}
-			
+
 		//単体魔法かつ攻撃・妨害魔法→対象選択の範囲を敵に指定
 		}else if( magic.getRange().equals( "single" ) && magic.getCategory().equals( "targetenemy" ) ) {
 			session.setAttribute( "mode" , "targetMonsterMagic" );
@@ -181,9 +173,20 @@ public class MagicController {
 			session.setAttribute( "mode" , "log" );
 		
 		//敵全体への魔法
-		}else{
+		}else if( !magic.getRange().equals( "single" ) && magic.getCategory().equals( "targetenemy" ) ){
 			battle.selectionMonsterMagic( myKeys , magic );
 			session.setAttribute( "mode" , "log" );
+		
+		//蘇生魔法
+		}else{
+			
+			if( magic.getRange().equals( "single" )) {
+				session.setAttribute( "mode" , "targetDeathAllyMagic" );
+				
+			}else{
+				battle.selectionAllyMagic( myKeys , magic );
+				session.setAttribute( "mode" , "log" );
+			}
 		}
 		
 		session.setAttribute( "battle" , battle );

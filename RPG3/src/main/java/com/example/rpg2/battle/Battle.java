@@ -20,7 +20,6 @@ import com.example.rpg2.action.SortingAttackAction;
 import com.example.rpg2.action.SortingRecoveryAction;
 import com.example.rpg2.action.TaregetEnemyAction;
 import com.example.rpg2.action.TargetAllyAction;
-import com.example.rpg2.action.magic.ResuscitationMagic;
 import com.example.rpg2.entity.Magic;
 import com.example.rpg2.entity.Skill;
 import com.example.rpg2.process.BadStatusAfter;
@@ -232,6 +231,7 @@ public class Battle {
     			String   movementPattern = targetMap.get( key ).getCategory();
 				Skill skill = targetMap.get( key ).getExecutionSkill();
 				Magic magic = targetMap.get( key ).getExecutionMagic();
+				boolean isMpEmpty = false;
 
     			//ターン中に死亡している場合は、処理を中断(カウンターなどを想定)
     			if( allyData.getSurvival() == 0 ) {
@@ -264,10 +264,9 @@ public class Battle {
 					this.singleAttack( at,  target , key , magic , skill );
 
 				//回復・補助魔法の処理
-				}else if( movementPattern.equals( "targetally" ) && !movementPattern.equals( "resuscitationmagic" ) ) {
+				}else if( movementPattern.equals( "targetally" ) || movementPattern.equals( "resuscitationmagic" ) || movementPattern.equals( "resuscitationskill" ) ) {
 					
-					
-					//回復補助の魔法か特技か判定して該当オブジェクトを生成
+					//回復or補助or蘇生の魔法か特技か判定して該当オブジェクトを生成
 					TargetAllyAction targetAllyAction = SortingRecoveryAction.sortingCreateRecoveryAction( allyData,  magic , skill );
 					
 					//行動を宣言
@@ -276,7 +275,8 @@ public class Battle {
 					//MP判定 MPが足りないとtureが返る。
 					if( targetAllyAction.isNotEnoughMp() ){
 						this.mesageList.add( targetAllyAction.getNotEnoughMpMessage() );
-					
+						isMpEmpty = true;
+						
 					//MP判定OK
 					}else{
 						
@@ -284,11 +284,23 @@ public class Battle {
 						for( int i = 0 ; i < SortingRecoveryAction.actions ; i++ ){
 							
 							//無差別回復
-							if( SortingAttackAction.targetRandom ) {
+							if( SortingRecoveryAction.targetRandom ) {
 								List<Integer> targetList = new ArrayList<Integer>( targetSetAlly );
 								target = random.nextInt( targetList.size() );
 								this.singleSupport( targetAllyAction , target , key );
-						
+							
+							//蘇生
+							}else if( SortingRecoveryAction.isResuscitation ) {
+								
+								//全体蘇生魔法の処理
+								if( targetMap.get( key ).getTargetSetAlly() != null ) {
+									this.resuscitationMagicExecution( targetAllyAction , -1 , key );
+									
+								//単体蘇生魔法の処理
+								}else{
+									this.resuscitationMagicExecution( targetAllyAction , target , key );
+								}
+								
 							//全体回復魔法の処理
 							}else if( targetMap.get( key ).getTargetSetAlly() != null ) {
 								this.generalSupport( targetAllyAction , key );
@@ -312,6 +324,7 @@ public class Battle {
 					//MP判定 MPが足りないとtureが返る。
 					if( taregetEnemyAction.isNotEnoughMp() ){
 						this.mesageList.add( taregetEnemyAction.getNotEnoughMpMessage() );
+						isMpEmpty = true;
 						
 					//MP判定OK
 					}else{
@@ -338,36 +351,14 @@ public class Battle {
 							}
 						}
 					}
-					
-				//蘇生魔法の処理
-				}else if( movementPattern.equals( "resuscitationmagic" )) {
-					
-					//蘇生魔法を生成
-					TargetAllyAction resuscitationMagic = new ResuscitationMagic( allyData , magic  );
-					this.mesageList.add( resuscitationMagic.getStratMessage() );
-					
-					//MP判定 MPが足りないとtureが返る。
-					if( resuscitationMagic.isNotEnoughMp() ){
-						this.mesageList.add( resuscitationMagic.getNotEnoughMpMessage() );
-					
-					//MP判定OK
-					}else{
-						
-						//全体蘇生魔法の処理
-						if( targetMap.get( key ).getTargetSetEnemy() != null ) {
-							this.resuscitationMagicExecution( resuscitationMagic , -1 , key );
-							
-						//単体蘇生魔法の処理
-						}else{
-							this.resuscitationMagicExecution( resuscitationMagic , target , key );
-						}
-					}
 				}
 				
-				//MP消費処理
-				allyData = ConsumptionMP.consumptionMP( allyData , magic , skill );
-				partyMap.put( key , allyData );
-				
+				if( !isMpEmpty ) {
+					//MP消費処理
+					allyData = ConsumptionMP.consumptionMP( allyData , magic , skill );
+					partyMap.put( key , allyData );
+				}
+
 				//行動終了後に作用する状態異常の処理
 				this.badStatusAfter( allyData, key );
 				

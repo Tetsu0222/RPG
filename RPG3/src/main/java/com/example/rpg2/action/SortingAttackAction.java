@@ -28,20 +28,36 @@ public class SortingAttackAction {
 		
 		//魔法攻撃を生成
 		if( magic != null) {
+			
+			//無差別ターゲット攻撃か確認(無差別攻撃は未実装)
 			targetRandom = false;
+			
+			//発動回数を取得
 			actions = magic.getFrequency();
+			
+			//発動回数はランダム
 			if( actions == 0 ) {
 				actions = random.nextInt( 6 ) + 1;
 			}
+			
+			//攻撃魔法を生成
 			taregetEnemyAction = new MagicAttack( allyData , magic );
 		
 		//特技を生成
 		}else{
+			
+			//無差別ターゲット攻撃か確認
 			targetRandom = skill.getTarget().equals( "random" );
+			
+			//特技毎の発動回数を取得
 			actions = skill.getFrequency();
+			
+			//発動回数はランダム
 			if( actions == 0 ) {
 				actions = random.nextInt( skill.getMaxfrequency() ) + 1;
 			}
+			
+			//特技を生成
 			taregetEnemyAction = new SkillAttack( allyData , skill );
 		}
 		
@@ -49,7 +65,7 @@ public class SortingAttackAction {
 	}
 	
 	
-	//攻撃中の再生成
+	//攻撃中のアクションオブジェクト再生成(対象撃破時の自動ターゲット変更に対応するため)
 	public static TaregetEnemyAction sortingRegenerationAttackAction( AllyData allyData , Magic magic , Skill skill ) {
 		
 		TaregetEnemyAction taregetEnemyAction = null;
