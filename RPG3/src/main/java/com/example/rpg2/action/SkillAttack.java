@@ -104,14 +104,12 @@ public class SkillAttack implements TaregetEnemyAction{
 				//(攻撃力 * スキル補正 - (防御力 / 2) ) + 乱数 = ダメージ
 				damageSource = ( allyData.getCurrentATK() * skill.getPercentage() - ( monsterData.getCurrentDEF() / 2 )) 
 						+ ( random.nextInt( allyData.getCurrentATK() ) / 2 );
-				this.damageMessage = damage + "のダメージを与えた!!";
 				
 			//会心
 			}else{
 				//( 攻撃力 * 2 * スキル補正) + 乱数 = ダメージ
 				damageSource = allyData.getCurrentATK() * 2 * skill.getPercentage() 
 						+ ( random.nextInt( allyData.getCurrentATK() ) / 2 );
-				this.damageMessage = "会心の一撃!!!" + damage + "のダメージを与えた!!";
 			}
 			
 			//ダメージをキャスト
@@ -127,6 +125,15 @@ public class SkillAttack implements TaregetEnemyAction{
 			}
 			
 			Integer HP = monsterData.getCurrentHp() - damage;
+			
+			//会心の有無でメッセージを変更
+			if( critical > 6 ) {
+				this.damageMessage = monsterData.getName() + "に" +damage + "のダメージを与えた!!";
+				
+			}else{
+				this.damageMessage = "会心の一撃!!!" + monsterData.getName() + "に" + damage + "のダメージを与えた!!";
+			}
+			
 			
 			if( HP < 0 ) {
 				monsterData = Funeral.execution( monsterData );

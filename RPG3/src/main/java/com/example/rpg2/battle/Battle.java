@@ -293,20 +293,24 @@ public class Battle {
 				//攻撃・妨害魔法の処理
 				}else if( movementPattern.equals( "targetenemy" )) {
 					
+					//行動用のオブジェクト
 					TaregetEnemyAction taregetEnemyAction = null;
-					int actions = 0;
 					
-					//攻撃・妨害の魔法を生成
-					if( targetMap.get( key ).getExecutionMagic() != null ) {
-						taregetEnemyAction = new MagicAttack( allyData , targetMap.get( key ).getExecutionMagic()  );
+					//攻撃回数
+					int actions = 1;
+					
+					//魔法攻撃を生成
+					if( targetMap.get( key ).getExecutionMagic() != null) {
 						actions = targetMap.get( key ).getExecutionMagic().getFrequency();
-						
-					//攻撃・妨害の特技を生成
+						taregetEnemyAction = new MagicAttack( allyData , targetMap.get( key ).getExecutionMagic()  );
+					
+					//特技を生成
 					}else{
-						taregetEnemyAction = new SkillAttack( allyData , targetMap.get( key ).getExecutionSkill()  );
 						actions = targetMap.get( key ).getExecutionSkill().getFrequency();
+						taregetEnemyAction = new SkillAttack( allyData , targetMap.get( key ).getExecutionSkill()  );
 					}
 					
+					//行動を宣言
 					this.mesageList.add( taregetEnemyAction.getStratMessage() );
 					
 					//MP判定 MPが足りないとtureが返る。
@@ -315,13 +319,23 @@ public class Battle {
 						
 					//MP判定OK
 					}else{
+						
 						//魔法特技の攻撃回数分の処理
 						for( int i = 0 ; i < actions ; i++ ){
+							
+							//攻撃・妨害の魔法を再生成
+							if( targetMap.get( key ).getExecutionMagic() != null ) {
+								taregetEnemyAction = new MagicAttack( allyData , targetMap.get( key ).getExecutionMagic()  );
+		
+							//攻撃・妨害の特技を再生成
+							}else{
+								taregetEnemyAction = new SkillAttack( allyData , targetMap.get( key ).getExecutionSkill()  );
+							}
 							
 							//全体攻撃魔法の処理
 							if( targetMap.get( key ).getTargetSetEnemy() != null ) {
 								this.generalAttack( taregetEnemyAction , key );
-								
+										
 							//単体攻撃魔法の処理
 							}else{
 								this.singleAttack( taregetEnemyAction , target , key );
