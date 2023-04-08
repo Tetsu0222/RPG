@@ -13,6 +13,7 @@ public class SortingAttackAction {
 	
 	
 	public static int actions;
+	public static boolean targetRandom;
 	
 	
 	//攻撃開始前の生成
@@ -27,6 +28,7 @@ public class SortingAttackAction {
 		
 		//魔法攻撃を生成
 		if( magic != null) {
+			targetRandom = false;
 			actions = magic.getFrequency();
 			if( actions == 0 ) {
 				actions = random.nextInt( 6 ) + 1;
@@ -35,9 +37,10 @@ public class SortingAttackAction {
 		
 		//特技を生成
 		}else{
+			targetRandom = skill.getTarget().equals( "random" );
 			actions = skill.getFrequency();
 			if( actions == 0 ) {
-				actions = random.nextInt( 6 ) + 1;
+				actions = random.nextInt( skill.getMaxfrequency() ) + 1;
 			}
 			taregetEnemyAction = new SkillAttack( allyData , skill );
 		}

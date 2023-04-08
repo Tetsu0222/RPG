@@ -54,6 +54,7 @@ public class Battle {
 	//キーは敵味方混合、値は乱数補正後の素早さ。素早さ順で降順ソートしたリスト
 	private List<Entry<Integer, Integer>> turnList;
 	
+	Random random = new Random();
 	
 	//コンストラクタ
 	public Battle( List<AllyData> partyList , List<MonsterData> monsterDataList ) {
@@ -77,10 +78,6 @@ public class Battle {
 		//味方と敵の座標リストをそれぞれ生成(各マップのキー数字とリンク）
 		this.targetSetEnemy = new TreeSet<>( monsterDataMap.keySet() );
 		this.targetSetAlly  = new TreeSet<>( partyMap.keySet() );
-		
-	}
-	
-	public Battle() {
 		
 	}
 	
@@ -327,10 +324,16 @@ public class Battle {
 							//対象撃破時のターゲット自動変更のために再生成
 							taregetEnemyAction = SortingAttackAction.sortingRegenerationAttackAction( allyData , magic , skill );
 							
+							//無差別攻撃
+							if( SortingAttackAction.targetRandom ) {
+								List<Integer> targetList = new ArrayList<Integer>( targetSetEnemy );
+								target = random.nextInt( targetList.size() ) + 4;
+								this.singleAttack( taregetEnemyAction , target , key , magic , skill );
+								
 							//全体攻撃の処理
-							if( targetMap.get( key ).getTargetSetEnemy() != null ) {
+							}else if( targetMap.get( key ).getTargetSetEnemy() != null ) {
 								this.generalAttack( taregetEnemyAction , key );
-										
+
 							//単体攻撃の処理
 							}else{
 								this.singleAttack( taregetEnemyAction , target , key , magic , skill );

@@ -44,5 +44,11 @@ public class Skill {
     
     @Column( name = "frequency" )
     private Integer frequency;
+    
+    @Column( name = "target" )
+    private String target;
+    
+    @Column( name = "maxfrequency" )
+    private Integer maxfrequency;
 
 }
