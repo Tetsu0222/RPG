@@ -7,6 +7,7 @@ public interface TaregetEnemyAction {
 	public String getStratMessage();
 	public String getNotEnoughMpMessage();
 	public String getResultMessage();
+	public void setResultMessage();
 	
 	public boolean isNotEnoughMp();
 	public MonsterData action( MonsterData monsterData );

@@ -17,6 +17,7 @@ import com.example.rpg2.action.Attack;
 import com.example.rpg2.action.MagicAttack;
 import com.example.rpg2.action.RecoveryMagic;
 import com.example.rpg2.action.ResuscitationMagic;
+import com.example.rpg2.action.SkillAttack;
 import com.example.rpg2.action.TaregetEnemyAction;
 import com.example.rpg2.action.TargetAllyAction;
 import com.example.rpg2.entity.Magic;
@@ -228,22 +229,33 @@ public class Battle {
 				//回復・補助魔法の処理
 				}else if( movementPattern.equals( "targetally" )) {
 					
-					//回復。補助魔法を生成
-					TargetAllyAction recoveryMagic = new RecoveryMagic( allyData , targetMap.get( key ).getExecutionMagic()  );
-					this.mesageList.add( recoveryMagic.getStratMessage() );
+					TargetAllyAction targetAllyAction = null;
+					
+					//回復・補助の魔法を生成
+					if( targetMap.get( key ).getExecutionMagic() != null) {
+						targetAllyAction = new RecoveryMagic( allyData , targetMap.get( key ).getExecutionMagic()  );
+						
+					//回復・補助の特技を生成
+					}else{
+						//targetAllyAction = new RecoveryMagic( allyData , targetMap.get( key ).getExecutionMagic()  ); 工事予定
+					}
+					
+					//行動を宣言
+					this.mesageList.add( targetAllyAction.getStratMessage() );
 					
 					//MP判定 MPが足りないとtureが返る。
-					if( recoveryMagic.isNotEnoughMp() ){
-						this.mesageList.add( recoveryMagic.getNotEnoughMpMessage() );
+					if( targetAllyAction.isNotEnoughMp() ){
+						this.mesageList.add( targetAllyAction.getNotEnoughMpMessage() );
 					
 					//MP判定OK
 					}else{
 						//全体回復魔法の処理
 						if( targetMap.get( key ).getTargetSetAlly() != null ) {
-							this.generalSupport( recoveryMagic, key );
+							this.generalSupport( targetAllyAction , key );
+							
 						//単体回復魔法の処理
 						}else{
-							this.singleSupport( recoveryMagic , target , key );
+							this.singleSupport( targetAllyAction , target , key );
 						}
 					}
 				
@@ -251,24 +263,40 @@ public class Battle {
 				//攻撃・妨害魔法の処理
 				}else if( movementPattern.equals( "targetenemy" )) {
 					
-					//攻撃・妨害魔法を生成
-					TaregetEnemyAction magicAttack = new MagicAttack( allyData , targetMap.get( key ).getExecutionMagic()  );
-					this.mesageList.add( magicAttack.getStratMessage() );
+					TaregetEnemyAction taregetEnemyAction = null;
+					int actions = 0;
+					
+					//攻撃・妨害の魔法を生成
+					if( targetMap.get( key ).getExecutionMagic() != null ) {
+						taregetEnemyAction = new MagicAttack( allyData , targetMap.get( key ).getExecutionMagic()  );
+						actions = targetMap.get( key ).getExecutionMagic().getFrequency();
+						
+					//攻撃・妨害の特技を生成
+					}else{
+						taregetEnemyAction = new SkillAttack( allyData , targetMap.get( key ).getExecutionMagic()  );
+						//actions = 
+					}
+					
+					
+					this.mesageList.add( taregetEnemyAction.getStratMessage() );
 					
 					//MP判定 MPが足りないとtureが返る。
-					if( magicAttack.isNotEnoughMp() ){
-						this.mesageList.add( magicAttack.getNotEnoughMpMessage() );
+					if( taregetEnemyAction.isNotEnoughMp() ){
+						this.mesageList.add( taregetEnemyAction.getNotEnoughMpMessage() );
 						
 					//MP判定OK
 					}else{
-						
-						//全体攻撃魔法の処理
-						if( targetMap.get( key ).getTargetSetEnemy() != null ) {
-							this.generalAttack( magicAttack , key );
+						//魔法特技の攻撃回数分の処理
+						for( int i = 0 ; i < actions ; i++ ){
 							
-						//単体攻撃魔法の処理
-						}else{
-							this.singleAttack( magicAttack , target , key );
+							//全体攻撃魔法の処理
+							if( targetMap.get( key ).getTargetSetEnemy() != null ) {
+								this.generalAttack( taregetEnemyAction , key );
+								
+							//単体攻撃魔法の処理
+							}else{
+								this.singleAttack( taregetEnemyAction , target , key );
+							}
 						}
 					}
 					
@@ -379,9 +407,10 @@ public class Battle {
 		    		}else{
 		    			enemyAction.noAction();
 		    		}
-	    			
-	    			this.badStatusAfter( monsterData , key );
     			}
+    			
+    			//行動終了後の状態異常を処理
+    			this.badStatusAfter( monsterData , key );
     		}
         }
 	}
@@ -480,6 +509,10 @@ public class Battle {
 		
 		//targetを敵全体へ変更
 		for( Integer target : targetSetEnemy ) {
+			
+			//撃破メッセージを初期化
+			taregetEnemyAction.setResultMessage();
+			
 			MonsterData monsterData = taregetEnemyAction.action( monsterDataMap.get( target ) );
 			this.monsterDataMap.put( target , monsterData );
 			

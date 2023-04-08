@@ -97,5 +97,12 @@ public class DeBuffMagic implements TaregetEnemyAction{
 		
 		return monsterData;
 	}
+
+
+	@Override
+	public void setResultMessage() {
+		// TODO 自動生成されたメソッド・スタブ
+		
+	}
 	
 }

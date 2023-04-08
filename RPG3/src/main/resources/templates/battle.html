@@ -32,6 +32,7 @@
 				<th>状態</th>
 				<th>攻撃</th>
 				<th>魔法</th>
+				<th>特技</th>
 				<th>防御</th>
 				<th>選択中の行動</th>
 				<th>対象</th>
@@ -64,6 +65,11 @@
 					<td>
 						<div th:unless="${entry.value.survival == 0}">
 							<button type="submit" th:formaction="@{/magic/__${entry.key}__}" th:text="魔法"></button>
+						</divth:unless="${entry.value.survival == 0}">
+					</td>
+					<td>
+						<div th:unless="${entry.value.survival == 0}">
+							<button type="submit" th:formaction="@{/skill/__${entry.key}__}" th:text="特技"></button>
 						</divth:unless="${entry.value.survival == 0}">
 					</td>
 					<td>
@@ -144,6 +150,59 @@
 			</table>
 		</div>
 		<!-- 魔法選択エリアはここまで -->
+		
+		
+		<!-- 特技選択エリア -->
+		<div th:if="${session.mode == 'skill'}">
+			
+			<table border="1">
+				<form th:action="@{/}" method="get">
+					<tr>
+						<th>カテゴリー</th>
+					</tr>
+					<tr>
+						<td>
+							<a th:href="@{/skill/__${key}__}" th:text="すべて"></a>
+						</td>
+						<td>
+							<a th:href="@{/skill/attack/__${key}__}" th:text="攻撃"></a>
+						</td>
+						<td>
+							<a th:href="@{/skill/recovery/__${key}__}" th:text="回復"></a>
+						</td>				
+						<td>
+							<a th:href="@{/skill/buff/__${key}__}" th:text="補助"></a>
+						</td>
+						<td>
+							<a th:href="@{/skill/debuff/__${key}__}" th:text="妨害"></a>
+						</td>
+					</tr>
+				</form>
+			</table>
+			
+			
+			<table border="1">
+				<form th:action="@{/}" method="get">
+					<tr>
+						<th>特技</th>
+						<th>消費MP</th>
+						<th>効果説明</th>
+					</tr>
+					<tr th:each="sk:${skillList}">
+						<td>
+							<a th:href="@{/skill/add/__${sk.id}__}" th:text="${sk.name}"></a>
+						</td>
+						<td>
+							<a th:text="${sk.mp}"></a>
+						</td>
+						<td>
+							<a th:text="${sk.text}"></a>
+						</td>
+					</tr>
+				</form>
+			</table>
+		</div>
+		<!-- 特技選択エリアはここまで -->
 		
 		
 		

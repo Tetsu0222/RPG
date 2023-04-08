@@ -11,7 +11,7 @@ import com.example.rpg2.process.IsDefense;
 import lombok.Data;
 
 @Data
-public class MagicAttack implements TaregetEnemyAction{
+public class SkillAttack implements TaregetEnemyAction{
 	
 	private MonsterData monsterData;
 	private Integer damage;
@@ -21,19 +21,19 @@ public class MagicAttack implements TaregetEnemyAction{
 	private String resultMessage;
 	private Integer target;
 	private AllyData allyData;
-	private Magic    magic;
+	private Magic    magic;//
 	
 	
-	public MagicAttack( AllyData allyData , Magic magic ) {
+	public SkillAttack( AllyData allyData , Magic magic ) {
 		this.allyData = allyData;
-		this.magic = magic;
-		this.stratMessage =  allyData.getName() + "は" + magic.getName() + "を放った!!";
+		this.magic = magic;//
+		this.stratMessage =  allyData.getName() + "は" + magic.getName() + "を放った!!";//
 	}
 	
 	
 	//MP判定
 	public boolean isNotEnoughMp() {
-		boolean check = magic.getMp() <= allyData.getCurrentMp();
+		boolean check = magic.getMp() <= allyData.getCurrentMp();//
 		
 		if( !check ) {
 			this.notEnoughMpMessage = "しかしMPが足りない･･･" ;
@@ -42,25 +42,26 @@ public class MagicAttack implements TaregetEnemyAction{
 		return !check;
 	}
 	
-	//攻撃魔法
+	
+	//特技の処理(工事前）
 	@Override
 	public MonsterData action( MonsterData monsterData  ) {
 		
 		Random random = new Random();
 		
-		//妨害魔法の処理
+		//状態異常の処理（魔法の処理を流用）
 		if( !magic.getBuffcategory().equals( "no" )) {
 			
-			//妨害魔法を生成
+			//状態異常を生成
 			TaregetEnemyAction deBuffMagic = new DeBuffMagic( allyData , magic  );
 			monsterData = deBuffMagic.action( monsterData );
 			
-			//妨害魔法の結果を取得
+			//結果を取得
 			this.resultMessage = deBuffMagic.getResultMessage();
 			
 		}
 		
-		//攻撃魔法の処理
+		//ダメージの処理(魔法系）
 		if( magic.getPoint() != 0 ) {
 			
 			//魔法威力 + 乱数 = ダメージ
@@ -87,6 +88,10 @@ public class MagicAttack implements TaregetEnemyAction{
 			}else{
 				monsterData.setCurrentHp( HP );
 			}
+			
+		//物理系
+		}else{
+			
 		}
 		
 		return monsterData;
@@ -96,8 +101,6 @@ public class MagicAttack implements TaregetEnemyAction{
 	@Override
 	public void setResultMessage() {
 		this.resultMessage = null;
-		
 	}
-
 
 }

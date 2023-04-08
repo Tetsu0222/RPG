@@ -6,6 +6,7 @@ import com.example.rpg2.battle.AllyData;
 import com.example.rpg2.battle.MonsterData;
 import com.example.rpg2.process.Awakening;
 import com.example.rpg2.process.Funeral;
+import com.example.rpg2.process.IsDefense;
 
 import lombok.Data;
 
@@ -53,6 +54,11 @@ public class Attack implements TaregetEnemyAction{
 			this.damageMessage = "会心の一撃!!!" + damage + "のダメージを与えた!!";
 		}
 		
+		//防御状態チェック
+		if( IsDefense.isDefense( monsterData )){
+			this.damage = damage / 2;
+		}
+		
 		if( damage < 0 ) {
 			damage = 0;
 		}
@@ -84,6 +90,12 @@ public class Attack implements TaregetEnemyAction{
 	public String getNotEnoughMpMessage() {
 		// TODO 自動生成されたメソッド・スタブ
 		return null;
+	}
+
+	@Override
+	public void setResultMessage() {
+		// TODO 自動生成されたメソッド・スタブ
+		
 	}
 
 

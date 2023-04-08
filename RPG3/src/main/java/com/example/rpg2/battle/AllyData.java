@@ -8,7 +8,9 @@ import java.util.Set;
 
 import com.example.rpg2.entity.Ally;
 import com.example.rpg2.entity.Magic;
+import com.example.rpg2.entity.Skill;
 import com.example.rpg2.repository.MagicRepository;
+import com.example.rpg2.repository.SkillRepository;
 import com.example.rpg2.status.Normal;
 import com.example.rpg2.status.Status;
 
@@ -30,17 +32,21 @@ public class AllyData {
 	private Integer currentDEF;
 	private Integer currentSPE;
 	private String  magic;
+	private String  skill;
 	private int survival;
 	private Integer resistance;
 	
 	//使用可能な魔法を格納
 	List<Magic> magicList = new ArrayList<>();
 	
+	//使用可能な特技を格納
+	List<Skill> skillList = new ArrayList<>();
+	
 	//状態異常を管理
 	Set<Status> statusSet = new HashSet<>();
 	
 	
-	public AllyData( Ally ally , MagicRepository magicRepository ) {
+	public AllyData( Ally ally , MagicRepository magicRepository , SkillRepository skillRepository ) {
 
 		this.name = ally.getName();
 		
@@ -67,6 +73,15 @@ public class AllyData {
 		.map( s -> Integer.parseInt( s ) )
 		.map( s ->  magicRepository.findById( s ) )
 		.forEach( s -> magicList.add( s.orElseThrow() ));
+		
+		//使用可能な特技の設定
+		this.skill = ally.getSkill();
+		String[] skillSource = skill.split( "," );
+		List<String> sourceSkillList = Arrays.asList( skillSource );
+		sourceSkillList.stream()
+		.map( s -> Integer.parseInt( s ) )
+		.map( s ->  skillRepository.findById( s ) )
+		.forEach( s -> skillList.add( s.orElseThrow() ));
 		
 		//生存設定
 		this.survival = 1;

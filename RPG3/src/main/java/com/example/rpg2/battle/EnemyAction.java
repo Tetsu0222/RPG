@@ -8,6 +8,7 @@ import com.example.rpg2.entity.MonsterPattern;
 import com.example.rpg2.process.Awakening;
 import com.example.rpg2.process.BadStatusAlly;
 import com.example.rpg2.process.Funeral;
+import com.example.rpg2.process.IsDefense;
 
 import lombok.Data;
 
@@ -117,7 +118,8 @@ public class EnemyAction {
 		//(攻撃力-防御力/2) + 乱数 = ダメージ
 		this.damage = ( monsterData.getCurrentATK() - ( allyData.getCurrentDEF() / 2 )) + plusDamage;
 		
-		if( this.isDefense( allyData )){
+		//防御状態チェック
+		if( IsDefense.isDefense( allyData )){
 			this.damage = damage / 2;
 		}
 		
@@ -170,7 +172,7 @@ public class EnemyAction {
 		//攻撃力 + 乱数 = ダメージ(防御力無視だけで暫定対応、耐性値を実装して値に干渉する予定)
 		this.damage = monsterData.getCurrentATK() + plusDamage;
 		
-		if( this.isDefense( allyData )){
+		if( IsDefense.isDefense( allyData )){
 			this.damage = damage / 2;
 		}
 		
@@ -195,20 +197,6 @@ public class EnemyAction {
 		}
 		
 		return allyData;
-	}
-	
-	
-	//防御の有無チェック
-	public boolean isDefense( AllyData allyData ) {
-		
-		//対象者のステータス異常の中に防御が含まれているか確認(1が返れば含まれていると判定)
-		Long i = allyData.getStatusSet()
-				.stream()
-				.filter( s -> s.getName().equals( "防御" ) )
-				.count();
-		
-		//防御が含まれていればtureを返す。
-		return i == 1;
 	}
 	
 }

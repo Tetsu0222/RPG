@@ -17,10 +17,12 @@ import com.example.rpg2.battle.MonsterData;
 import com.example.rpg2.entity.Ally;
 import com.example.rpg2.entity.Magic;
 import com.example.rpg2.entity.Monster;
+import com.example.rpg2.entity.Skill;
 import com.example.rpg2.repository.AllyRepository;
 import com.example.rpg2.repository.MagicRepository;
 import com.example.rpg2.repository.MonsterPatternRepository;
 import com.example.rpg2.repository.MonsterRepository;
+import com.example.rpg2.repository.SkillRepository;
 
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +36,7 @@ public class PublicController {
 	private final MonsterRepository 		monsterRepository;
 	private final MonsterPatternRepository  monsterPatternRepository;
 	private final HttpSession				session;
+	private final SkillRepository			skillRepository;
 	
 	//行動する側の情報を管理
 	private Integer myKeys;
@@ -78,7 +81,7 @@ public class PublicController {
 		Stream.of( pid1 , pid2 ,pid3 , pid4 )
 		.filter( s -> s > 0 )
 		.map( s -> allyRepository.findById( s ).orElseThrow() )
-		.map( s -> new AllyData( s , magicRepository ))
+		.map( s -> new AllyData( s , magicRepository , skillRepository ))
 		.forEach( s -> partyList.add( s ) );
 		
 		
@@ -149,6 +152,7 @@ public class PublicController {
 		return mv;
 		
 	}
+	
 	
 	//攻撃魔法の選択画面を表示
 	@GetMapping( "/magic/attack/{key}" )
@@ -324,6 +328,27 @@ public class PublicController {
 		session.setAttribute( "mode" , "log" );
 		
 		return mv;
+	}
+	
+	
+	//すべての特技の選択画面を表示
+	@GetMapping( "/skill/{key}" )
+	public ModelAndView skill( @PathVariable( name = "key" ) int key ,
+								ModelAndView mv ) {
+		
+		mv.setViewName( "battle" );
+		Battle battle = (Battle)session.getAttribute( "battle" );
+		
+		myKeys = key;
+		
+		//発動可能な魔法一覧を表示
+		List<Skill> skillList = battle.getPartyMap().get( key ).getSkillList();
+		mv.addObject( "skillList" , skillList );
+		mv.addObject( "key" , myKeys );
+		session.setAttribute( "mode" , "skill" );
+		
+		return mv;
+		
 	}
 	
 	

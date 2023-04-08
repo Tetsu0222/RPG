@@ -9,9 +9,9 @@ import jakarta.persistence.Table;
 import lombok.Data;
 
 @Entity
-@Table( name = "magiclist" )
+@Table( name = "skilllist" )
 @Data
-public class Magic {
+public class Skill {
 	
     @Id
     @GeneratedValue( strategy = GenerationType.IDENTITY )
@@ -44,4 +44,5 @@ public class Magic {
     
     @Column( name = "frequency" )
     private Integer frequency;
+
 }
