@@ -21,6 +21,7 @@ public class BadStatusAfter {
 	private String message;
 	private String recoveryMessage;
 	private String resultMessage;
+	private String dedMessage;
 	
 	private Set<Integer> targetSetAlly;
 	private Map<Integer,Target> targetMap;
@@ -90,7 +91,7 @@ public class BadStatusAfter {
 		
 		//状態異常ダメージで死亡した場合は、そのメッセージを追加
 		if( funeral.getResultMessage() != null ) {
-			this.resultMessage = funeral.getResultMessage();
+			this.dedMessage = funeral.getResultMessage();
 		}
 		
 		this.targetSetAlly = funeral.getTargetSetAlly();
@@ -159,7 +160,7 @@ public class BadStatusAfter {
 		
 		//状態異常ダメージで死亡した場合は、そのメッセージを追加
 		if( funeral.getResultMessage() != null ) {
-			this.resultMessage = funeral.getResultMessage();
+			this.dedMessage = funeral.getResultMessage();
 		}
 		
 		this.targetSetEnemy = funeral.getTargetSetEnemy();

@@ -26,6 +26,7 @@ public class EnemyAction {
 	private String  battleMessage;
 	private String  buffMessage;
 	private String  resultMessage;
+	private String  dedMessage;
 	
 	Random random = new Random();
 	
@@ -142,7 +143,7 @@ public class EnemyAction {
 		//攻撃で味方がやられてしまった時の処理
 		if( HP <= 0 ) {
 			allyData = Funeral.execution( allyData );
-			this.resultMessage = allyData.getName() + "は死んでしまった…";
+			this.dedMessage = allyData.getName() + "は死んでしまった…";
 		
 		//ダメージを反映
 		}else{
@@ -186,7 +187,7 @@ public class EnemyAction {
 		//攻撃で味方がやられてしまった時の処理
 		if( HP <= 0 ) {
 			allyData = Funeral.execution( allyData );
-			this.resultMessage = allyData.getName() + "は死んでしまった…";
+			this.dedMessage = allyData.getName() + "は死んでしまった…";
 		
 		//ダメージを反映
 		}else{

@@ -475,7 +475,7 @@ public class Battle {
 	}
 	
 	
-	//全体攻撃のメソッド
+	//全体攻撃のメソッド koko
 	public void generalAttack( TaregetEnemyAction taregetEnemyAction , Integer key ) {
 		
 		//targetを敵全体へ変更
@@ -594,9 +594,14 @@ public class Battle {
 			this.mesageList.add( badStatusAfter.getRecoveryMessage() );
 		}
 		
-		//状態異常ダメージで死亡した場合は、そのメッセージを追加
+		//状態異常のメッセージを追加
 		if( badStatusAfter.getResultMessage() != null ) {
 			this.mesageList.add( badStatusAfter.getResultMessage() );
+		}
+		
+		//状態異常のダメージで死亡した場合のメッセージを追加
+		if( badStatusAfter.getDedMessage() != null ) {
+			this.mesageList.add( badStatusAfter.getDedMessage() );
 		}
 	}
 	
@@ -612,10 +617,16 @@ public class Battle {
 			this.mesageList.add( badStatusAfter.getRecoveryMessage() );
 		}
 		
-		//状態異常ダメージで死亡した場合は、そのメッセージを追加
+		//状態異常のメッセージを追加
 		if( badStatusAfter.getResultMessage() != null ) {
 			this.mesageList.add( badStatusAfter.getResultMessage() );
 		}
+		
+		//状態異常のダメージで死亡した場合のメッセージを追加
+		if( badStatusAfter.getDedMessage() != null ) {
+			this.mesageList.add( badStatusAfter.getDedMessage() );
+		}
+		
 	}
 	
 	
@@ -683,7 +694,7 @@ public class Battle {
 			targetSetAlly.remove( enemyAction.getTargetId() );
 			targetMap.put( enemyAction.getTargetId() , new Target( enemyAction.getTargetId() ) );
 			partyMap.put( enemyAction.getTargetId() , allyData );
-			mesageList.add( enemyAction.getResultMessage() );
+			mesageList.add( enemyAction.getDedMessage() );
 		
 		//行動の処理結果を反映
 		}else{
@@ -719,7 +730,7 @@ public class Battle {
 				targetSetAlly.remove( enemyAction.getTargetId() );
 				targetMap.put( enemyAction.getTargetId() , new Target( enemyAction.getTargetId() ) );
 				partyMap.put( enemyAction.getTargetId() , allyData );
-				mesageList.add( enemyAction.getResultMessage() );
+				mesageList.add( enemyAction.getDedMessage() );
 			
 			//処理結果を格納
 			}else{
