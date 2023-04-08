@@ -56,7 +56,7 @@ public class DeBuffSkill implements TaregetEnemyAction{
 			
 			//下限未達
 			}else{
-				double buffPoint = skill.getPercentage() + 1.2 ;
+				double buffPoint = skill.getPercentage() + 0.2 ;
 				def = def / buffPoint;
 				
 				//補正値が上限を上回らないように再分岐

@@ -55,11 +55,11 @@ public class SkillAttack implements TaregetEnemyAction{
 		if( !skill.getBuffcategory().equals( "no" )) {
 			
 			//状態異常を生成
-			TaregetEnemyAction deBuffMagic = new DeBuffSkill( allyData , skill  );
-			monsterData = deBuffMagic.action( monsterData );
+			TaregetEnemyAction deBuffSkill = new DeBuffSkill( allyData , skill  );
+			monsterData = deBuffSkill.action( monsterData );
 			
 			//結果を取得
-			this.resultMessage = deBuffMagic.getResultMessage();
+			this.resultMessage = deBuffSkill.getResultMessage();
 			
 		}
 		

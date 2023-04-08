@@ -52,7 +52,7 @@ public class SkillController {
 	
 	//攻撃特技の選択画面を表示
 	@GetMapping( "/skill/attack/{key}" )
-	public ModelAndView magicA( @PathVariable( name = "key" ) int key ,
+	public ModelAndView skillA( @PathVariable( name = "key" ) int key ,
 								ModelAndView mv ) {
 		
 		mv.setViewName( "battle" );
@@ -69,7 +69,84 @@ public class SkillController {
 
 		mv.addObject( "skillList" , skillListA );
 		mv.addObject( "key" , myKeys );
-		session.setAttribute( "mode" , "magic" );
+		session.setAttribute( "mode" , "skill" );
+		
+		return mv;
+		
+	}
+	
+	
+	//回復魔法の選択画面を表示
+	@GetMapping( "/skill/recovery/{key}" )
+	public ModelAndView skillR( @PathVariable( name = "key" ) int key ,
+								ModelAndView mv ) {
+		
+		mv.setViewName( "battle" );
+		Battle battle = (Battle)session.getAttribute( "battle" );
+		
+		myKeys = key;
+		
+		//発動可能な特技一覧を表示
+		List<Skill> skillList = battle.getPartyMap().get( key ).getSkillList();
+		List<Skill> skillListA = skillList.stream()
+				.filter( s -> s.getCategory().equals( "targetally" ) || s.getCategory().equals( "resuscitationskill" ) )
+				.filter( s -> s.getBuffcategory().equals( "no" ) )
+				.collect( Collectors.toList() );
+
+		mv.addObject( "skillList" , skillListA );
+		mv.addObject( "key" , myKeys );
+		session.setAttribute( "mode" , "skill" );
+		
+		return mv;
+		
+	}
+	
+	//補助魔法の選択画面を表示
+	@GetMapping( "/skill/buff/{key}" )
+	public ModelAndView skillB( @PathVariable( name = "key" ) int key ,
+								ModelAndView mv ) {
+		
+		mv.setViewName( "battle" );
+		Battle battle = (Battle)session.getAttribute( "battle" );
+		
+		myKeys = key;
+		
+		//発動可能な特技一覧を表示
+		List<Skill> skillList = battle.getPartyMap().get( key ).getSkillList();
+		List<Skill> skillListA = skillList.stream()
+				.filter( s -> s.getCategory().equals( "targetenemy" ))
+				.filter( s -> !s.getBuffcategory().equals( "no" ) )
+				.collect( Collectors.toList() );
+
+		mv.addObject( "skillList" , skillListA );
+		mv.addObject( "key" , myKeys );
+		session.setAttribute( "mode" , "skill" );
+		
+		return mv;
+		
+	}
+	
+	
+	//妨害魔法の選択画面を表示
+	@GetMapping( "/skill/debuff/{key}" )
+	public ModelAndView skillD( @PathVariable( name = "key" ) int key ,
+								ModelAndView mv ) {
+		
+		mv.setViewName( "battle" );
+		Battle battle = (Battle)session.getAttribute( "battle" );
+		
+		myKeys = key;
+		
+		//発動可能な特技一覧を表示
+		List<Skill> skillList = battle.getPartyMap().get( key ).getSkillList();
+		List<Skill> skillListA = skillList.stream()
+				.filter( s -> s.getCategory().equals( "targetenemy" ))
+				.filter( s -> !s.getBuffcategory().equals( "no" ) )
+				.collect( Collectors.toList() );
+
+		mv.addObject( "skillList" , skillListA );
+		mv.addObject( "key" , myKeys );
+		session.setAttribute( "mode" , "skill" );
 		
 		return mv;
 		
