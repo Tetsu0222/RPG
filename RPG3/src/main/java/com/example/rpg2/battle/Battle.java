@@ -16,12 +16,11 @@ import java.util.stream.IntStream;
 import com.example.rpg2.action.Attack;
 import com.example.rpg2.action.CancelDefense;
 import com.example.rpg2.action.ChoiceDefense;
+import com.example.rpg2.action.SortingAttackAction;
 import com.example.rpg2.action.TaregetEnemyAction;
 import com.example.rpg2.action.TargetAllyAction;
-import com.example.rpg2.action.magic.MagicAttack;
 import com.example.rpg2.action.magic.RecoveryMagic;
 import com.example.rpg2.action.magic.ResuscitationMagic;
-import com.example.rpg2.action.skill.SkillAttack;
 import com.example.rpg2.entity.Magic;
 import com.example.rpg2.entity.Skill;
 import com.example.rpg2.process.BadStatusAfter;
@@ -309,30 +308,8 @@ public class Battle {
 				//攻撃・妨害の処理
 				}else if( movementPattern.equals( "targetenemy" )) {
 					
-					//行動用のオブジェクト
-					TaregetEnemyAction taregetEnemyAction = null;
-					
-					//攻撃回数
-					int actions = 1;
-					
-					Random random = new Random();
-					
-					//魔法攻撃を生成
-					if( magic != null) {
-						actions = magic.getFrequency();
-						if( actions == 0 ) {
-							actions = random.nextInt( 6 ) + 1;
-						}
-						taregetEnemyAction = new MagicAttack( allyData , magic );
-					
-					//特技を生成
-					}else{
-						actions = skill.getFrequency();
-						if( actions == 0 ) {
-							actions = random.nextInt( 6 ) + 1;
-						}
-						taregetEnemyAction = new SkillAttack( allyData , skill );
-					}
+					//行動用のオブジェクトと攻撃回数を生成(特技か魔法を判定して合致するものを生成)
+					TaregetEnemyAction taregetEnemyAction = SortingAttackAction.sortingCreateAttackAction( allyData , magic , skill );
 					
 					//行動を宣言
 					this.mesageList.add( taregetEnemyAction.getStratMessage() );
@@ -345,16 +322,10 @@ public class Battle {
 					}else{
 						
 						//魔法特技の攻撃回数分の処理
-						for( int i = 0 ; i < actions ; i++ ){
+						for( int i = 0 ; i < SortingAttackAction.actions ; i++ ){
 							
-							//攻撃・妨害の魔法を再生成(撃破時、ターゲットの自動変更のため）
-							if( magic != null ) {
-								taregetEnemyAction = new MagicAttack( allyData , magic );
-		
-							//攻撃・妨害の特技を再生成
-							}else{
-								taregetEnemyAction = new SkillAttack( allyData , skill );
-							}
+							//対象撃破時のターゲット自動変更のために再生成
+							taregetEnemyAction = SortingAttackAction.sortingRegenerationAttackAction( allyData , magic , skill );
 							
 							//全体攻撃の処理
 							if( targetMap.get( key ).getTargetSetEnemy() != null ) {
