@@ -41,5 +41,9 @@ public class Monster {
     
     @Column( name = "actions" )
     private String actions;
+    
+	@Column( name = "resistance" )
+	private Integer resistance;
+
 
 }

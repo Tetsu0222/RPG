@@ -5,6 +5,7 @@ import java.util.Random;
 import com.example.rpg2.battle.AllyData;
 import com.example.rpg2.battle.MonsterData;
 import com.example.rpg2.entity.Magic;
+import com.example.rpg2.process.Funeral;
 
 import lombok.Data;
 
@@ -73,8 +74,7 @@ public class MagicAttack implements TaregetEnemyAction{
 			
 			//対象が戦闘不能の場合の処理
 			if( HP <= 0 ) {
-				monsterData.setCurrentHp( 0 );
-				monsterData.setSurvival( 0 );
+				monsterData = Funeral.execution( monsterData );
 				this.resultMessage = monsterData.getName() + "を倒した!!";
 			
 			//対象が生存している場合の処理

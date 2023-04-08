@@ -4,6 +4,8 @@ import java.util.Random;
 
 import com.example.rpg2.battle.AllyData;
 import com.example.rpg2.battle.MonsterData;
+import com.example.rpg2.process.Awakening;
+import com.example.rpg2.process.Funeral;
 
 import lombok.Data;
 
@@ -58,10 +60,19 @@ public class Attack implements TaregetEnemyAction{
 		Integer HP = monsterData.getCurrentHp() - damage;
 		
 		if( HP < 0 ) {
-			monsterData.setCurrentHp( 0 );
-			monsterData.setSurvival( 0 );
+			monsterData = Funeral.execution( monsterData );
 			this.resultMessage =  monsterData.getName() + "を倒した!!";
+			
 		}else{
+			
+			//対象が睡眠状態の場合は、それを解除する。
+			if( monsterData.getStatusSet().stream()
+					.filter( s -> s.getName().equals( "睡眠" ))
+					.count() == 1 ) {
+				this.resultMessage = monsterData.getName() + "は目を覚ました!";
+				monsterData = Awakening.awakening( monsterData );
+			}
+			
 			monsterData.setCurrentHp( HP );
 		}
 		

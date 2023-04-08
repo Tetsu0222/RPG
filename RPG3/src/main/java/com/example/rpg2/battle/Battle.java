@@ -308,6 +308,11 @@ public class Battle {
             	//行動対象のモンスターのデータを生成
     			MonsterData monsterData = monsterDataMap.get( key );
     			
+    			//ターン中に死亡している場合は処理中断
+    			if( monsterData.getSurvival() == 0 ) {
+    				continue;
+    			}
+    			
 				//行動不能系の状態異常の所持数をチェック
     			BadStatusBefore badStatusBefor = new BadStatusBefore();
     			Integer juds = badStatusBefor.execution( monsterData );

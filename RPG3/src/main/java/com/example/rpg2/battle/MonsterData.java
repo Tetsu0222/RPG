@@ -26,6 +26,7 @@ public class MonsterData {
 	private Integer defaultSPE;
 	private String pattern;
 	private String actions;
+	private Integer resistance;
 	
 	private Integer currentHp;
 	private Integer currentMp;
@@ -58,6 +59,7 @@ public class MonsterData {
 		this.defaultSPE = monster.getSpe();
 		this.pattern = monster.getPattern();
 		this.actions = monster.getActions();
+		this.resistance = monster.getResistance();
 		
 		//変動ステータスの設定
 		this.currentHp  = monster.getHp();

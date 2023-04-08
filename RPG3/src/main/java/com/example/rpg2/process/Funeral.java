@@ -86,5 +86,35 @@ public class Funeral {
 	}
 	
 	
+	//味方側の死亡処理
+	public static AllyData execution( AllyData allyData ) {
+		
+			//死亡ステータスへ変更
+			Set<Status> statusSet = allyData.getStatusSet();
+			allyData.setCurrentHp( 0 );
+			allyData.setSurvival( 0 );
+			statusSet.clear();
+			statusSet.add( new Dead() );
+			allyData.setStatusSet( statusSet );
+		
+		return allyData;
+	}
+	
+	
+	//敵側の死亡処理
+	public static MonsterData execution( MonsterData monsterData ) {
+		
+			//死亡ステータスへ変更
+			Set<Status> statusSet = monsterData.getStatusSet();
+			monsterData.setCurrentHp( 0 );
+			monsterData.setSurvival( 0 );
+			statusSet.clear();
+			statusSet.add( new Dead() );
+			monsterData.setStatusSet( statusSet );
+		
+		return monsterData;
+	}
+	
+	
 
 }

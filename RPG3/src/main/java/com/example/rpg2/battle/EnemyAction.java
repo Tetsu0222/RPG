@@ -3,14 +3,11 @@ package com.example.rpg2.battle;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import com.example.rpg2.entity.MonsterPattern;
+import com.example.rpg2.process.Awakening;
 import com.example.rpg2.process.BadStatusAlly;
-import com.example.rpg2.status.Dead;
-import com.example.rpg2.status.Normal;
-import com.example.rpg2.status.Status;
+import com.example.rpg2.process.Funeral;
 
 import lombok.Data;
 
@@ -135,7 +132,7 @@ public class EnemyAction {
 					.filter( s -> s.getName().equals( "睡眠" ))
 					.count() == 1 ) {
 				this.resultMessage = allyData.getName() + "は目を覚ました!";
-				allyData = this.awakening( allyData );
+				allyData = Awakening.awakening( allyData );
 			}
 		}
 		
@@ -144,12 +141,7 @@ public class EnemyAction {
 
 		//攻撃で味方がやられてしまった時の処理
 		if( HP <= 0 ) {
-			allyData.setCurrentHp( 0 );
-			allyData.setSurvival( 0 );
-			Set<Status> statusSet = allyData.getStatusSet();
-			statusSet.clear();
-			statusSet.add( new Dead() );
-			allyData.setStatusSet( statusSet );
+			allyData = Funeral.execution( allyData );
 			this.resultMessage = allyData.getName() + "は死んでしまった…";
 		
 		//ダメージを反映
@@ -193,38 +185,13 @@ public class EnemyAction {
 
 		//攻撃で味方がやられてしまった時の処理
 		if( HP <= 0 ) {
-			allyData.setCurrentHp( 0 );
-			allyData.setSurvival( 0 );
-			Set<Status> statusSet = allyData.getStatusSet();
-			statusSet.clear();
-			statusSet.add( new Dead() );
-			allyData.setStatusSet( statusSet );
+			allyData = Funeral.execution( allyData );
 			this.resultMessage = allyData.getName() + "は死んでしまった…";
 		
 		//ダメージを反映
 		}else{
 			allyData.setCurrentHp( HP );
 		}
-		
-		return allyData;
-	}
-	
-	
-	//物理攻撃による睡眠解除
-	public AllyData awakening( AllyData allyData ){
-		
-		Set<Status> statusSet = allyData.getStatusSet()
-				.stream()
-				.filter( s -> !s.getName().equals( "睡眠" ))
-				.collect( Collectors.toSet() );
-		
-		int size = statusSet.size();
-		
-		if( size == 0 ) {
-			statusSet.add( new Normal() );
-		}
-		
-		allyData.setStatusSet( statusSet );
 		
 		return allyData;
 	}

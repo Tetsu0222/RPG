@@ -1,5 +1,6 @@
 package com.example.rpg2.process;
 
+import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -23,17 +24,15 @@ public class BadStatusEnemy {
 	
 	public MonsterData bad( MonsterData monsterData , Magic magic ) {
 		
-		//Random random = new Random();
+		Random random = new Random();
 		
-		//int x = random.nextInt( 1 + monsterData.getResistance() );
-		
-		int x = 0;
+		int x = random.nextInt( 1 + monsterData.getResistance() );
 		
 		if( monsterData.getSurvival() == 2 ) {
 			this.resultMessage = monsterData.getName() + "は聖なる守りの加護を得ている。";
 			
 		//状態異常完全耐性
-		//}else if( monsterData.getResistance() == 4 ) {
+		}else if( monsterData.getResistance() == 4 ) {
 		
 		//状態異常判定
 		}else if( x == 0 ){
