@@ -73,8 +73,10 @@ public class PublicController {
 		
 		mv.setViewName( "battle" );
 		
-		
-		
+		//名前区別用の配列とコレクション
+		String abc[] = { "A" , "B" , "C" , "D" };
+		List<String> nameList = new ArrayList<>();
+				
 		//選択に応じたプレイアブルキャラクターのIdを格納
 		List<Integer> repositoryIdList = Stream.of( pid1 , pid2 , pid3 , pid4 )
 				.filter( s -> s > 0 )
@@ -88,6 +90,10 @@ public class PublicController {
 			Integer allyId = i;
 			Integer repositoryId = repositoryIdList.get( i );
 			AllyData allyData = new AllyData( allyRepository.findById( repositoryId ).orElseThrow() , magicRepository , skillRepository , allyId );
+			String name = allyData.getName();
+			int count = (int)nameList.stream().filter( s -> s.equals( name )).count();
+			allyData.setName( name + abc[count] );
+			nameList.add( name );
 			partyList.add( allyData );
 		}
 		

@@ -104,4 +104,15 @@ public class AllyData {
 		statusSet.add( new Normal() );
 	}
 	
+
+	public int hashCode() {
+		
+		return allyId.hashCode();
+	}
+	
+	public boolean equals( Object obj ) {
+		
+		return this.hashCode() == obj.hashCode();
+	}
+	
 }

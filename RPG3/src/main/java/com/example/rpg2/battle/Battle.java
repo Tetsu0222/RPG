@@ -56,7 +56,7 @@ public class Battle {
 	
 	Random random = new Random();
 	
-	//コンストラクタ
+	//コンストラクタ(戦闘不能と蘇生の関係で、複数のコレクションで敵味方の座標とオブジェクトを管理)
 	public Battle( List<AllyData> partyList , List<MonsterData> monsterDataList ) {
 		
 		//プレイアブルメンバーを生成
