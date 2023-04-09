@@ -1,7 +1,9 @@
 package com.example.rpg2.controller;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -76,14 +78,15 @@ public class PublicController {
 		//名前区別用の配列とコレクション
 		String abc[] = { "A" , "B" , "C" , "D" };
 		List<String> nameList = new ArrayList<>();
+		Set<String> duplicationNameSet = new HashSet<>();
 				
 		//選択に応じたプレイアブルキャラクターのIdを格納
 		List<Integer> repositoryIdList = Stream.of( pid1 , pid2 , pid3 , pid4 )
 				.filter( s -> s > 0 )
 				.collect( Collectors.toList() );
 		
-		//生成プレイアブルキャラクターを格納するリスト
-		List<AllyData> partyList = new ArrayList<>();
+		//生成プレイアブルキャラクターを格納するセット
+		Set<AllyData> partySet = new HashSet<>();
 		
 		//プレイアブルキャラクターの生成
 		for( int i = 0 ; i < repositoryIdList.size() ; i++ ) {
@@ -91,10 +94,34 @@ public class PublicController {
 			Integer repositoryId = repositoryIdList.get( i );
 			AllyData allyData = new AllyData( allyRepository.findById( repositoryId ).orElseThrow() , magicRepository , skillRepository , allyId );
 			String name = allyData.getName();
+			
+			//重複している名前か確認
 			int count = (int)nameList.stream().filter( s -> s.equals( name )).count();
-			allyData.setName( name + abc[count] );
+			if( count > 0 ) {
+				duplicationNameSet.add( name );
+			}
+			
+			//重複した名前か確認するリストへnameを格納
 			nameList.add( name );
-			partyList.add( allyData );
+			
+			//プレイアブルキャラクターのセットへ一時格納
+			partySet.add( allyData );
+		}
+		
+		//重複している名前の加工処理（ABCを付与)
+		for( String name : duplicationNameSet ) {
+			
+			List<AllyData> duplicationNameList = partySet.stream().filter( s -> s.getName().equals( name ) ).toList();
+			
+			for( int i = 0 ; i < duplicationNameList.size() ; i++ ) {
+				AllyData allyData = duplicationNameList.get( i );
+				
+				//加工後の名前を設定
+				allyData.setName( name + abc[i] );
+				
+				//プレイアブルキャラクターのセットへ再格納
+				partySet.add( allyData );
+			}
 		}
 		
 		
@@ -107,7 +134,7 @@ public class PublicController {
 		.forEach( s -> monsterDataList.add( s ) );
 		
 		//戦闘処理用のオブジェクトを生成
-		Battle battle = new Battle( partyList , monsterDataList );
+		Battle battle = new Battle( partySet , monsterDataList );
 		
 		//戦闘画面用のデータをセッションスコープに保存
 		session.setAttribute( "battle" , battle );
