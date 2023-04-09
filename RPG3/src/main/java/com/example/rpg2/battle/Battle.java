@@ -599,8 +599,11 @@ public class Battle {
 		//全体魔法の処理
 		if( target < 0 ) {
 			
+			//生死問わず、全体に作用するようにリストを生成
+			List<Integer> list = new ArrayList<>(partyMap.keySet());
+			
 			//ターゲットを全体で再設定
-			for( Integer target2 : targetSetAlly ) {
+			for( Integer target2 : list ) {
 				
 				//蘇生処理を実行
 				AllyData receptionAllyData = targetAllyAction.action( partyMap.get( target2 ) );
