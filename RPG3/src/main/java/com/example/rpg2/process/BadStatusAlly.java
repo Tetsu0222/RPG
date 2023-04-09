@@ -32,7 +32,8 @@ public class BadStatusAlly {
 			
 		//状態異常完全耐性
 		}else if( allyData.getResistance() == 4 ) {
-		
+			this.buffMessage = allyData.getName() + "は状態異常を受け付けない。";
+			
 		//状態異常判定
 		}else if( x == 0 ){
 			

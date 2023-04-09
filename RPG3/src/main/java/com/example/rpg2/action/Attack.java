@@ -42,16 +42,14 @@ public class Attack implements TaregetEnemyAction{
 		//非会心
 		if( critical > 6 ) {
 			//(攻撃力-防御力/2) + 乱数 = ダメージ
-			this.damage = ( allyData.getCurrentATK() - ( monsterData.getCurrentDEF() / 2 )) 
-					+ ( random.nextInt( allyData.getCurrentATK() ) / 2 );
-			this.damageMessage = damage + "のダメージを与えた!!";
+			this.damage = ( allyData.getCurrentATK() - ( monsterData.getCurrentDEF() / 2 )) + ( random.nextInt( allyData.getCurrentATK() ) / 2 );
+			this.damageMessage = monsterData.getName() + "に" + damage + "のダメージを与えた!!";
 			
 		//会心
 		}else{
 			//(攻撃力 * 2) + 乱数 = ダメージ
-			this.damage = allyData.getCurrentATK() * 2
-					+ ( random.nextInt( allyData.getCurrentATK() ) / 2 );
-			this.damageMessage = "会心の一撃!!!" + damage + "のダメージを与えた!!";
+			this.damage = allyData.getCurrentATK() * 2 + ( random.nextInt( allyData.getCurrentATK() ) / 2 );
+			this.damageMessage = "会心の一撃!!!  " +  monsterData.getName() + "に" + damage + "のダメージを与えた!!";
 		}
 		
 		//防御状態チェック
@@ -60,10 +58,11 @@ public class Attack implements TaregetEnemyAction{
 		}
 		
 		if( damage < 0 ) {
-			damage = 0;
+			this.damage = 0;
+			this.damageMessage = monsterData.getName() + "にダメージを与えられない";
 		}
 		
-		Integer HP = monsterData.getCurrentHp() - damage;
+		Integer HP = monsterData.getCurrentHp() - this.damage;
 		
 		if( HP < 0 ) {
 			monsterData = Funeral.execution( monsterData );

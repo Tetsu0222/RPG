@@ -35,7 +35,8 @@ public class BadStatusEnemy {
 			
 		//状態異常完全耐性
 		}else if( monsterData.getResistance() == 4 ) {
-		
+			this.resultMessage = monsterData.getName() + "は状態異常を受け付けない。";
+			
 		//状態異常判定
 		}else if( x == 0 ){
 			

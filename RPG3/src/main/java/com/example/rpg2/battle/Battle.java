@@ -16,6 +16,7 @@ import java.util.stream.IntStream;
 import com.example.rpg2.action.Attack;
 import com.example.rpg2.action.CancelDefense;
 import com.example.rpg2.action.ChoiceDefense;
+import com.example.rpg2.action.EnemyAction;
 import com.example.rpg2.action.SortingAttackAction;
 import com.example.rpg2.action.SortingRecoveryAction;
 import com.example.rpg2.action.TaregetEnemyAction;
@@ -267,7 +268,7 @@ public class Battle {
 				}else if( movementPattern.equals( "targetally" ) || movementPattern.equals( "resuscitationmagic" ) || movementPattern.equals( "resuscitationskill" ) ) {
 					
 					//回復or補助or蘇生の魔法か特技か判定して該当オブジェクトを生成
-					TargetAllyAction targetAllyAction = SortingRecoveryAction.sortingCreateRecoveryAction( allyData,  magic , skill );
+					TargetAllyAction targetAllyAction = SortingRecoveryAction.sortingCreateRecoveryAction( allyData , magic , skill );
 					
 					//行動を宣言
 					this.mesageList.add( targetAllyAction.getStratMessage() );
@@ -744,7 +745,9 @@ public class Battle {
 				targetSetAlly.remove( enemyAction.getTargetId() );
 				targetMap.put( enemyAction.getTargetId() , new Target( enemyAction.getTargetId() ) );
 				partyMap.put( enemyAction.getTargetId() , allyData );
-				mesageList.add( enemyAction.getDedMessage() );
+				if( enemyAction.getDedMessage() != null ) {
+					mesageList.add( enemyAction.getDedMessage() );
+				}
 			
 			//処理結果を格納
 			}else{
