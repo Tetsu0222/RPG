@@ -7,6 +7,7 @@ import com.example.rpg2.battle.MonsterData;
 import com.example.rpg2.process.Awakening;
 import com.example.rpg2.process.Funeral;
 import com.example.rpg2.process.IsDefense;
+import com.example.rpg2.status.Sleep;
 
 import lombok.Data;
 
@@ -70,12 +71,16 @@ public class Attack implements TaregetEnemyAction{
 			
 		}else{
 			
+			Sleep sleep = new Sleep();
+			
 			//対象が睡眠状態の場合は、それを解除する。
-			if( monsterData.getStatusSet().stream()
-					.filter( s -> s.getName().equals( "睡眠" ))
-					.count() == 1 ) {
+			if( monsterData.getStatusSet().contains( sleep )) {
+				
+				//メッセージを追加
 				this.resultMessage = monsterData.getName() + "は目を覚ました!";
-				monsterData = Awakening.awakening( monsterData );
+				
+				//睡眠解除
+				monsterData = Awakening.awakening( monsterData , sleep );
 			}
 			
 			monsterData.setCurrentHp( HP );

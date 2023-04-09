@@ -212,6 +212,12 @@ public class Battle {
 	//------------------------------------------------------------------------------
 	public void startBattle() {
 		
+		
+		//ターンの最初に発動する効果を処理
+		//List<AllyData> actonList = targetSetAlly.stream().map( s -> partyMap.get( s )).filter( s -> !s.getName().equals( "勇者" )).collect( Collectors.toList() );
+				
+				
+		
 		//敵味方が入り乱れて素早さ順に行動
         for( Entry<Integer, Integer> entry : turnList ) {
         	
@@ -362,6 +368,7 @@ public class Battle {
 
 				//行動終了後に作用する状態異常の処理
 				this.badStatusAfter( allyData, key );
+		        
 				
 	        //----------------------------------------------------
 	        //------------------敵側の処理------------------------
@@ -448,6 +455,9 @@ public class Battle {
     			this.badStatusAfter( monsterData , key );
     		}
         }
+        
+        //ターン終了後に処理する効果
+
 	}
 	
 	//-----------------------------------------------------------------------------------------------------------------------

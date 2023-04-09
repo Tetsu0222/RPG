@@ -23,6 +23,7 @@ public class Poison implements Status{
 	}
 	
 	
+	//コンストラクタ
 	public Poison( AllyData allyData ) {
 		this.damage = allyData.getMaxHP() / 20 ;
 		this.targetName = allyData.getName();
@@ -31,6 +32,11 @@ public class Poison implements Status{
 	public Poison( MonsterData monsterData ) {
 		this.damage = monsterData.getMaxHP() / 20 ;
 		this.targetName = monsterData.getName();
+	}
+	
+	//状態異常解除用のコンストラクタ
+	public Poison() {
+		
 	}
 	
 	@Override

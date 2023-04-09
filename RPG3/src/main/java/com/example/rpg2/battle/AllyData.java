@@ -19,6 +19,7 @@ import lombok.Data;
 @Data
 public class AllyData {
 	
+	private Integer allyId;
 	private String  name;
 	private Integer maxHP;
 	private Integer maxMP;
@@ -46,9 +47,12 @@ public class AllyData {
 	Set<Status> statusSet = new HashSet<>();
 	
 	
-	public AllyData( Ally ally , MagicRepository magicRepository , SkillRepository skillRepository ) {
+	public AllyData( Ally ally , MagicRepository magicRepository , SkillRepository skillRepository , Integer allyId ) {
 
 		this.name = ally.getName();
+		
+		//SQL上のIDとは別
+		this.allyId = allyId;
 		
 		//固定ステータスの設定
 		this.maxHP = ally.getHp();

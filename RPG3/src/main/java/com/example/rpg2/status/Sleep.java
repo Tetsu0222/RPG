@@ -25,6 +25,7 @@ public class Sleep implements Status{
 	}
 	
 	
+	//コンストラクタ
 	public Sleep( AllyData allyData ) {
 		this.targetName = allyData.getName();
 		this.count = 1;
@@ -34,6 +35,13 @@ public class Sleep implements Status{
 		this.targetName = monsterData.getName();
 		this.count = 1;
 	}
+	
+	//状態解除用のコンストラクタ
+	public Sleep() {
+		
+	}
+	
+	
 	
 	@Override
 	public Integer actionStatusBefore() {

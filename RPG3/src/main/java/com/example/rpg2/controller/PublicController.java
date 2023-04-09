@@ -2,6 +2,7 @@ package com.example.rpg2.controller;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.springframework.stereotype.Controller;
@@ -72,13 +73,23 @@ public class PublicController {
 		
 		mv.setViewName( "battle" );
 		
-		//選択に応じたプレイアブルキャラクターを生成
+		
+		
+		//選択に応じたプレイアブルキャラクターのIdを格納
+		List<Integer> repositoryIdList = Stream.of( pid1 , pid2 , pid3 , pid4 )
+				.filter( s -> s > 0 )
+				.collect( Collectors.toList() );
+		
+		//生成プレイアブルキャラクターを格納するリスト
 		List<AllyData> partyList = new ArrayList<>();
-		Stream.of( pid1 , pid2 ,pid3 , pid4 )
-		.filter( s -> s > 0 )
-		.map( s -> allyRepository.findById( s ).orElseThrow() )
-		.map( s -> new AllyData( s , magicRepository , skillRepository ))
-		.forEach( s -> partyList.add( s ) );
+		
+		//プレイアブルキャラクターの生成
+		for( int i = 0 ; i < repositoryIdList.size() ; i++ ) {
+			Integer allyId = i;
+			Integer repositoryId = repositoryIdList.get( i );
+			AllyData allyData = new AllyData( allyRepository.findById( repositoryId ).orElseThrow() , magicRepository , skillRepository , allyId );
+			partyList.add( allyData );
+		}
 		
 		
 		//選択に応じたエネミーオブジェクトを生成

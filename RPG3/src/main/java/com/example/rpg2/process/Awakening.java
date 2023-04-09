@@ -1,11 +1,11 @@
 package com.example.rpg2.process;
 
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import com.example.rpg2.battle.AllyData;
 import com.example.rpg2.battle.MonsterData;
 import com.example.rpg2.status.Normal;
+import com.example.rpg2.status.Sleep;
 import com.example.rpg2.status.Status;
 
 
@@ -15,10 +15,9 @@ public class Awakening {
 	//物理攻撃による睡眠解除
 	public static AllyData awakening( AllyData allyData ){
 		
-		Set<Status> statusSet = allyData.getStatusSet()
-				.stream()
-				.filter( s -> !s.getName().equals( "睡眠" ))
-				.collect( Collectors.toSet() );
+		Sleep sleep = new Sleep();
+		Set<Status> statusSet = allyData.getStatusSet();
+		statusSet.remove( sleep );
 		
 		int size = statusSet.size();
 		
@@ -33,12 +32,10 @@ public class Awakening {
 	
 	
 	//物理攻撃による睡眠解除
-	public static MonsterData awakening( MonsterData monsterData ){
+	public static MonsterData awakening( MonsterData monsterData , Sleep sleep ){
 		
-		Set<Status> statusSet = monsterData.getStatusSet()
-				.stream()
-				.filter( s -> !s.getName().equals( "睡眠" ))
-				.collect( Collectors.toSet() );
+		Set<Status> statusSet = monsterData.getStatusSet();
+		statusSet.remove( sleep );
 		
 		int size = statusSet.size();
 		

@@ -8,6 +8,7 @@ import com.example.rpg2.battle.AllyData;
 import com.example.rpg2.entity.Magic;
 import com.example.rpg2.status.HolyBarrier;
 import com.example.rpg2.status.Normal;
+import com.example.rpg2.status.Poison;
 import com.example.rpg2.status.Status;
 
 import lombok.Data;
@@ -106,33 +107,25 @@ public class BuffMagic implements TargetAllyAction{
 			
 			//対象キャラクターの状態異常を取得
 			Set<Status> statusSet = receptionAllyData.getStatusSet();
+			Poison poison = new Poison();
 			
-			//毒状態かチェック
-			Long sts = statusSet.stream()
-					.filter( s -> s.getName().equals( "毒" ))
-					.count();
-			int size = statusSet.size();
-			
-			//状態異常が毒のみ
-			if( sts == 1 && size == 1 ) {
-				statusSet.clear();
-				statusSet.add( new Normal() );
+			//毒状態の有無で処理を分岐
+			if( statusSet.contains( poison )) {
+				statusSet.remove( poison );
 				this.resultMessage = receptionAllyData.getName() + "の毒が治った!!";
 				
-			//状態異常が毒以外にもある。
-			}else if( sts == 1 && size > 1 ) {
-				statusSet = allyData.getStatusSet()
-						.stream()
-						.filter( s -> !s.getName().equals( "毒" ) )
-						.collect( Collectors.toSet() );
-				this.resultMessage = receptionAllyData.getName() + "の毒が治った!!";
+				//状態異常が毒のみであった場合、ステータスを正常へ設定
+				if( statusSet.size() == 0 ) {
+					statusSet.add( new Normal() );
+				}
 				
-			//毒状態ではない。
+			//毒状態ではない
 			}else{
 				this.resultMessage = receptionAllyData.getName() + "に効果はなかった…";
 			}
 			
 			receptionAllyData.setStatusSet( statusSet );
+		
 		
 		//キアリク
 		}else if( magic.getBuffcategory().equals( "tingle" ) ) {
@@ -141,6 +134,8 @@ public class BuffMagic implements TargetAllyAction{
 			
 			//対象キャラクターの状態異常を取得
 			Set<Status> statusSet = receptionAllyData.getStatusSet();
+			
+			//セットを再変換して治癒対応
 			statusSet = allyData.getStatusSet()
 					.stream()
 					.filter( s -> !s.getName().equals( "睡眠" ) )

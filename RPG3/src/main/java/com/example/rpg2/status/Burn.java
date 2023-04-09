@@ -22,7 +22,7 @@ public class Burn implements Status{
 		return this.hashCode() == obj.hashCode();
 	}
 	
-	
+	//コンストラクタ
 	public Burn( AllyData allyData ) {
 		this.damage = allyData.getMaxHP() / 30 ;
 		this.targetName = allyData.getName();
@@ -33,6 +33,11 @@ public class Burn implements Status{
 		this.damage = monsterData.getMaxHP() / 30 ;
 		this.targetName = monsterData.getName();
 		this.count = 3;
+	}
+	
+	//状態解除用のコンストラクタ
+	public Burn() {
+		
 	}
 	
 	@Override

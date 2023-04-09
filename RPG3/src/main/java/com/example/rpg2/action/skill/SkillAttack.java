@@ -9,6 +9,7 @@ import com.example.rpg2.entity.Skill;
 import com.example.rpg2.process.Awakening;
 import com.example.rpg2.process.Funeral;
 import com.example.rpg2.process.IsDefense;
+import com.example.rpg2.status.Sleep;
 
 import lombok.Data;
 
@@ -140,15 +141,18 @@ public class SkillAttack implements TaregetEnemyAction{
 				this.resultMessage =  monsterData.getName() + "を倒した!!";
 				
 			}else{
-				//対象が睡眠状態の場合は、それを解除する。
-				if( monsterData.getStatusSet().stream()
-						.filter( s -> s.getName().equals( "睡眠" ))
-						.count() == 1 ) {
-					this.resultMessage = monsterData.getName() + "は目を覚ました!";
-					monsterData = Awakening.awakening( monsterData );
-				}
 				
-				monsterData.setCurrentHp( HP );
+				Sleep sleep = new Sleep();
+				
+				//対象が睡眠状態の場合は、それを解除する。
+				if( monsterData.getStatusSet().contains( sleep )) {
+					
+					//メッセージを追加
+					this.resultMessage = monsterData.getName() + "は目を覚ました!";
+					
+					//睡眠解除
+					monsterData = Awakening.awakening( monsterData , sleep );
+				}
 			}
 		}
 		
