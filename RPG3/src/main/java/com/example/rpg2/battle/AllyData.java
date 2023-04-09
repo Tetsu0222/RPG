@@ -37,6 +37,7 @@ public class AllyData {
 	
 	private int survival;
 	private Integer resistance;
+	
 	private String startSkillMessage;
 	
 	//使用可能な魔法を格納
@@ -98,7 +99,10 @@ public class AllyData {
 		
 		
 		//テスト
-		turnStartSkillSet.add("自動防御");
+		turnStartSkillSet.add( "自動防御" );
+		if( turnStartSkillSet.contains( "なし" )) {
+			turnStartSkillSet = null;
+		}
 		
 	}
 	

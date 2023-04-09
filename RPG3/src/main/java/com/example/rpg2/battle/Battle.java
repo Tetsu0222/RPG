@@ -14,8 +14,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import com.example.rpg2.action.Attack;
-import com.example.rpg2.action.CancelDefense;
-import com.example.rpg2.action.ChoiceDefense;
 import com.example.rpg2.action.EnemyAction;
 import com.example.rpg2.action.SortingAttackAction;
 import com.example.rpg2.action.SortingRecoveryAction;
@@ -26,7 +24,10 @@ import com.example.rpg2.entity.Magic;
 import com.example.rpg2.entity.Skill;
 import com.example.rpg2.process.BadStatusAfter;
 import com.example.rpg2.process.BadStatusBefore;
+import com.example.rpg2.process.CancelDefense;
+import com.example.rpg2.process.ChoiceDefense;
 import com.example.rpg2.process.ConsumptionMP;
+import com.example.rpg2.process.IsStartSkillStop;
 
 import lombok.Data;
 
@@ -218,16 +219,7 @@ public class Battle {
 		
 		
 		//ターンの最初に発動する効果を処理
-		for( int index : targetSetAlly ) {
-			AllyData allyData = partyMap.get( index );
-			allyData.getTurnStartSkillSet().stream()
-			.map( s -> SortingStartSkill.sortingSkill( s ))
-			.map( s -> s.action( allyData ) )
-			.peek( s -> partyMap.put( index , allyData ))
-			.filter( s -> s.getStartSkillMessage() != null )
-			.peek( s -> this.mesageList.add( s.getStartSkillMessage() ))
-			.forEach( s -> s.setStartSkillMessage( null ));
-		}
+		this.startSkill();
 				
 		//敵味方が入り乱れて素早さ順に行動
         for( Entry<Integer, Integer> entry : turnList ) {
@@ -773,6 +765,26 @@ public class Battle {
 			//処理結果を格納
 			}else{
 				partyMap.put( enemyAction.getTargetId() , allyData );
+			}
+		}
+	}
+	
+	
+	//スタートスキルの発動処理
+	public void startSkill() {
+		for( int index : targetSetAlly ) {
+			
+			AllyData allyData = partyMap.get( index );
+			
+			//スタートスキルを所持しつつ行動不能系の状態異常がなければ続行
+			if( IsStartSkillStop.isStartSkillStop( allyData ) && !allyData.getTurnStartSkillSet().contains( "なし" )) {
+				allyData.getTurnStartSkillSet().stream()
+				.map( s -> SortingStartSkill.sortingSkill( s ))
+				.map( s -> s.action( allyData ) )
+				.peek( s -> partyMap.put( index , allyData ))
+				.filter( s -> s.getStartSkillMessage() != null )
+				.peek( s -> this.mesageList.add( s.getStartSkillMessage() ))
+				.forEach( s -> s.setStartSkillMessage( null ));
 			}
 		}
 	}
