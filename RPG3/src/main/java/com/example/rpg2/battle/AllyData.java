@@ -34,8 +34,10 @@ public class AllyData {
 	private Integer currentSPE;
 	private String  magic;
 	private String  skill;
+	
 	private int survival;
 	private Integer resistance;
+	private String startSkillMessage;
 	
 	//使用可能な魔法を格納
 	List<Magic> magicList = new ArrayList<>();
@@ -45,6 +47,9 @@ public class AllyData {
 	
 	//状態異常を管理
 	Set<Status> statusSet = new HashSet<>();
+	
+	//ターン開始時に発動するスキルを管理
+	Set<String> turnStartSkillSet = new HashSet<>();
 	
 	
 	public AllyData( Ally ally , MagicRepository magicRepository , SkillRepository skillRepository , Integer allyId ) {
@@ -90,6 +95,10 @@ public class AllyData {
 		//生存設定
 		this.survival = 1;
 		statusSet.add( new Normal() );
+		
+		
+		//テスト
+		turnStartSkillSet.add("自動防御");
 		
 	}
 	

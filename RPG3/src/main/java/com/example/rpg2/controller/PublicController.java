@@ -146,10 +146,9 @@ public class PublicController {
 		Set<MonsterData> monsterDataSet = new HashSet<>();
 		
 		//エネミーキャラクターの生成
-		for( int i = 0 ; i < repositoryEnemyIdList.size() ; i++ ) {
-			
+		for( int i = 4 ; i < repositoryEnemyIdList.size() + 4 ; i++ ) {
 			Integer enemyId = i;
-			Integer repositoryEnemyId = repositoryEnemyIdList.get( i );
+			Integer repositoryEnemyId = repositoryEnemyIdList.get( i - 4  );
 			MonsterData monsterData = new MonsterData( monsterRepository.findById( repositoryEnemyId ).orElseThrow() , monsterPatternRepository , enemyId );
 			String name = monsterData.getName();
 			

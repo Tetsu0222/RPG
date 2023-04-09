@@ -21,6 +21,7 @@ import com.example.rpg2.action.SortingAttackAction;
 import com.example.rpg2.action.SortingRecoveryAction;
 import com.example.rpg2.action.TaregetEnemyAction;
 import com.example.rpg2.action.TargetAllyAction;
+import com.example.rpg2.action.startskill.SortingStartSkill;
 import com.example.rpg2.entity.Magic;
 import com.example.rpg2.entity.Skill;
 import com.example.rpg2.process.BadStatusAfter;
@@ -217,10 +218,17 @@ public class Battle {
 		
 		
 		//ターンの最初に発動する効果を処理
-		//List<AllyData> actonList = targetSetAlly.stream().map( s -> partyMap.get( s )).filter( s -> !s.getName().equals( "勇者" )).collect( Collectors.toList() );
+		for( int index : targetSetAlly ) {
+			AllyData allyData = partyMap.get( index );
+			allyData.getTurnStartSkillSet().stream()
+			.map( s -> SortingStartSkill.sortingSkill( s ))
+			.map( s -> s.action( allyData ) )
+			.peek( s -> partyMap.put( index , allyData ))
+			.filter( s -> s.getStartSkillMessage() != null )
+			.peek( s -> this.mesageList.add( s.getStartSkillMessage() ))
+			.forEach( s -> s.setStartSkillMessage( null ));
+		}
 				
-				
-		
 		//敵味方が入り乱れて素早さ順に行動
         for( Entry<Integer, Integer> entry : turnList ) {
         	
