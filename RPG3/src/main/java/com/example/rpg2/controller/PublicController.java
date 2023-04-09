@@ -96,7 +96,11 @@ public class PublicController {
 			String name = allyData.getName();
 			
 			//重複している名前か確認
-			int count = (int)nameList.stream().filter( s -> s.equals( name )).count();
+			int count = (int)nameList.stream()
+					.filter( s -> s.equals( name ))
+					.count();
+			
+			//重複している名前であればセットへ格納
 			if( count > 0 ) {
 				duplicationNameSet.add( name );
 			}
@@ -111,8 +115,12 @@ public class PublicController {
 		//重複している名前の加工処理（ABCを付与)
 		for( String name : duplicationNameSet ) {
 			
-			List<AllyData> duplicationNameList = partySet.stream().filter( s -> s.getName().equals( name ) ).toList();
+			//プレイアブルキャラクターのセットを名前が重複しているオブジェクトに絞ったリストへ変換
+			List<AllyData> duplicationNameList = partySet.stream()
+					.filter( s -> s.getName().equals( name ) )
+					.toList();
 			
+			//名前の加工処理
 			for( int i = 0 ; i < duplicationNameList.size() ; i++ ) {
 				AllyData allyData = duplicationNameList.get( i );
 				
@@ -126,15 +134,64 @@ public class PublicController {
 		
 		
 		//選択に応じたエネミーオブジェクトを生成
-		List<MonsterData> monsterDataList = new ArrayList<>();
-		Stream.of( mid1 , mid2 , mid3 , mid4)
-		.filter( s -> s > 0 )
-		.map( s -> monsterRepository.findById( s ).orElseThrow() )
-		.map( s -> new MonsterData( s , monsterPatternRepository ))
-		.forEach( s -> monsterDataList.add( s ) );
+		List<String> nameListEnemy = new ArrayList<>();
+		Set<String> duplicationEnemyNameSet = new HashSet<>();
+		
+		//選択に応じたエネミーキャラクターのIdを格納
+		List<Integer> repositoryEnemyIdList = Stream.of( mid1 , mid2 , mid3 , mid4 )
+				.filter( s -> s > 0 )
+				.collect( Collectors.toList() );
+		
+		//生成したエネミーキャラクターを格納するセット
+		Set<MonsterData> monsterDataSet = new HashSet<>();
+		
+		//エネミーキャラクターの生成
+		for( int i = 0 ; i < repositoryEnemyIdList.size() ; i++ ) {
+			
+			Integer enemyId = i;
+			Integer repositoryEnemyId = repositoryEnemyIdList.get( i );
+			MonsterData monsterData = new MonsterData( monsterRepository.findById( repositoryEnemyId ).orElseThrow() , monsterPatternRepository , enemyId );
+			String name = monsterData.getName();
+			
+			//重複している名前か確認
+			int count = (int)nameListEnemy.stream()
+					.filter( s -> s.equals( name ))
+					.count();
+			
+			//重複している名前であればセットへ格納
+			if( count > 0 ) {
+				duplicationEnemyNameSet.add( name );
+			}
+			
+			//重複した名前か確認するリストへnameを格納
+			nameListEnemy.add( name );
+			
+			//エネミーキャラクターのセットへ一時格納
+			monsterDataSet.add( monsterData );
+		}
+		
+		//重複している名前の加工処理（ABCを付与)
+		for( String name : duplicationEnemyNameSet ) {
+			
+			//エネミーキャラクターのセットを名前が重複しているオブジェクトに絞ったリストへ変換
+			List<MonsterData> duplicationEnemyNameList = monsterDataSet.stream()
+					.filter( s -> s.getName().equals( name ) )
+					.toList();
+			
+			//名前の加工処理
+			for( int i = 0 ; i < duplicationEnemyNameList.size() ; i++ ) {
+				MonsterData monsterData = duplicationEnemyNameList.get( i );
+				
+				//加工後の名前を設定
+				monsterData.setName( name + abc[i] );
+				
+				//エネミーキャラクターのセットへ再格納
+				monsterDataSet.add( monsterData );
+			}
+		}
 		
 		//戦闘処理用のオブジェクトを生成
-		Battle battle = new Battle( partySet , monsterDataList );
+		Battle battle = new Battle( partySet , monsterDataSet );
 		
 		//戦闘画面用のデータをセッションスコープに保存
 		session.setAttribute( "battle" , battle );

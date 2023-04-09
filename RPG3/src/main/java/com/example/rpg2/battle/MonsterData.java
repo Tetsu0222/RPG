@@ -18,6 +18,7 @@ import lombok.Data;
 public class MonsterData {
 	
 	private String  name;
+	private Integer enemyId;
 	
 	private Integer maxHP;
 	private Integer maxMP;
@@ -47,9 +48,11 @@ public class MonsterData {
 	Set<Status> statusSet = new HashSet<>();
 	
 	
-	public MonsterData( Monster monster , MonsterPatternRepository monsterPatternRepository ) {
+	public MonsterData( Monster monster , MonsterPatternRepository monsterPatternRepository , Integer enemyId ) {
 		
 		this.name = monster.getName();
+		this.enemyId = enemyId;
+		
 		
 		//固定ステータスの設定
 		this.maxHP = monster.getHp();
@@ -96,6 +99,16 @@ public class MonsterData {
 		this.currentDEF = defaultDEF;
 		this.currentSPE = defaultSPE;
 		this.statusSet.add( new Normal() );
+	}
+	
+	public int hashCode() {
+		
+		return enemyId.hashCode();
+	}
+	
+	public boolean equals( Object obj ) {
+		
+		return this.hashCode() == obj.hashCode();
 	}
 
 }

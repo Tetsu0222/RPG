@@ -57,9 +57,10 @@ public class Battle {
 	Random random = new Random();
 	
 	//コンストラクタ(戦闘不能と蘇生の関係で、複数のコレクションで敵味方の座標とオブジェクトを管理)
-	public Battle( Set<AllyData> partySet , List<MonsterData> monsterDataList ) {
+	public Battle( Set<AllyData> partySet , Set<MonsterData> monsterDataSet ) {
 		
-		List<AllyData> partyList = new ArrayList<>(partySet);
+		List<AllyData> partyList = new ArrayList<>( partySet );
+		List<MonsterData> monsterDataList = new ArrayList<>( monsterDataSet );
 		
 		//プレイアブルメンバーを生成
 		this.partyMap = IntStream.range( 0 , partyList.size() )
