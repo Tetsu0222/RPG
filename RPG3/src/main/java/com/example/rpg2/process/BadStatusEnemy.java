@@ -103,7 +103,7 @@ public class BadStatusEnemy {
 				
 			//睡眠付与
 			}else if( skill.getBuffcategory().equals( "sleep" ) && monsterData.getSurvival() == 1 ) {
-				Set<Status> statusSet = this.badStatus( monsterData );
+				Set<Status> statusSet = this.badStatusSleep( monsterData );
 				monsterData = this.sleep( monsterData , statusSet );
 				
 			//麻痺の付与
@@ -132,6 +132,19 @@ public class BadStatusEnemy {
 		Set<Status> statusSet = monsterData.getStatusSet()
 				.stream()
 				.filter( s -> !s.getName().equals( "正常" ) )
+				.collect( Collectors.toSet() );
+		
+		return statusSet;
+	}
+	
+	
+	//正常状態から状態異常へ変化させるメソッド
+	public Set<Status> badStatusSleep( MonsterData monsterData ){
+		
+		Set<Status> statusSet = monsterData.getStatusSet()
+				.stream()
+				.filter( s -> !s.getName().equals( "正常" ) )
+				.filter( s -> !s.getName().equals( "防御" ))
 				.collect( Collectors.toSet() );
 		
 		return statusSet;

@@ -49,7 +49,7 @@ public class BadStatusAlly {
 				
 			//睡眠付与
 			}else if( monsterPattern.getBuffcategory().equals( "sleep" ) && allyData.getSurvival() == 1 ) {
-				Set<Status> statusSet = this.badStatus( allyData );
+				Set<Status> statusSet = this.badStatusSleep( allyData );
 				allyData = this.sleep( allyData , statusSet );
 				
 			//麻痺の付与
@@ -71,12 +71,24 @@ public class BadStatusAlly {
 		return allyData;
 	}
 	
-	//正常状態から状態異常へ変化させるメソッド
+	//正常状態から状態異常へ変化させる事前処理メソッド
 	public Set<Status> badStatus( AllyData allyData ){
 		
 		Set<Status> statusSet = allyData.getStatusSet()
 				.stream()
 				.filter( s -> !s.getName().equals( "正常" ) )
+				.collect( Collectors.toSet() );
+		
+		return statusSet;
+	}
+	
+	//正常状態から睡眠へ変化させる事前処理メソッド
+	public Set<Status> badStatusSleep( AllyData allyData ){
+		
+		Set<Status> statusSet = allyData.getStatusSet()
+				.stream()
+				.filter( s -> !s.getName().equals( "正常" ))
+				.filter( s -> !s.getName().equals( "防御" ))
 				.collect( Collectors.toSet() );
 		
 		return statusSet;
