@@ -19,6 +19,7 @@ import com.example.rpg2.action.SortingAttackAction;
 import com.example.rpg2.action.SortingRecoveryAction;
 import com.example.rpg2.action.TaregetEnemyAction;
 import com.example.rpg2.action.TargetAllyAction;
+import com.example.rpg2.action.endskill.SortingEndSkill;
 import com.example.rpg2.action.startskill.SortingStartSkill;
 import com.example.rpg2.entity.Magic;
 import com.example.rpg2.entity.Skill;
@@ -460,7 +461,7 @@ public class Battle {
         }
         
         //ターン終了後に処理する効果
-
+        this.endSkill();
 	}
 	
 	//-----------------------------------------------------------------------------------------------------------------------
@@ -770,10 +771,10 @@ public class Battle {
 	}
 	
 	
-	//スタートスキルの発動処理
+	//ターンスタート時の処理
 	public void startSkill() {
+		
 		for( int index : targetSetAlly ) {
-			
 			AllyData allyData = partyMap.get( index );
 			
 			//スタートスキルを所持しつつ行動不能系の状態異常がなければ続行
@@ -789,4 +790,29 @@ public class Battle {
 		}
 	}
 	
+	
+	//ターンエンド時の処理
+	public void endSkill() {
+		
+		for( int index : targetSetAlly ) {
+			
+			//防御状態の解除（行動不能でも実行）
+			AllyData allyData = partyMap.get( index );
+			allyData = CancelDefense.cancelDefense( allyData );
+			partyMap.put( index , allyData );
+			
+			//エンドスキルを所持しつつ行動不能系の状態異常がなければ続行
+			if( IsStartSkillStop.isStartSkillStop( allyData ) && !allyData.getTurnEndSkillSet().contains( "なし" )) {
+				AllyData allyData2 = partyMap.get( index ); //実質的にファイナルとするため再初期化
+				allyData2.getTurnEndSkillSet().stream()
+				.map( s -> SortingEndSkill.sortingSkill( s ))
+				.map( s -> s.action( allyData2 ) )
+				.peek( s -> partyMap.put( index , allyData2 ))
+				.filter( s -> s.getEndSkillMessage() != null )
+				.peek( s -> this.mesageList.add( s.getEndSkillMessage() ))
+				.forEach( s -> s.setEndSkillMessage( null ));
+			}
+		}
+		
+	}
 }

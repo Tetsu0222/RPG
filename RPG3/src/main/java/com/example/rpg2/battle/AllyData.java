@@ -39,6 +39,7 @@ public class AllyData {
 	private Integer resistance;
 	
 	private String startSkillMessage;
+	private String endSkillMessage;
 	
 	//使用可能な魔法を格納
 	List<Magic> magicList = new ArrayList<>();
@@ -51,6 +52,9 @@ public class AllyData {
 	
 	//ターン開始時に発動するスキルを管理
 	Set<String> turnStartSkillSet = new HashSet<>();
+	
+	//ターン開始時に発動するスキルを管理
+	Set<String> turnEndSkillSet = new HashSet<>();
 	
 	
 	public AllyData( Ally ally , MagicRepository magicRepository , SkillRepository skillRepository , Integer allyId ) {
@@ -102,6 +106,10 @@ public class AllyData {
 		turnStartSkillSet.add( "自動防御" );
 		if( turnStartSkillSet.contains( "なし" )) {
 			turnStartSkillSet = null;
+		}
+		turnEndSkillSet.add( "HP" );
+		if( turnEndSkillSet.contains( "なし" )) {
+			turnEndSkillSet = null;
 		}
 		
 	}

@@ -17,7 +17,6 @@ public class AutoDefense implements StartSkill{
 		if( juds > 0 ) {
 			allyData = ChoiceDefense.choiceDefense( allyData );
 			allyData.setStartSkillMessage( allyData.getName() +  "はオートガードを発動!" );
-			System.out.println( "ok2" );
 		}
 		
 		
