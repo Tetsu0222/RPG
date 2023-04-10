@@ -44,5 +44,11 @@ public class Ally {
 	
 	@Column( name = "resistance" )
 	private Integer resistance;
+	
+	@Column( name = "turnstartskill" )
+	private String turnstartskill;
+	
+	@Column( name = "turnendskill" )
+	private String turnendskill;
 
 }

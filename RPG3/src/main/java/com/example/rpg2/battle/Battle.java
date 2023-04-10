@@ -767,7 +767,7 @@ public class Battle {
 			}
 			
 			//スタートスキルを所持しつつ行動不能系の状態異常がなければ続行
-			if( IsStartSkillStop.isStartSkillStop( allyData ) && !allyData.getTurnStartSkillSet().contains( "なし" )) {
+			if( IsStartSkillStop.isStartSkillStop( allyData ) && allyData.getTurnStartSkillSet() != null) {
 				AllyData allyData2 = partyMap.get( index ); //実質的にファイナルとするため再初期化
 				allyData.getTurnStartSkillSet().stream()
 				.map( s -> SortingStartSkill.sortingSkill( s ))
@@ -792,7 +792,7 @@ public class Battle {
 			partyMap.put( index , allyData );
 			
 			//エンドスキルを所持しつつ行動不能系の状態異常がなければ続行
-			if( IsEndSkillStop.isEndSkillStop( allyData ) && !allyData.getTurnEndSkillSet().contains( "なし" )) {
+			if( IsEndSkillStop.isEndSkillStop( allyData ) && allyData.getTurnEndSkillSet() != null ) {
 				AllyData allyData2 = partyMap.get( index ); //実質的にファイナルとするため再初期化
 				allyData2.getTurnEndSkillSet().stream()
 				.map( s -> SortingEndSkill.sortingSkill( s ))

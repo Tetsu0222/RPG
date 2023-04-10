@@ -2,6 +2,7 @@ package com.example.rpg2.battle;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -102,12 +103,16 @@ public class AllyData {
 		statusSet.add( new Normal() );
 		
 		
-		//テスト
-		turnStartSkillSet.add( "自動防御" );
+		//スタートスキルの設定
+		String[] startSource = ally.getTurnstartskill().split( "," );
+		Collections.addAll( turnStartSkillSet , startSource );
 		if( turnStartSkillSet.contains( "なし" )) {
 			turnStartSkillSet = null;
 		}
-		turnEndSkillSet.add( "HP" );
+
+		//エンドスキルの設定
+		String[] endSource = ally.getTurnendskill().split( "," );
+		Collections.addAll( turnEndSkillSet , endSource );
 		if( turnEndSkillSet.contains( "なし" )) {
 			turnEndSkillSet = null;
 		}
