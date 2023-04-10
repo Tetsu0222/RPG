@@ -103,6 +103,20 @@
 				</div>
 			</form>
 		</div>
+		
+		<div th:if="${session.mode == 'end'}">
+			<ul th:each="me:${session.battle.mesageList}">
+				<li>
+					<a th:text="${me}"></a>
+				</li>
+			</ul>
+			
+			<form th:action="@{/}" method="get">
+				<div>
+					<button type="submit" th:formaction="@{/end}" th:text="次へ"></button>
+				</div>
+			</form>
+		</div>
 			
 		
 		<!-- 魔法選択エリア -->
@@ -342,13 +356,15 @@
 		
 		
 		<!-- 戦闘開始ボタン -->
-		<div th:unless="${session.mode == 'battle'}">
-			<div th:unless="${session.mode == 'result'}">
-				<form th:action="@{/}" method="get">
-					<div>
-						<button type="submit" th:formaction="@{/start}" th:text="戦闘開始"></button>
-					</div>
-				</form>
+		<div th:unless="${session.mode == 'end'}">
+			<div th:unless="${session.mode == 'battle'}">
+				<div th:unless="${session.mode == 'result'}">
+					<form th:action="@{/}" method="get">
+						<div>
+							<button type="submit" th:formaction="@{/start}" th:text="戦闘開始"></button>
+						</div>
+					</form>
+				</div>
 			</div>
 		</div>
 		

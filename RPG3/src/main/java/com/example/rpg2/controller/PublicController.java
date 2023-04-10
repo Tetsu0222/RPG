@@ -245,7 +245,6 @@ public class PublicController {
 	}
 	
 	
-	
 	//戦闘開始
 	@GetMapping( "/start" )
 	public ModelAndView start( ModelAndView mv ) {
@@ -270,18 +269,21 @@ public class PublicController {
 		//ターンの最初に発動する効果を処理
 		battle.startSkill();
 		
+		//スタートスキルのメッセージを出力
 		if( battle.getMesageList() != null ) {
 			session.setAttribute( "battle" , battle );
 			session.setAttribute( "mode" , "battle" );
-		}
 		
-		this.next( mv );
+		//スタートスキルのメッセージがなければスキップ
+		}else{
+			this.next( mv );
+		}
 		
 		return mv;
 	}
 	
 	
-	//戦闘続行
+	//戦闘続行(行動対象者の生存判定をここでやる)
 	@GetMapping( "/next" )
 	public ModelAndView next( ModelAndView mv ) {
 		
@@ -292,6 +294,7 @@ public class PublicController {
 		//前回までのログを消去
 		battle.getMesageList().clear();
 		
+		//素早さ順に行動
 		if( turnqueue.peek() != null ) {
 			battle.startBattle( turnqueue.poll() );
 			
@@ -313,15 +316,33 @@ public class PublicController {
 				session.setAttribute( "mode" , "battle" );
 			}
 			
-		//全キャラクターの行動終了(modeを変更してエンドスキルメッセージを出力させたい）
+		//全キャラクターの行動終了
 		}else{
 			battle.endSkill();
 			session.invalidate();
 			session.setAttribute( "battle" , battle );
-			session.setAttribute( "mode" , "log" );
+			session.setAttribute( "mode" , "end" );
 		}
 
 		return mv;
 	
 	}
+	
+	
+	//ターン終了
+	@GetMapping( "/end" )
+	public ModelAndView end( ModelAndView mv ) {
+		
+		//いつもの処理
+		mv.setViewName( "battle" );
+		Battle battle = (Battle)session.getAttribute( "battle" );
+		
+		session.invalidate();
+		session.setAttribute( "battle" , battle );
+		session.setAttribute( "mode" , "log" );
+		
+		return mv;
+	}
+	
+	
 }
