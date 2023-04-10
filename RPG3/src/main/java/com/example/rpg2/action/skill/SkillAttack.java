@@ -153,6 +153,8 @@ public class SkillAttack implements TaregetEnemyAction{
 					//睡眠解除
 					monsterData = Awakening.awakening( monsterData , sleep );
 				}
+				
+				monsterData.setCurrentHp( HP );
 			}
 		}
 		
