@@ -28,6 +28,7 @@ import com.example.rpg2.process.BadStatusBefore;
 import com.example.rpg2.process.CancelDefense;
 import com.example.rpg2.process.ChoiceDefense;
 import com.example.rpg2.process.ConsumptionMP;
+import com.example.rpg2.process.IsEndSkillStop;
 import com.example.rpg2.process.IsStartSkillStop;
 
 import lombok.Data;
@@ -96,16 +97,12 @@ public class Battle {
 	public void selectionAttack( Integer myKeys , Integer key ) {
 		Target target = new Target( monsterDataMap.get( key ) , myKeys , key );
 		targetMap.put( myKeys , target );
-		AllyData allyData = CancelDefense.cancelDefense( partyMap.get( myKeys ) );
-		partyMap.put( myKeys , allyData );
 	}
 	
 	//味方への魔法が選択された場合の事前処理
 	public void selectionAllyMagic( Integer myKeys , Integer key , Magic magic ) {
 		Target target = new Target ( partyMap.get( key ) , myKeys , key , magic );
 		targetMap.put( myKeys , target );
-		AllyData allyData = CancelDefense.cancelDefense( partyMap.get( myKeys ) );
-		partyMap.put( myKeys , allyData );
 	}
 	
 	//味方への全体魔法が選択された場合の事前処理
@@ -113,32 +110,24 @@ public class Battle {
 		//最後の引数はオーバーロード用のダミー
 		Target target = new Target ( partyMap , targetSetAlly , myKeys ,  magic , 1 );
 		targetMap.put( myKeys , target );
-		AllyData allyData = CancelDefense.cancelDefense( partyMap.get( myKeys ) );
-		partyMap.put( myKeys , allyData );
 	}
 	
 	//敵への魔法が選択された場合の事前処理
 	public void selectionMonsterMagic( Integer myKeys , Integer key , Magic magic ) {
 		Target target = new Target( monsterDataMap.get( key ) , myKeys , key , magic );
 		targetMap.put( myKeys , target );
-		AllyData allyData = CancelDefense.cancelDefense( partyMap.get( myKeys ) );
-		partyMap.put( myKeys , allyData );
 	}
 	
 	//敵への全体魔法が選択された場合の事前処理
 	public void selectionMonsterMagic( Integer myKeys , Magic magic ) {
 		Target target = new Target( monsterDataMap , targetSetEnemy , myKeys ,  magic );
 		targetMap.put( myKeys , target );
-		AllyData allyData = CancelDefense.cancelDefense( partyMap.get( myKeys ) );
-		partyMap.put( myKeys , allyData );
 	}
 	
 	//味方への特技が選択された場合の事前処理
 	public void selectionAllySkill( Integer myKeys , Integer key , Skill skill ) {
 		Target target = new Target ( partyMap.get( key ) , myKeys , key , skill );
 		targetMap.put( myKeys , target );
-		AllyData allyData = CancelDefense.cancelDefense( partyMap.get( myKeys ) );
-		partyMap.put( myKeys , allyData );
 	}
 	
 	//味方への全体特技が選択された場合の事前処理
@@ -146,32 +135,24 @@ public class Battle {
 		//最後の引数はオーバーロード用のダミー
 		Target target = new Target ( partyMap , targetSetAlly , myKeys ,  skill , 1 );
 		targetMap.put( myKeys , target );
-		AllyData allyData = CancelDefense.cancelDefense( partyMap.get( myKeys ) );
-		partyMap.put( myKeys , allyData );
 	}
 	
 	//敵への特技が選択された場合の事前処理
 	public void selectionMonsterSkill( Integer myKeys , Integer key , Skill skill ) {
 		Target target = new Target( monsterDataMap.get( key ) , myKeys , key , skill );
 		targetMap.put( myKeys , target );
-		AllyData allyData = CancelDefense.cancelDefense( partyMap.get( myKeys ) );
-		partyMap.put( myKeys , allyData );
 	}
 	
 	//敵への全体特技が選択された場合の事前処理
 	public void selectionMonsterSkill( Integer myKeys , Skill skill ) {
 		Target target = new Target( monsterDataMap , targetSetEnemy , myKeys ,  skill );
 		targetMap.put( myKeys , target );
-		AllyData allyData = CancelDefense.cancelDefense( partyMap.get( myKeys ) );
-		partyMap.put( myKeys , allyData );
 	}
 	
 	//防御を選択
 	public void selectionDefense( Integer myKeys ) {
 		Target target = new Target( myKeys , "防御" );
 		targetMap.put( myKeys , target );
-		AllyData allyData = ChoiceDefense.choiceDefense( partyMap.get( myKeys ) );
-		partyMap.put( myKeys , allyData );
 	}
 	
 	//--------------------------------------------------------------------------------------
@@ -775,14 +756,23 @@ public class Battle {
 	public void startSkill() {
 		
 		for( int index : targetSetAlly ) {
+			
+			Target target = targetMap.get(index);
 			AllyData allyData = partyMap.get( index );
+			
+			//防御の発動処理
+			if( target.getSkillName().equals( "防御" )) {
+				allyData = ChoiceDefense.choiceDefense( allyData );
+				partyMap.put( index , allyData );
+			}
 			
 			//スタートスキルを所持しつつ行動不能系の状態異常がなければ続行
 			if( IsStartSkillStop.isStartSkillStop( allyData ) && !allyData.getTurnStartSkillSet().contains( "なし" )) {
+				AllyData allyData2 = partyMap.get( index ); //実質的にファイナルとするため再初期化
 				allyData.getTurnStartSkillSet().stream()
 				.map( s -> SortingStartSkill.sortingSkill( s ))
-				.map( s -> s.action( allyData ) )
-				.peek( s -> partyMap.put( index , allyData ))
+				.map( s -> s.action( allyData2 ) )
+				.peek( s -> partyMap.put( index , allyData2 ))
 				.filter( s -> s.getStartSkillMessage() != null )
 				.peek( s -> this.mesageList.add( s.getStartSkillMessage() ))
 				.forEach( s -> s.setStartSkillMessage( null ));
@@ -802,7 +792,7 @@ public class Battle {
 			partyMap.put( index , allyData );
 			
 			//エンドスキルを所持しつつ行動不能系の状態異常がなければ続行
-			if( IsStartSkillStop.isStartSkillStop( allyData ) && !allyData.getTurnEndSkillSet().contains( "なし" )) {
+			if( IsEndSkillStop.isEndSkillStop( allyData ) && !allyData.getTurnEndSkillSet().contains( "なし" )) {
 				AllyData allyData2 = partyMap.get( index ); //実質的にファイナルとするため再初期化
 				allyData2.getTurnEndSkillSet().stream()
 				.map( s -> SortingEndSkill.sortingSkill( s ))

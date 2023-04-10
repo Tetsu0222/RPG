@@ -19,7 +19,6 @@ public class AutoDefense implements StartSkill{
 			allyData.setStartSkillMessage( allyData.getName() +  "はオートガードを発動!" );
 		}
 		
-		
 		return allyData;
 	}
 
