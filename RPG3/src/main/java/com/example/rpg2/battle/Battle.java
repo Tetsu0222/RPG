@@ -197,23 +197,8 @@ public class Battle {
 	//------------------------------------------------------------------------------
 	//----------------------------------戦闘開始------------------------------------
 	//------------------------------------------------------------------------------
-	public void startBattle() {
+	public void startBattle( Integer key ) {
 		
-		
-		//ターンの最初に発動する効果を処理
-		this.startSkill();
-				
-		//敵味方が入り乱れて素早さ順に行動
-        for( Entry<Integer, Integer> entry : turnList ) {
-        	
-        	//ターン中に敵か味方のいずれかが全滅している場合は、戦闘を終了させる。
-        	if( targetSetEnemy.size() == 0 || targetSetAlly.size() == 0 ) {
-        		break;
-        	}
-        	
-        	//行動するキャラの座標を抽出
-            int key = entry.getKey();
-            
             //----------------------------------------------------
             //------------------味方側の処理----------------------
             //----------------------------------------------------
@@ -227,7 +212,7 @@ public class Battle {
 
     			//ターン中に死亡している場合は、処理を中断(カウンターなどを想定)
     			if( allyData.getSurvival() == 0 ) {
-    				continue;
+    				movementPattern = "";
     			}
     			
 				//行動不能系の状態異常の所持数をチェック
@@ -241,7 +226,7 @@ public class Battle {
     			//行動不能と判定された状態異常が1つ以上あれば処理中断
     			if( juds > 0 ) {
     				this.badStatusAfter( allyData, key );
-    				continue;
+    				movementPattern = "";
     			}
     			
     			
@@ -363,23 +348,12 @@ public class Battle {
             	//行動対象のモンスターのデータを生成
     			MonsterData monsterData = monsterDataMap.get( key );
     			
-    			//ターン中に死亡している場合は処理中断
-    			if( monsterData.getSurvival() == 0 ) {
-    				continue;
-    			}
-    			
 				//行動不能系の状態異常の所持数をチェック
     			BadStatusBefore badStatusBefor = new BadStatusBefore();
     			Integer juds = badStatusBefor.execution( monsterData );
     			
     			if( badStatusBefor.getMessage() != null ) {
     				this.mesageList.add( badStatusBefor.getMessage() );
-    			}
-    			
-    			//行動不能と判定された状態異常が1つ以上あれば処理中断
-    			if( juds > 0 ) {
-    				this.badStatusAfter( monsterData , key );
-    				continue;
     			}
     			
 				//味方のセットをリストへ変換
@@ -394,6 +368,17 @@ public class Battle {
     				Random random = new Random();
     				int index = random.nextInt( actionsList.size() );
     				actions = actionsList.get( index );
+    			}
+    			
+    			//行動不能と判定された状態異常が1つ以上あれば処理中断
+    			if( juds > 0 ) {
+    				this.badStatusAfter( monsterData , key );
+    				actions = 0;
+    			}
+    			
+    			//ターン中に死亡している場合は、処理を中断(カウンターなどを想定)
+    			if( monsterData.getSurvival() == 0 ) {
+    				actions = 0;
     			}
     			
     			//複数行動に対応
@@ -439,10 +424,6 @@ public class Battle {
     			//行動終了後の状態異常を処理
     			this.badStatusAfter( monsterData , key );
     		}
-        }
-        
-        //ターン終了後に処理する効果
-        this.endSkill();
 	}
 	
 	//-----------------------------------------------------------------------------------------------------------------------
@@ -496,8 +477,10 @@ public class Battle {
         		//ターゲットを再設定
         		if( magic != null ) {
         			this.selectionMonsterMagic( key , target , magic );
+        			
         		}else if( skill != null ) {
         			this.selectionMonsterSkill( key , target , skill );
+        			
         		}else{
         			this.selectionAttack( key , target );
         		}

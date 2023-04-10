@@ -52,8 +52,11 @@ public class Battle {
 	//敵の数とキーを管理、同上
 	private Set<Integer> targetSetEnemy;
 	
-	//表示するログを管理
+	//表示するメッセージを一時的に格納するリスト
 	private List<String> mesageList = new ArrayList<>();
+	
+	//表示するメッセージ用のリスト
+	private List<String> outputMessageList = new ArrayList<>();
 	
 	//キーは敵味方混合、値は乱数補正後の素早さ。素早さ順で降順ソートしたリスト
 	private List<Entry<Integer, Integer>> turnList;
@@ -197,23 +200,8 @@ public class Battle {
 	//------------------------------------------------------------------------------
 	//----------------------------------戦闘開始------------------------------------
 	//------------------------------------------------------------------------------
-	public void startBattle() {
-		
-		
-		//ターンの最初に発動する効果を処理
-		//this.startSkill();
-				
-		//敵味方が入り乱れて素早さ順に行動
-        for( Entry<Integer, Integer> entry : turnList ) {
-        	
-        	//ターン中に敵か味方のいずれかが全滅している場合は、戦闘を終了させる。
-        	if( targetSetEnemy.size() == 0 || targetSetAlly.size() == 0 ) {
-        		break;
-        	}
-        	
-        	//行動するキャラの座標を抽出
-            int key = entry.getKey();
-            
+	public void startBattle( Integer key ) {
+			
             //----------------------------------------------------
             //------------------味方側の処理----------------------
             //----------------------------------------------------
@@ -224,11 +212,6 @@ public class Battle {
 				Skill skill = targetMap.get( key ).getExecutionSkill();
 				Magic magic = targetMap.get( key ).getExecutionMagic();
 				boolean isMpEmpty = false;
-
-    			//ターン中に死亡している場合は、処理を中断(カウンターなどを想定)
-    			if( allyData.getSurvival() == 0 ) {
-    				continue;
-    			}
     			
 				//行動不能系の状態異常の所持数をチェック
     			BadStatusBefore badStatusBefore = new BadStatusBefore();
@@ -241,7 +224,7 @@ public class Battle {
     			//行動不能と判定された状態異常が1つ以上あれば処理中断
     			if( juds > 0 ) {
     				this.badStatusAfter( allyData, key );
-    				continue;
+    				movementPattern = "no";
     			}
     			
     			
@@ -363,23 +346,12 @@ public class Battle {
             	//行動対象のモンスターのデータを生成
     			MonsterData monsterData = monsterDataMap.get( key );
     			
-    			//ターン中に死亡している場合は処理中断
-    			if( monsterData.getSurvival() == 0 ) {
-    				continue;
-    			}
-    			
 				//行動不能系の状態異常の所持数をチェック
     			BadStatusBefore badStatusBefor = new BadStatusBefore();
     			Integer juds = badStatusBefor.execution( monsterData );
     			
     			if( badStatusBefor.getMessage() != null ) {
     				this.mesageList.add( badStatusBefor.getMessage() );
-    			}
-    			
-    			//行動不能と判定された状態異常が1つ以上あれば処理中断
-    			if( juds > 0 ) {
-    				this.badStatusAfter( monsterData , key );
-    				continue;
     			}
     			
 				//味方のセットをリストへ変換
@@ -394,6 +366,12 @@ public class Battle {
     				Random random = new Random();
     				int index = random.nextInt( actionsList.size() );
     				actions = actionsList.get( index );
+    			}
+    			
+    			//行動不能と判定された状態異常が1つ以上あれば処理中断
+    			if( juds > 0 ) {
+    				this.badStatusAfter( monsterData , key );
+    				actions = 0;
     			}
     			
     			//複数行動に対応
@@ -439,10 +417,6 @@ public class Battle {
     			//行動終了後の状態異常を処理
     			this.badStatusAfter( monsterData , key );
     		}
-        }
-        
-        //ターン終了後に処理する効果
-        //this.endSkill();
 	}
 	
 	//-----------------------------------------------------------------------------------------------------------------------

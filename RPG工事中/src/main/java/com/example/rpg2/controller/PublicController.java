@@ -3,7 +3,10 @@ package com.example.rpg2.controller;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -295,7 +298,7 @@ public class PublicController {
 		
 		//各キャラクターの行動順を規定
 		battle.turn();
-		//List<Entry<Integer, Integer>> turnList = battle.getTurnList();
+		List<Entry<Integer, Integer>> turnList = battle.getTurnList();
 		
 		//スタートスキルの発動と処理を指示
 		battle.startSkill();
@@ -304,34 +307,60 @@ public class PublicController {
 		session.setAttribute( "battle" , battle );
 		this.message( mv );
 		
-		//戦闘開始
-		battle.startBattle();
+		ExecutorService service = null;
 		
-		/*
-		//素早さ順にキャラクター別の行動を処理
-		for( Entry<Integer, Integer> entry : turnList ) {
+		//スレッド・マーキュリー処理
+		try {
 			
-        	//ターン中に敵か味方のいずれかが全滅している場合は、戦闘を終了させる。
-        	if( battle.getTargetSetEnemy().size() == 0 || battle.getTargetSetAlly().size() == 0 ) {
-        		break;
-        	}
-        	
-        	//行動するキャラの座標を抽出
-            int key = entry.getKey();
-            
-			//前回までのログを消去
-			battle.getMesageList().clear();
-            
-            //各キャラクターの行動を処理
-            
+			service = Executors.newSingleThreadExecutor();
 			
-			//処理結果とメッセージを格納
-			session.setAttribute( "battle" , battle );
+			//素早さ順にキャラクター別の行動を処理
+			for( Entry<Integer, Integer> entry : turnList ) {
+				
+	        	//ターン中に敵か味方のいずれかが全滅している場合は、戦闘を終了させる。
+	        	if( battle.getTargetSetEnemy().size() == 0 || battle.getTargetSetAlly().size() == 0 ) {
+	        		break;
+	        	}
+	        	
+	        	/*
+				try {
+					Thread.sleep( 500 );
+					
+		        	//行動するキャラの座標を抽出
+		            int key = entry.getKey();
+		            
+					//前回までのログを消去
+					battle.getMesageList().clear();
+		            
+		            //各キャラクターの行動を処理
+					battle.startBattle( key );
+					
+					//処理結果とメッセージを格納
+					session.setAttribute( "battle" , battle );
+					
+					this.message2( mv );
+					
+				}catch( InterruptedException e ) { }
+				*/
+				
+	        	//行動するキャラの座標を抽出
+	            int key = entry.getKey();
+	            
+				//前回までのログを消去
+				battle.getMesageList().clear();
+	            
+	            //各キャラクターの行動を処理
+				battle.startBattle( key );
+				
+				//処理結果とメッセージを格納
+				session.setAttribute( "battle" , battle );
+				
+				this.message2( mv );
+			}
 			
-			this.message( mv );
-			
+		}finally {
+			service.shutdown();
 		}
-		*/
 		
 		//戦闘終了判定
 		if( battle.getTargetSetAlly().size() == 0 ) {
@@ -365,17 +394,50 @@ public class PublicController {
 	}
 	
 	
-	public ModelAndView message( ModelAndView mv ) {
+	//表示だけ担当、メソッドからの呼び出しにのみ対応
+	public void message( ModelAndView mv ) {
 		
 		//いつもの処理
 		mv.setViewName( "battle" );
 		Battle battle = (Battle)session.getAttribute( "battle" );
 		
-		session.setAttribute( "battle" , battle    );
-		session.setAttribute( "mode"   , "message" );
+		ExecutorService service = null;
+		List<String> messageList = battle.getMesageList();
+		List<String> outputMessageList = battle.getOutputMessageList();
 		
+		//スレッド・マーキュリー処理
+		try {
+			
+			service = Executors.newSingleThreadExecutor();
+			
+			for( String str : messageList ) {
+				outputMessageList.add( str );
+				battle.setOutputMessageList( outputMessageList );
+				session.setAttribute( "battle" , battle    );
+				
+				try {
+					Thread.sleep( 300 );
+					this.message2( mv );
+					
+				}catch( InterruptedException e ) { }
+			}
+			
+		}finally {
+			service.shutdown();
+		}
+	}
+	
+	//メッセージの表示にだけ対応
+	public ModelAndView message2( ModelAndView mv ) {
+		
+		mv.setViewName( "battle" );
+		
+		Battle battle = (Battle)session.getAttribute( "battle" );
+		List<String> outputMessageList = battle.getMesageList();
+		
+		session.setAttribute( "outputMessageList" , outputMessageList );
+		session.setAttribute( "mode" , "message" );
 		
 		return mv;
 	}
-
 }

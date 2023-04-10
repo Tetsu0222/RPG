@@ -90,12 +90,18 @@
 		<!-- プレイヤーゾーンはここまで -->
 		
 		<!-- メッセージ表示エリア -->
-		<div th:if="${session.mode == 'log'}">
+		<div th:if="${session.mode == 'battle'}">
 			<ul th:each="me:${session.battle.mesageList}">
 				<li>
 					<a th:text="${me}"></a>
 				</li>
 			</ul>
+			
+			<form th:action="@{/}" method="get">
+				<div>
+					<button type="submit" th:formaction="@{/next}" th:text="次へ"></button>
+				</div>
+			</form>
 		</div>
 			
 		
@@ -336,12 +342,14 @@
 		
 		
 		<!-- 戦闘開始ボタン -->
-		<div th:unless="${session.mode == 'result'}">
-			<form th:action="@{/}" method="get">
-				<div>
-					<button type="submit" th:formaction="@{/start}" th:text="戦闘開始"></button>
-				</div>
-			</form>
+		<div th:unless="${session.mode == 'battle'}">
+			<div th:unless="${session.mode == 'result'}">
+				<form th:action="@{/}" method="get">
+					<div>
+						<button type="submit" th:formaction="@{/start}" th:text="戦闘開始"></button>
+					</div>
+				</form>
+			</div>
 		</div>
 		
 		<div th:if="${session.mode == 'result'}">

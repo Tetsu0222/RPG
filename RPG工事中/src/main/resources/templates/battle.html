@@ -100,7 +100,7 @@
 		
 		<!-- 工事中 -->
 		<div th:if="${session.mode == 'message'}">
-			<ul th:each="me:${session.battle.mesageList}">
+			<ul th:each="me:${outputMessageList}">
 				<li>
 					<a th:text="${me}"></a>
 				</li>

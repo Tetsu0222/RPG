@@ -1,8 +1,11 @@
 package com.example.rpg2.controller;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map.Entry;
+import java.util.Queue;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -40,7 +43,7 @@ public class PublicController {
 	
 	//行動する側の情報を管理
 	private Integer myKeys;
-	
+	private Queue<Integer> turnqueue = new ArrayDeque<>();
 	
 	//TOP画面に対応
 	@GetMapping( "/" )
@@ -257,28 +260,68 @@ public class PublicController {
 		//各キャラクターの行動順を規定
 		battle.turn();
 		
-		//戦闘開始
-		battle.startBattle();
+		List<Entry<Integer, Integer>> turnList = battle.getTurnList();
 		
-		//戦闘終了判定
-		if( battle.getTargetSetAlly().size() == 0 ) {
-			session.invalidate();
-			battle.getMesageList().add( "全滅してしまった…" );
+		for( Entry<Integer, Integer> entry : turnList) {
+			Integer key = entry.getKey();
+			turnqueue.add( key );
+		}
+		
+		//ターンの最初に発動する効果を処理
+		battle.startSkill();
+		
+		if( battle.getMesageList() != null ) {
 			session.setAttribute( "battle" , battle );
-			session.setAttribute( "mode" , "result" );
-		}else if( battle.getTargetSetEnemy().size() == 0 ) {
-			session.invalidate();
-			battle.getMesageList().add( "戦いに勝利した!!!" );
-			session.setAttribute( "battle" , battle );
-			session.setAttribute( "mode" , "result" );
+			session.setAttribute( "mode" , "battle" );
+		}
+		
+		this.next( mv );
+		
+		return mv;
+	}
+	
+	
+	//戦闘続行
+	@GetMapping( "/next" )
+	public ModelAndView next( ModelAndView mv ) {
+		
+		//いつもの処理
+		mv.setViewName( "battle" );
+		Battle battle = (Battle)session.getAttribute( "battle" );
+	
+		//前回までのログを消去
+		battle.getMesageList().clear();
+		
+		if( turnqueue.peek() != null ) {
+			battle.startBattle( turnqueue.poll() );
+			
+			//戦闘終了判定
+			if( battle.getTargetSetAlly().size() == 0 ) {
+				session.invalidate();
+				battle.getMesageList().add( "全滅してしまった…" );
+				session.setAttribute( "battle" , battle );
+				session.setAttribute( "mode" , "result" );
+				
+			}else if( battle.getTargetSetEnemy().size() == 0 ) {
+				session.invalidate();
+				battle.getMesageList().add( "戦いに勝利した!!!" );
+				session.setAttribute( "battle" , battle );
+				session.setAttribute( "mode" , "result" );
+				
+			}else{
+				session.setAttribute( "battle" , battle );
+				session.setAttribute( "mode" , "battle" );
+			}
+			
+		//全キャラクターの行動終了(modeを変更してエンドスキルメッセージを出力させたい）
 		}else{
+			battle.endSkill();
 			session.invalidate();
 			session.setAttribute( "battle" , battle );
 			session.setAttribute( "mode" , "log" );
 		}
 
 		return mv;
-	}
 	
-
+	}
 }
