@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import com.example.rpg2.battle.AllyData;
 import com.example.rpg2.entity.MonsterPattern;
 import com.example.rpg2.status.Burn;
+import com.example.rpg2.status.Confusion;
 import com.example.rpg2.status.Paralysis;
 import com.example.rpg2.status.Poison;
 import com.example.rpg2.status.Sleep;
@@ -61,6 +62,11 @@ public class BadStatusAlly {
 			}else if( monsterPattern.getBuffcategory().equals( "swoon" ) && allyData.getSurvival() == 1 ) {
 				Set<Status> statusSet = this.badStatus( allyData );
 				allyData = this.swoon( allyData , statusSet );
+			
+			//混乱の付与
+			}else if( monsterPattern.getBuffcategory().equals( "confusion" ) && allyData.getSurvival() == 1 ) {
+				Set<Status> statusSet = this.badStatus( allyData );
+				allyData = this.confusion( allyData , statusSet );
 			}
 			
 		//状態異常判定が失敗
@@ -135,6 +141,15 @@ public class BadStatusAlly {
 		statusSet.add( new Swoon( allyData ) );
 		allyData.setStatusSet( statusSet );
 		this.buffMessage = allyData.getName() + "は気を失ってしまった…";
+		
+		return allyData;
+	}
+	
+	//混乱の付与
+	public AllyData confusion( AllyData allyData , Set<Status> statusSet ) {
+		statusSet.add( new Confusion( allyData ) );
+		allyData.setStatusSet( statusSet );
+		this.buffMessage = allyData.getName() + "は正気を失った…";
 		
 		return allyData;
 	}

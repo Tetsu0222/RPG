@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import com.example.rpg2.action.Attack;
+import com.example.rpg2.action.ConfusionActions;
 import com.example.rpg2.action.EnemyAction;
 import com.example.rpg2.action.SortingAttackAction;
 import com.example.rpg2.action.SortingRecoveryAction;
@@ -30,6 +31,7 @@ import com.example.rpg2.process.ChoiceDefense;
 import com.example.rpg2.process.ConsumptionMP;
 import com.example.rpg2.process.IsEndSkillStop;
 import com.example.rpg2.process.IsStartSkillStop;
+import com.example.rpg2.status.Confusion;
 
 import lombok.Data;
 
@@ -219,6 +221,7 @@ public class Battle {
     			BadStatusBefore badStatusBefore = new BadStatusBefore();
     			Integer juds = badStatusBefore.execution( allyData );
     			
+    			//行動不能の状態異常があれば、そのメッセージを格納
     			if( badStatusBefore.getMessage() != null ) {
     				this.mesageList.add( badStatusBefore.getMessage() );
     			}
@@ -227,6 +230,12 @@ public class Battle {
     			if( juds > 0 ) {
     				this.badStatusAfter( allyData, key );
     				movementPattern = "";
+    			}
+    			
+    			Confusion confusion = new Confusion();
+    			
+    			if( allyData.getStatusSet().contains( confusion )) {
+    				movementPattern = "confusion";
     			}
     			
     			
@@ -321,7 +330,8 @@ public class Battle {
 									break;
 								}
 								
-								target = random.nextInt( targetList.size() + 4 );
+								//ターゲットを無差別に選択、前述のif分で例外は発生しない。
+								target = random.nextInt( targetList.size() ) + 4;
 								this.singleAttack( taregetEnemyAction , target , key , magic , skill );
 								
 							//全体攻撃の処理
@@ -334,11 +344,17 @@ public class Battle {
 							}
 						}
 					}
+					
+				//防御選択時の行動
 				}else if( movementPattern.equals( "defense" )) {
 					this.mesageList.add( allyData.getName() + "は防御している" );
-					
+				
+				//混乱中の行動
+				}else if( movementPattern.equals( "confusion" )) {
+					//メソッド呼び出し。
 				}
 				
+				//MP消費処理
 				if( !isMpEmpty ) {
 					//MP消費処理
 					allyData = ConsumptionMP.consumptionMP( allyData , magic , skill );
@@ -535,6 +551,7 @@ public class Battle {
 			//撃破メッセージを初期化
 			taregetEnemyAction.setResultMessage();
 			
+			//処理結果後のデータを取得し格納
 			MonsterData monsterData = taregetEnemyAction.action( monsterDataMap.get( target ) );
 			this.monsterDataMap.put( target , monsterData );
 			
@@ -565,6 +582,8 @@ public class Battle {
 		
 		//ターゲットを全体に変更
 		for( Integer target : targetSetAlly ) {
+			
+			//処理結果後のデータを取得して格納
 			AllyData receptionAllyData = targetAllyAction.action( partyMap.get( target ) );
 			partyMap.put( target , receptionAllyData );
 			
@@ -603,6 +622,8 @@ public class Battle {
 					partyMap.put( target2 , receptionAllyData );
 					targetSetAlly.add( target2 );
 				}
+				
+				//回復メッセージを格納
 				this.mesageList.add( targetAllyAction.getRecoveryMessage() );
 			}
 			
@@ -619,6 +640,8 @@ public class Battle {
 				partyMap.put( target , receptionAllyData );
 				targetSetAlly.add( target );
 			}
+			
+			//蘇生メッセージを格納
 			this.mesageList.add( targetAllyAction.getRecoveryMessage() );
 		}
 	}
@@ -740,6 +763,46 @@ public class Battle {
 			}else{
 				partyMap.put( enemyAction.getTargetId() , allyData );
 			}
+		}
+	}
+	
+	
+	//混乱中の行動処理
+	public void confusion( AllyData allyData ) {
+		Random random = new Random();
+		int target = random.nextInt( 2 );
+		
+		//味方をターゲットとした混乱行動
+		if( target == 0 ) {
+			List<Integer> targetList = new ArrayList<Integer>( targetSetAlly );
+			int index = random.nextInt( targetList.size() );
+			AllyData targetAllyData = partyMap.get( targetList.get( index ) );
+			targetAllyData = ConfusionActions.action( allyData , targetAllyData , random );
+			
+			if( targetAllyData.getCurrentHp() == 0 ) {
+				
+				//敵リストから対象を削除
+				targetSetAlly.remove( targetList.get( index ) );
+			}
+			
+			this.mesageList.add( ConfusionActions.message );
+			partyMap.put( targetList.get( index ) , targetAllyData );
+			
+		//敵をターゲットとした混乱行動	
+		}else{
+			List<Integer> targetList = new ArrayList<Integer>( targetSetEnemy );
+			int index = random.nextInt( targetList.size() );
+			MonsterData monsterData = monsterDataMap.get( targetList.get( index ) );
+			monsterData = ConfusionActions.action( allyData , monsterData , random );
+			
+			if( monsterData.getCurrentHp() == 0 ) {
+				
+				//敵リストから対象を削除
+				targetSetEnemy.remove( targetList.get( index ) );
+			}
+			
+			this.mesageList.add( ConfusionActions.message );
+			monsterDataMap.put( targetList.get( index ) , monsterData );
 		}
 	}
 	
