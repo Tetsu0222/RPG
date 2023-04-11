@@ -270,7 +270,7 @@ public class PublicController {
 		battle.startSkill();
 		
 		//スタートスキルのメッセージを出力
-		if( battle.getMesageList() != null ) {
+		if( battle.getMesageList().size() > 0  ) {
 			session.setAttribute( "battle" , battle );
 			session.setAttribute( "mode" , "battle" );
 		
@@ -318,14 +318,25 @@ public class PublicController {
 			
 		//全キャラクターの行動終了
 		}else{
+			
+			//ターン終了時に発動する処理
 			battle.endSkill();
-			session.invalidate();
-			session.setAttribute( "battle" , battle );
-			session.setAttribute( "mode" , "end" );
+			
+			//ターン終了時に処理したメッセージの出力
+			if( battle.getMesageList().size() > 0 ) {
+				session.invalidate();
+				session.setAttribute( "battle" , battle );
+				session.setAttribute( "mode" , "end" );
+				
+			//メッセージがなければスキップ
+			}else{
+				session.invalidate();
+				session.setAttribute( "battle" , battle );
+				session.setAttribute( "mode" , "log" );
+			}
 		}
 
 		return mv;
-	
 	}
 	
 	

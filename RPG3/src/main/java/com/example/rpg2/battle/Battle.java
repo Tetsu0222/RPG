@@ -328,6 +328,9 @@ public class Battle {
 							}
 						}
 					}
+				}else if( movementPattern.equals( "defense" )) {
+					this.mesageList.add( allyData.getName() + "は防御している" );
+					
 				}
 				
 				if( !isMpEmpty ) {

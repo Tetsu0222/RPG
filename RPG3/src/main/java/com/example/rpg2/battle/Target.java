@@ -144,7 +144,7 @@ public class Target {
 		this.selectionName = "";
 		this.selectionId   = 0;
 		this.executionId   = myKeys;
-		this.category	   = "unable";
+		this.category	   = "defense";
 		this.targetSetEnemy = null;
 		this.targetSetAlly  = null;
 	}
