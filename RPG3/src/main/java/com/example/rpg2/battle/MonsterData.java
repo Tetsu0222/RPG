@@ -51,9 +51,8 @@ public class MonsterData {
 	
 	public MonsterData( Monster monster , MonsterPatternRepository monsterPatternRepository , Integer enemyId ) {
 		
-		this.originalName = monster.getName();
+		this.name = monster.getName();
 		this.enemyId = enemyId;
-		
 		
 		//固定ステータスの設定
 		this.maxHP = monster.getHp();

@@ -156,7 +156,8 @@ public class PublicController {
 			Integer enemyId = i;
 			Integer repositoryEnemyId = repositoryEnemyIdList.get( i - 4  );
 			MonsterData monsterData = new MonsterData( monsterRepository.findById( repositoryEnemyId ).orElseThrow() , monsterPatternRepository , enemyId );
-			String name = monsterData.getOriginalName();
+			String name = monsterData.getName();
+			monsterData.setOriginalName( name );
 			
 			//重複している名前か確認
 			int count = (int)nameListEnemy.stream()
@@ -180,7 +181,7 @@ public class PublicController {
 			
 			//エネミーキャラクターのセットを名前が重複しているオブジェクトに絞ったリストへ変換
 			List<MonsterData> duplicationEnemyNameList = monsterDataSet.stream()
-					.filter( s -> s.getOriginalName().equals( name ) )
+					.filter( s -> s.getName().equals( name ) )
 					.toList();
 			
 			//名前の加工処理
