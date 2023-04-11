@@ -129,6 +129,12 @@ public class Battle {
 		targetMap.put( myKeys , target );
 	}
 	
+	//敵へのグループ攻撃魔法が選択された時の処理
+	public void selectionMonsterMagic( String name , Integer myKeys , Magic magic ) {
+		Target target = new Target( name , myKeys , magic );
+		targetMap.put( myKeys , target );
+	}
+	
 	//敵への全体魔法が選択された場合の事前処理
 	public void selectionMonsterMagic( Integer myKeys , Magic magic ) {
 		Target target = new Target( monsterDataMap , targetSetEnemy , myKeys ,  magic );
@@ -345,6 +351,9 @@ public class Battle {
 							//全体攻撃の処理
 							}else if( targetMap.get( key ).getTargetSetEnemy() != null ) {
 								this.generalAttack( taregetEnemyAction , key );
+							
+							}else if( targetMap.get( key ).getGroupName() != null ) {
+								//メソッド呼び出し
 
 							//単体攻撃の処理
 							}else{

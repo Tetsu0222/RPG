@@ -166,6 +166,10 @@ public class MagicController {
 		//単体魔法かつ攻撃・妨害魔法→対象選択の範囲を敵に指定
 		}else if( magic.getRange().equals( "single" ) && magic.getCategory().equals( "targetenemy" ) ) {
 			session.setAttribute( "mode" , "targetMonsterMagic" );
+			
+		//グループ攻撃の魔法
+		}else if( magic.getRange().equals( "group" ) && magic.getCategory().equals( "targetenemy" ) ) {
+			session.setAttribute( "mode" , "targetGroupNameMonsterMagic" );
 		
 		//味方全体への魔法
 		}else if( !magic.getRange().equals( "single" ) && magic.getCategory().equals( "targetally" ) ) {
@@ -220,6 +224,22 @@ public class MagicController {
 		mv.setViewName( "battle" );
 		Battle battle = (Battle)session.getAttribute( "battle" );
 		battle.selectionMonsterMagic( myKeys , key , magic );
+		
+		session.setAttribute( "battle" , battle );
+		session.setAttribute( "mode" , "log" );
+		
+		return mv;
+	}
+	
+	
+	//ターゲット選択(グループ攻撃魔法)
+	@GetMapping( "/target/magic/monsterGroup/{name}" )
+	public ModelAndView magicTargetMonsterGroup( @PathVariable( name = "name" ) String name ,
+												 ModelAndView mv ) {
+
+		mv.setViewName( "battle" );
+		Battle battle = (Battle)session.getAttribute( "battle" );
+		battle.selectionMonsterMagic( name , myKeys ,  magic );
 		
 		session.setAttribute( "battle" , battle );
 		session.setAttribute( "mode" , "log" );

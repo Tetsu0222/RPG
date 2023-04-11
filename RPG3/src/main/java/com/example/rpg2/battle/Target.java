@@ -19,6 +19,7 @@ public class Target {
 	private String  category;
 	private Magic   executionMagic;
 	private Skill   executionSkill;
+	private String  groupName;
 	private Set<Integer> targetSetEnemy = new TreeSet<>();
 	private Set<Integer> targetSetAlly  = new TreeSet<>();
 	
@@ -26,12 +27,12 @@ public class Target {
 	//通常攻撃
 	public Target( MonsterData monsterData , Integer myKeys , Integer key ) {
 		
-		this.skillName     = "通常攻撃";
-		this.selectionName = monsterData.getName();
-		this.selectionId   = key;
-		this.executionId   = myKeys;
-		this.category	   = "attack";
-		this.executionMagic  = null;
+		this.skillName      = "通常攻撃";
+		this.selectionName  = monsterData.getName();
+		this.selectionId    = key;
+		this.executionId    = myKeys;
+		this.category	    = "attack";
+		this.executionMagic = null;
 		this.targetSetEnemy = null;
 		this.targetSetAlly  = null;
 		
@@ -73,6 +74,19 @@ public class Target {
 		this.executionMagic = magic;
 		this.targetSetEnemy = null;
 		this.targetSetAlly  = null;
+	}
+	
+	//グループ攻撃魔法
+	public Target( String groupName , Integer myKeys , Magic magic ) {
+		
+		this.skillName      = magic.getName();
+		this.selectionName  = groupName + "グループ";
+		this.executionId    = myKeys;
+		this.category	    = magic.getCategory();
+		this.executionMagic = magic;
+		this.targetSetEnemy = null;
+		this.targetSetAlly  = null;
+		this.groupName		= groupName;
 	}
 	
 	//全体攻撃魔法
