@@ -296,6 +296,21 @@ public class PublicController {
 		
 		//素早さ順に行動
 		if( turnqueue.peek() != null ) {
+			
+			//行動前かつターン中に死亡している場合は、行動自体をスキップする。
+			if( battle.getPartyMap().get( turnqueue.peek() ) != null ){
+				if( battle.getPartyMap().get( turnqueue.peek() ).getSurvival() == 0  ) {
+					turnqueue.poll();
+					this.next( mv );
+				}
+				
+			}else{
+				if( battle.getMonsterDataMap().get( turnqueue.peek() ).getSurvival() == 0  ) {
+					turnqueue.poll();
+					this.next( mv );
+				}
+			}
+			
 			battle.startBattle( turnqueue.poll() );
 			
 			//戦闘終了判定

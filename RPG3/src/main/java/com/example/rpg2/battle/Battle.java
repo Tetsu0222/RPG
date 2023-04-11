@@ -315,7 +315,13 @@ public class Battle {
 							//無差別攻撃
 							if( SortingAttackAction.targetRandom ) {
 								List<Integer> targetList = new ArrayList<Integer>( targetSetEnemy );
-								target = random.nextInt( targetList.size() ) + 4;
+								
+								//連続攻撃中に敵が全滅していた場合は、処理終了
+								if( targetList.size() == 0 ) {
+									break;
+								}
+								
+								target = random.nextInt( targetList.size() + 4 );
 								this.singleAttack( taregetEnemyAction , target , key , magic , skill );
 								
 							//全体攻撃の処理
@@ -346,7 +352,7 @@ public class Battle {
 	        //----------------------------------------------------
 	        //------------------敵側の処理------------------------
 	        //----------------------------------------------------
-            }else{
+            }else if( monsterDataMap.get( key ) != null ){
             	
             	//行動対象のモンスターのデータを生成
     			MonsterData monsterData = monsterDataMap.get( key );
