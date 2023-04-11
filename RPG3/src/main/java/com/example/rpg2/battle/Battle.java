@@ -60,10 +60,15 @@ public class Battle {
 	//キーは敵味方混合、値は乱数補正後の素早さ。素早さ順で降順ソートしたリスト
 	private List<Entry<Integer, Integer>> turnList;
 	
+	//グループ攻撃用のセット
+	private List<String> enemyNameList;
+	private List<String> allyNameList;
+	
 	Random random = new Random();
 	
+	
 	//コンストラクタ(戦闘不能と蘇生の関係で、複数のコレクションで敵味方の座標とオブジェクトを管理)
-	public Battle( Set<AllyData> partySet , Set<MonsterData> monsterDataSet ) {
+	public Battle( Set<AllyData> partySet , Set<MonsterData> monsterDataSet , List<String> allyNameList , List<String> enemyNameList ) {
 		
 		List<AllyData> partyList = new ArrayList<>( partySet );
 		List<MonsterData> monsterDataList = new ArrayList<>( monsterDataSet );
@@ -87,6 +92,10 @@ public class Battle {
 		//味方と敵の座標リストをそれぞれ生成(各マップのキー数字とリンク）
 		this.targetSetEnemy = new TreeSet<>( monsterDataMap.keySet() );
 		this.targetSetAlly  = new TreeSet<>( partyMap.keySet() );
+		
+		//グループ攻撃用のセットを設定
+		this.allyNameList  = allyNameList;
+		this.enemyNameList = enemyNameList;
 		
 	}
 	

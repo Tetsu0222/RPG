@@ -44,6 +44,9 @@ public class PublicController {
 	//行動する側の情報を管理
 	private Integer myKeys;
 	private Queue<Integer> turnqueue = new ArrayDeque<>();
+	private List<String> allyNameList = new ArrayList<>();
+	private List<String> enemyNameList = new ArrayList<>();
+	
 	
 	//TOP画面に対応
 	@GetMapping( "/" )
@@ -192,8 +195,12 @@ public class PublicController {
 			}
 		}
 		
+		//グループ攻撃用の重複要素を整理したリスト生成（順番を維持したいためリストにて生成）
+		allyNameList  = nameList.stream().distinct().toList();
+		enemyNameList = nameListEnemy.stream().distinct().toList();
+	
 		//戦闘処理用のオブジェクトを生成
-		Battle battle = new Battle( partySet , monsterDataSet );
+		Battle battle = new Battle( partySet , monsterDataSet , allyNameList , enemyNameList );
 		
 		//戦闘画面用のデータをセッションスコープに保存
 		session.setAttribute( "battle" , battle );
