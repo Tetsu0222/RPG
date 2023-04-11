@@ -30,10 +30,14 @@
 				<th>HP</th>
 				<th>MP</th>
 				<th>状態</th>
-				<th>攻撃</th>
-				<th>魔法</th>
-				<th>特技</th>
-				<th>防御</th>
+				<div th:unless=="${session.mode == 'battle'}">
+					<div th:unless=="${session.mode == 'end'}">
+						<th>攻撃</th>
+						<th>魔法</th>
+						<th>特技</th>
+						<th>防御</th>
+					</div>
+				</div>
 				<th>選択中の行動</th>
 				<th>対象</th>
 			</tr>
@@ -56,28 +60,32 @@
 						<a th:text="${st.name}"></a>
 					</div>
 				</td>
-				<form th:action="@{/}" method="get">
-					<td>
-						<div th:unless="${entry.value.survival == 0}">
-							<button type="submit" th:formaction="@{/attack/__${entry.key}__}" th:text="攻撃"></button>
-						</div>
-					</td>
-					<td>
-						<div th:unless="${entry.value.survival == 0}">
-							<button type="submit" th:formaction="@{/magic/__${entry.key}__}" th:text="魔法"></button>
-						</divth:unless="${entry.value.survival == 0}">
-					</td>
-					<td>
-						<div th:unless="${entry.value.survival == 0}">
-							<button type="submit" th:formaction="@{/skill/__${entry.key}__}" th:text="特技"></button>
-						</divth:unless="${entry.value.survival == 0}">
-					</td>
-					<td>
-						<div th:unless="${entry.value.survival == 0}">
-							<button type="submit" th:formaction="@{/defense/__${entry.key}__}" th:text="防御"></button>
-						</div>
-					</td>
-				</form>
+				<div th:unless=="${session.mode == 'battle'}">
+					<div th:unless=="${session.mode == 'end'}">
+						<form th:action="@{/}" method="get">
+							<td>
+								<div th:unless="${entry.value.survival == 0}">
+									<button type="submit" th:formaction="@{/attack/__${entry.key}__}" th:text="攻撃"></button>
+								</div>
+							</td>
+							<td>
+								<div th:unless="${entry.value.survival == 0}">
+									<button type="submit" th:formaction="@{/magic/__${entry.key}__}" th:text="魔法"></button>
+								</divth:unless="${entry.value.survival == 0}">
+							</td>
+							<td>
+								<div th:unless="${entry.value.survival == 0}">
+									<button type="submit" th:formaction="@{/skill/__${entry.key}__}" th:text="特技"></button>
+								</divth:unless="${entry.value.survival == 0}">
+							</td>
+							<td>
+								<div th:unless="${entry.value.survival == 0}">
+									<button type="submit" th:formaction="@{/defense/__${entry.key}__}" th:text="防御"></button>
+								</div>
+							</td>
+						</form>
+					</div>
+				</div>
 					<td>
 						<a th:text="${session.battle.targetMap.get(entry.key).skillName}"></a>
 					</td>

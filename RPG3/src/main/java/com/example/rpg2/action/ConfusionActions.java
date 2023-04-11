@@ -121,7 +121,7 @@ public class ConfusionActions {
 				
 			}else{
 				monsterData.setCurrentHp( HP );
-				message = allyData.getName() + "は" + monsterData.getName() + "に攻撃!! " + damage + "のダメージを与えてた!!";
+				message = allyData.getName() + "は" + monsterData.getName() + "に攻撃!! " + damage + "のダメージを与えた!!";
 			}
 		
 		//実質行動不能

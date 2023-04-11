@@ -238,7 +238,6 @@ public class Battle {
     				movementPattern = "confusion";
     			}
     			
-    			
     			//通常攻撃の処理
 				if( movementPattern.equals( "attack" )) {
 					
@@ -351,7 +350,7 @@ public class Battle {
 				
 				//混乱中の行動
 				}else if( movementPattern.equals( "confusion" )) {
-					//メソッド呼び出し。
+					this.confusion( allyData );
 				}
 				
 				//MP消費処理
