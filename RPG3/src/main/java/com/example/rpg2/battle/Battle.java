@@ -353,7 +353,7 @@ public class Battle {
 								this.generalAttack( taregetEnemyAction , key );
 							
 							}else if( targetMap.get( key ).getGroupName() != null ) {
-								this.groupAttack( taregetEnemyAction , key );
+								this.groupAttack( taregetEnemyAction , key , magic , skill );
 
 							//単体攻撃の処理
 							}else{
@@ -561,16 +561,26 @@ public class Battle {
 	
 	
 	//グループ攻撃のメソッド
-	public void groupAttack( TaregetEnemyAction taregetEnemyAction , Integer key ) {
+	public void groupAttack( TaregetEnemyAction taregetEnemyAction , Integer key , Magic magic , Skill skill ) {
 		
 		//グループ攻撃の対象を取得
 		String target = targetMap.get( key ).getGroupName();
+		
+		//対象グループが先に全滅していた場合は、対象者を変更
+		if( !enemyNameList.contains( target )) {
+			target = enemyNameList.get( 0 );
+		}
+		
+		//実質的にfinalとするため再定義
+		String mainTarget = target;
 		
 		//マップからエネミーキャラクターの一覧をリストとして取得
 		List<MonsterData> targetList = new ArrayList<>( monsterDataMap.values() );
 		
 		//取得したリストから攻撃対象のオブジェクトのみを再抽出
-		targetList = targetList.stream().filter( s -> s.getOriginalName().equals( target )).toList();
+		targetList = targetList.stream()
+				.filter( s -> s.getOriginalName().equals( mainTarget ))
+				.toList();
 		
 		//処理実行
 		for( MonsterData monsterData : targetList) {
@@ -597,17 +607,38 @@ public class Battle {
 				//敵リストから対象を削除
 				targetSetEnemy.remove( monsterData.getEnemyId() );
 				
-				/*
 				//グループ内の残存勢力をチェック
 				targetList = new ArrayList<>( monsterDataMap.values() );
-				targetList = targetList.stream().filter( s -> s.getName().equals( target )).toList();
+				targetList = targetList.stream().filter( s -> s.getOriginalName().equals( mainTarget )).toList();
 				Long count = targetList.stream().filter( s -> s.getSurvival() > 0 ).count();
+				
 				
 				//グループが全滅していれば、リストから対象者を削除
 				if( count == 0 ) {
-					enemyNameList.remove( target );
+					enemyNameList = enemyNameList.stream()
+							.filter( s -> !s.equals( mainTarget ))
+							.toList();
+					
+					//ターゲットの自動変更
+					if( targetSetEnemy.size() != 0 ) {
+						
+	        			//生存しているエネミーの名前を取得して再定義
+	        			target = enemyNameList.get( 0 );
+	        			
+	        			//魔法攻撃の時のターゲット変更
+		        		if( magic != null ) {
+		        			this.selectionMonsterMagic( target , key , magic );
+		        			
+		        		//特技(工事中）
+		        		}else if( skill != null ) {
+		        			//this.selectionMonsterSkill( target , key , skill );
+		        		
+		        		//通常攻撃（未実装）
+		        		}else{
+
+		        		}
+					}
 				}
-				*/
 			}
 		}
 	}
