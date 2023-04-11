@@ -353,7 +353,7 @@ public class Battle {
 								this.generalAttack( taregetEnemyAction , key );
 							
 							}else if( targetMap.get( key ).getGroupName() != null ) {
-								//メソッド呼び出し
+								this.groupAttack( taregetEnemyAction , key );
 
 							//単体攻撃の処理
 							}else{
@@ -555,6 +555,60 @@ public class Battle {
 		//状態異常の治癒があれば結果に追加
 		if( targetAllyAction.getResultMessage() != null ) {
 			this.mesageList.add( targetAllyAction.getResultMessage() );
+		}
+		
+	}
+	
+	
+	//グループ攻撃のメソッド
+	public void groupAttack( TaregetEnemyAction taregetEnemyAction , Integer key ) {
+		
+		//グループ攻撃の対象を取得
+		String target = targetMap.get( key ).getGroupName();
+		
+		//マップからエネミーキャラクターの一覧をリストとして取得
+		List<MonsterData> targetList = new ArrayList<>( monsterDataMap.values() );
+		
+		//取得したリストから攻撃対象のオブジェクトのみを再抽出
+		targetList = targetList.stream().filter( s -> s.getOriginalName().equals( target )).toList();
+		
+		//処理実行
+		for( MonsterData monsterData : targetList) {
+			
+			//処理結果を取得
+			monsterData = taregetEnemyAction.action( monsterData );
+			
+			//処理結果を格納
+			monsterDataMap.put( monsterData.getEnemyId() , monsterData );
+			
+			//ダメージがあれば表示に追加
+			if( taregetEnemyAction.getDamageMessage() != null ) {
+				this.mesageList.add( taregetEnemyAction.getDamageMessage() );
+			}
+			
+			//状態異常が伴う場合か対象を倒した場合は、結果を表示に追加
+			if( taregetEnemyAction.getResultMessage() != null ) {
+				this.mesageList.add( taregetEnemyAction.getResultMessage() );
+			}
+			
+			//攻撃で対象を倒した場合の処理
+			if( monsterData.getCurrentHp() == 0 ) {
+				
+				//敵リストから対象を削除
+				targetSetEnemy.remove( monsterData.getEnemyId() );
+				
+				/*
+				//グループ内の残存勢力をチェック
+				targetList = new ArrayList<>( monsterDataMap.values() );
+				targetList = targetList.stream().filter( s -> s.getName().equals( target )).toList();
+				Long count = targetList.stream().filter( s -> s.getSurvival() > 0 ).count();
+				
+				//グループが全滅していれば、リストから対象者を削除
+				if( count == 0 ) {
+					enemyNameList.remove( target );
+				}
+				*/
+			}
 		}
 	}
 	

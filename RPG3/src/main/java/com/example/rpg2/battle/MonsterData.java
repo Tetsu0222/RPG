@@ -18,6 +18,7 @@ import lombok.Data;
 public class MonsterData {
 	
 	private String  name;
+	private String  originalName;
 	private Integer enemyId;
 	
 	private Integer maxHP;
@@ -50,7 +51,7 @@ public class MonsterData {
 	
 	public MonsterData( Monster monster , MonsterPatternRepository monsterPatternRepository , Integer enemyId ) {
 		
-		this.name = monster.getName();
+		this.originalName = monster.getName();
 		this.enemyId = enemyId;
 		
 		
