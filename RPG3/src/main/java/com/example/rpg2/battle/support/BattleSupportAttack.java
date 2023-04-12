@@ -60,7 +60,6 @@ public class BattleSupportAttack {
 		this.targetSetEnemy = battle.getTargetSetEnemy();
 		this.enemyNameList = battle.getEnemyNameList();
 		this.allyNameList = battle.getAllyNameList();
-		
 	}
 	
 	//------------------------------------------------------------------------------
@@ -70,19 +69,6 @@ public class BattleSupportAttack {
 	//通常攻撃が選択された場合の事前処理
 	public void selectionAttack( Integer myKeys , Integer key ) {
 		Target target = new Target( monsterDataMap.get( key ) , myKeys , key );
-		targetMap.put( myKeys , target );
-	}
-	
-	//味方への魔法が選択された場合の事前処理
-	public void selectionAllyMagic( Integer myKeys , Integer key , Magic magic ) {
-		Target target = new Target ( partyMap.get( key ) , myKeys , key , magic );
-		targetMap.put( myKeys , target );
-	}
-	
-	//味方への全体魔法が選択された場合の事前処理
-	public void selectionAllyMagic( Integer myKeys , Magic magic ) {
-		//最後の引数はオーバーロード用のダミー
-		Target target = new Target ( partyMap , targetSetAlly , myKeys ,  magic , 1 );
 		targetMap.put( myKeys , target );
 	}
 	
@@ -104,19 +90,6 @@ public class BattleSupportAttack {
 		targetMap.put( myKeys , target );
 	}
 	
-	//味方への特技が選択された場合の事前処理
-	public void selectionAllySkill( Integer myKeys , Integer key , Skill skill ) {
-		Target target = new Target ( partyMap.get( key ) , myKeys , key , skill );
-		targetMap.put( myKeys , target );
-	}
-	
-	//味方への全体特技が選択された場合の事前処理
-	public void selectionAllySkill( Integer myKeys , Skill skill ) {
-		//最後の引数はオーバーロード用のダミー
-		Target target = new Target ( partyMap , targetSetAlly , myKeys ,  skill , 1 );
-		targetMap.put( myKeys , target );
-	}
-	
 	//敵への特技が選択された場合の事前処理
 	public void selectionMonsterSkill( Integer myKeys , Integer key , Skill skill ) {
 		Target target = new Target( monsterDataMap.get( key ) , myKeys , key , skill );
@@ -132,12 +105,6 @@ public class BattleSupportAttack {
 	//敵への全体特技が選択された場合の事前処理
 	public void selectionMonsterSkill( Integer myKeys , Skill skill ) {
 		Target target = new Target( monsterDataMap , targetSetEnemy , myKeys ,  skill );
-		targetMap.put( myKeys , target );
-	}
-	
-	//防御を選択
-	public void selectionDefense( Integer myKeys ) {
-		Target target = new Target( myKeys , "防御" );
 		targetMap.put( myKeys , target );
 	}
 	

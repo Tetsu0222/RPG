@@ -15,12 +15,10 @@ import java.util.stream.IntStream;
 
 import com.example.rpg2.action.ConfusionActions;
 import com.example.rpg2.action.EnemyAction;
-import com.example.rpg2.action.SortingRecoveryAction;
-import com.example.rpg2.action.TaregetEnemyAction;
-import com.example.rpg2.action.TargetAllyAction;
 import com.example.rpg2.action.endskill.SortingEndSkill;
 import com.example.rpg2.action.startskill.SortingStartSkill;
 import com.example.rpg2.battle.support.BattleSupportAttack;
+import com.example.rpg2.battle.support.BattleSupportRecovery;
 import com.example.rpg2.entity.Magic;
 import com.example.rpg2.entity.Skill;
 import com.example.rpg2.process.BadStatusAfter;
@@ -65,8 +63,8 @@ public class Battle {
 	
 	Random random = new Random();
 	
-	BattleSupportAttack battleSupportAttack;
-	
+	private BattleSupportAttack battleSupportAttack;
+	private BattleSupportRecovery battleSupportRecovery;
 	
 	//コンストラクタ(戦闘不能と蘇生の関係で、複数のコレクションで敵味方の座標とオブジェクトを管理)
 	public Battle( Set<AllyData> partySet , Set<MonsterData> monsterDataSet , List<String> allyNameList , List<String> enemyNameList ) {
@@ -102,7 +100,8 @@ public class Battle {
 	
 	//サポートクラスの生成
 	public void createSupport () {
-		this.battleSupportAttack = new BattleSupportAttack( this );
+		this.battleSupportAttack   = new BattleSupportAttack( this );
+		this.battleSupportRecovery = new BattleSupportRecovery( this );
 	}
 	
 	
@@ -118,14 +117,14 @@ public class Battle {
 	
 	//味方への魔法が選択された場合の事前処理
 	public void selectionAllyMagic( Integer myKeys , Integer key , Magic magic ) {
-		battleSupportAttack.selectionAllyMagic( myKeys , key , magic );
-		this.targetMap = battleSupportAttack.getTargetMap();
+		battleSupportRecovery.selectionAllyMagic( myKeys , key , magic );
+		this.targetMap = battleSupportRecovery.getTargetMap();
 	}
 	
 	//味方への全体魔法が選択された場合の事前処理
 	public void selectionAllyMagic( Integer myKeys , Magic magic ) {
-		battleSupportAttack.selectionAllyMagic( myKeys , magic );
-		this.targetMap = battleSupportAttack.getTargetMap();
+		battleSupportRecovery.selectionAllyMagic( myKeys , magic );
+		this.targetMap = battleSupportRecovery.getTargetMap();
 	}
 	
 	//敵への魔法が選択された場合の事前処理
@@ -148,14 +147,14 @@ public class Battle {
 	
 	//味方への特技が選択された場合の事前処理
 	public void selectionAllySkill( Integer myKeys , Integer key , Skill skill ) {
-		battleSupportAttack.selectionAllySkill( myKeys , key , skill );
-		this.targetMap = battleSupportAttack.getTargetMap();
+		battleSupportRecovery.selectionAllySkill( myKeys , key , skill );
+		this.targetMap = battleSupportRecovery.getTargetMap();
 	}
 	
 	//味方への全体特技が選択された場合の事前処理
 	public void selectionAllySkill( Integer myKeys , Skill skill ) {
-		battleSupportAttack.selectionAllySkill( myKeys , skill );
-		this.targetMap = battleSupportAttack.getTargetMap();
+		battleSupportRecovery.selectionAllySkill( myKeys , skill );
+		this.targetMap = battleSupportRecovery.getTargetMap();
 	}
 	
 	//敵への特技が選択された場合の事前処理
@@ -178,8 +177,8 @@ public class Battle {
 	
 	//防御を選択
 	public void selectionDefense( Integer myKeys ) {
-		battleSupportAttack.selectionDefense( myKeys );
-		this.targetMap = battleSupportAttack.getTargetMap();
+		Target target = new Target( myKeys , "防御" );
+		targetMap.put( myKeys , target );
 	}
 	
 	//--------------------------------------------------------------------------------------
@@ -270,57 +269,19 @@ public class Battle {
 				battleSupportAttack.normalAttack( target , key , magic , skill , allyData );
 				
 				//処理結果を獲得
-				this.attackResult();
+				this.result();
 
+				
 			//回復・補助魔法の処理
 			}else if( movementPattern.equals( "targetally" ) || movementPattern.equals( "resuscitationmagic" ) || movementPattern.equals( "resuscitationskill" ) ) {
+				
+				//回復・補助・蘇生の魔法か特技の処理、MPが足りていたかどうかの結果が返る。
+				isMpEmpty = battleSupportRecovery.magicOrSkillRecovery( allyData , magic , skill , target , key );
+				
+				//処理結果を格納
+				this.result();
 					
-				//回復or補助or蘇生の魔法か特技か判定して該当オブジェクトを生成
-				TargetAllyAction targetAllyAction = SortingRecoveryAction.sortingCreateRecoveryAction( allyData , magic , skill );
-					
-				//行動を宣言
-				this.mesageList.add( targetAllyAction.getStratMessage() );
-					
-				//MP判定 MPが足りないとtureが返る。
-				if( targetAllyAction.isNotEnoughMp() ){
-					this.mesageList.add( targetAllyAction.getNotEnoughMpMessage() );
-					isMpEmpty = true;
-						
-				//MP判定OK
-				}else{
-						
-					//魔法特技の指定回数分の処理
-					for( int i = 0 ; i < SortingRecoveryAction.actions ; i++ ){
-							
-						//無差別回復
-						if( SortingRecoveryAction.targetRandom ) {
-							List<Integer> targetList = new ArrayList<Integer>( targetSetAlly );
-							target = random.nextInt( targetList.size() );
-							this.singleSupport( targetAllyAction , target , key );
-							
-						//蘇生
-						}else if( SortingRecoveryAction.isResuscitation ) {
-								
-							//全体蘇生魔法の処理
-							if( targetMap.get( key ).getTargetSetAlly() != null ) {
-								this.resuscitationMagicExecution( targetAllyAction , -1 , key );
-									
-							//単体蘇生魔法の処理
-							}else{
-								this.resuscitationMagicExecution( targetAllyAction , target , key );
-							}
-								
-							//全体回復魔法の処理
-							}else if( targetMap.get( key ).getTargetSetAlly() != null ) {
-								this.generalSupport( targetAllyAction , key );
-								
-							//単体回復魔法の処理
-							}else{
-								this.singleSupport( targetAllyAction , target , key );
-						}
-					}
-				}
-					
+				
 			//攻撃・妨害の処理
 			}else if( movementPattern.equals( "targetenemy" )) {
 				
@@ -328,17 +289,20 @@ public class Battle {
 				isMpEmpty = battleSupportAttack.magicOrSkillAttack( allyData , magic , skill , target , key );
 				
 				//処理結果を取得
-				this.attackResult();
+				this.result();
+				
 				
 			//防御選択時の行動
 			}else if( movementPattern.equals( "defense" )) {
 				this.mesageList.add( allyData.getName() + "は防御している" );
+				
 				
 			//混乱中の行動
 			}else if( movementPattern.equals( "confusion" )) {
 				this.confusion( allyData );
 			}
 				
+			
 			//MP消費処理
 			if( !isMpEmpty ) {
 				//MP消費処理
@@ -444,123 +408,13 @@ public class Battle {
 	//-----------------------------------------------------------------------------------------------------------------------
 	
 	//単体攻撃の結果取得メソッド
-	public void attackResult() {
+	public void result() {
 		this.targetSetEnemy = battleSupportAttack.getTargetSetEnemy();
 		this.monsterDataMap = battleSupportAttack.getMonsterDataMap();
 		this.mesageList     = battleSupportAttack.getMesageList();
 		this.targetMap      = battleSupportAttack.getTargetMap();
 		this.enemyNameList  = battleSupportAttack.getEnemyNameList();
-	}
-	
-	
-	//単体回復・補助のメソッド
-	public void singleSupport( TargetAllyAction targetAllyAction , Integer target , Integer key ) {
-		
-		//対象の味方キャラクターのオブジェクトを取得
-		AllyData receptionAllyData = partyMap.get( target );
-		
-		//対象がターン中に死亡している場合は、別の生存対象へ処理対象を変更
-		if( receptionAllyData.getSurvival() == 0 ) {
-			target = targetSetAlly.stream().findAny().orElse( 0 );
-			this.selectionAllyMagic( key , target , targetMap.get( key ).getExecutionMagic() );
-		}
-		
-		//回復・補助魔法の処理と結果の格納
-		receptionAllyData = targetAllyAction.action( partyMap.get( target ) );
-		partyMap.put( target , receptionAllyData );
-		
-		//回復効果があれば表示に追加
-		if( targetAllyAction.getRecoveryMessage() != null ) {
-			this.mesageList.add( targetAllyAction.getRecoveryMessage() );
-		}
-		
-		//状態異常の治癒があれば結果に追加
-		if( targetAllyAction.getResultMessage() != null ) {
-			this.mesageList.add( targetAllyAction.getResultMessage() );
-		}
-		
-	}
-	
-	
-	//グループ攻撃のメソッド
-	public void groupAttack( TaregetEnemyAction taregetEnemyAction , Integer key , Magic magic , Skill skill ) {
-		
-		battleSupportAttack.groupAttack( taregetEnemyAction , key , magic , skill );
-		this.targetSetEnemy = battleSupportAttack.getTargetSetEnemy();
-		this.monsterDataMap = battleSupportAttack.getMonsterDataMap();
-		this.mesageList     = battleSupportAttack.getMesageList();
-		this.targetMap      = battleSupportAttack.getTargetMap();
-		this.enemyNameList  = battleSupportAttack.getEnemyNameList();
-	}
-	
-	
-	//全体回復・補助のメソッド
-	public void generalSupport( TargetAllyAction targetAllyAction , Integer key) {
-		
-		//ターゲットを全体に変更
-		for( Integer target : targetSetAlly ) {
-			
-			//処理結果後のデータを取得して格納
-			AllyData receptionAllyData = targetAllyAction.action( partyMap.get( target ) );
-			partyMap.put( target , receptionAllyData );
-			
-			//回復効果があれば表示に追加
-			if( targetAllyAction.getRecoveryMessage() != null ) {
-				this.mesageList.add( targetAllyAction.getRecoveryMessage() );
-			}
-			
-			//状態異常の治癒があれば結果に追加
-			if( targetAllyAction.getResultMessage() != null ) {
-				this.mesageList.add( targetAllyAction.getResultMessage() );
-			}
-		}
-	}
-	
-	
-	//蘇生魔法の処理メソッド
-	public void resuscitationMagicExecution( TargetAllyAction targetAllyAction , Integer target , Integer key ) {
-		
-		//全体魔法の処理
-		if( target < 0 ) {
-			
-			//生死問わず、全体に作用するようにリストを生成
-			List<Integer> list = new ArrayList<>(partyMap.keySet());
-			
-			//ターゲットを全体で再設定
-			for( Integer target2 : list ) {
-				
-				//蘇生処理を実行
-				AllyData receptionAllyData = targetAllyAction.action( partyMap.get( target2 ) );
-				
-				//蘇生判定の確認
-				if( receptionAllyData.getSurvival() > 0 ) {
-					
-					//蘇生に成功していれば結果を格納
-					partyMap.put( target2 , receptionAllyData );
-					targetSetAlly.add( target2 );
-				}
-				
-				//回復メッセージを格納
-				this.mesageList.add( targetAllyAction.getRecoveryMessage() );
-			}
-			
-		//単体魔法の処理
-		}else{
-			
-			//蘇生処理を実行
-			AllyData receptionAllyData = targetAllyAction.action( partyMap.get( target ) );
-			
-			//蘇生判定の確認
-			if( receptionAllyData.getSurvival() > 0 ) {
-				
-				//蘇生に成功していれば結果を格納
-				partyMap.put( target , receptionAllyData );
-				targetSetAlly.add( target );
-			}
-			
-			//蘇生メッセージを格納
-			this.mesageList.add( targetAllyAction.getRecoveryMessage() );
-		}
+		this.partyMap		= battleSupportAttack.getPartyMap();
 	}
 	
 	
