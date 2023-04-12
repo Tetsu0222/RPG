@@ -48,6 +48,7 @@ public class PublicController {
 	private List<String> enemyNameList = new ArrayList<>();
 	
 	private int turnCount = 1;
+	private int actionObj;
 	
 	
 	//TOP画面に対応
@@ -300,37 +301,13 @@ public class PublicController {
 		//素早さ順に行動
 		if( turnqueue.peek() != null ) {
 			
-			//行動前かつターン中に死亡している場合は、行動自体をスキップする。ここ上手く直したい…
-			if( battle.getPartyMap().get( turnqueue.peek() ) != null ){
-				if( battle.getPartyMap().get( turnqueue.peek() ).getSurvival() == 0 ) {
-					turnqueue.poll();
-				}
-				
-				if( battle.getPartyMap().get( turnqueue.peek() ).getSurvival() == 0 ) {
-					turnqueue.poll();
-				}
-				
-				if( battle.getPartyMap().get( turnqueue.peek() ).getSurvival() == 0 ) {
-					turnqueue.poll();
-				}
-				
-			}else if( battle.getMonsterDataMap().get( turnqueue.peek() ) != null ){
-				if( battle.getMonsterDataMap().get( turnqueue.peek() ).getSurvival() == 0 ) {
-					turnqueue.poll();
-				}
-				
-				if( battle.getMonsterDataMap().get( turnqueue.peek() ).getSurvival() == 0 ) {
-					turnqueue.poll();
-				}
-				
-				if( battle.getMonsterDataMap().get( turnqueue.peek() ).getSurvival() == 0 ) {
-					turnqueue.poll();
-				}
-			}
+			this.actionObj = turnqueue.poll();
 			
-			if( turnqueue.peek() != null ) {
-			
-				battle.startBattle( turnqueue.poll() );
+			//ターン終了判定
+			if( this.isPossible( battle )){
+				
+				//判定結果trueであれば行動実行
+				battle.startBattle( this.actionObj );
 				
 				//戦闘終了判定
 				if( battle.getTargetSetAlly().size() == 0 ) {
@@ -350,7 +327,8 @@ public class PublicController {
 					session.setAttribute( "battle" , battle );
 					session.setAttribute( "mode" , "battle" );
 				}
-				
+			
+			//全員の行動が終了
 			}else{
 				
 				//ターン終了時に発動する処理
@@ -395,5 +373,72 @@ public class PublicController {
 		return mv;
 	}
 	
+	
+	//ターンを続行するか判定するメソッド、falseを返すとターン終了させる。
+	public boolean isPossible( Battle battle ) {
+		
+		boolean possible = false;
+		
+		//味方側の生存チェック
+		if( battle.getPartyMap().get( this.actionObj ) != null ){
+			
+			//生存しているかどうかで処理を分岐
+			if( battle.getPartyMap().get( this.actionObj ).getSurvival() == 0 ) {
+				
+				//行動対象者が死亡している場合は、該当インデックスを次の行動対象者で上書き
+				if( turnqueue.peek() != null ) {
+					this.actionObj = turnqueue.poll();
+					
+					//次の行動対象者も生存チェックを実行
+					if( this.isPossible( battle )) {
+						possible = true;
+					
+					//自メソッドを繰り返し、結果的に値がなくなっていればターン終了判定(false)を返す。
+					}else{
+						possible = false;
+					}
+				
+				//次の値が存在しなければターン終了(falseを返す)
+				}else{
+					possible = false;
+				}
+				
+			//生存していれば処理実行
+			}else{
+				possible = true;
+			}
+			
+			
+		//敵側の生存チェック
+		}else if( battle.getMonsterDataMap().get( actionObj ) != null ){
+			
+				if( battle.getMonsterDataMap().get( actionObj ).getSurvival() == 0 ) {
+					
+					//行動対象者が死亡している場合は、該当インデックスを次の行動対象者で上書き
+					if( turnqueue.peek() != null ) {
+						this.actionObj = turnqueue.poll();
+						
+						//次の行動対象者も生存チェックを実行
+						if( this.isPossible( battle )) {
+							possible = true;
+						
+						//自メソッドを繰り返し、結果的に値がなくなっていればターン終了判定(false)を返す。
+						}else{
+							possible = false;
+						}
+					
+					//次の値が存在しなければターン終了(falseを返す)
+					}else{
+						possible = false;
+					}
+					
+				//生存していれば処理実行
+				}else{
+					possible = true;
+				}
+			}
+		
+		return possible;
+	}
 	
 }
