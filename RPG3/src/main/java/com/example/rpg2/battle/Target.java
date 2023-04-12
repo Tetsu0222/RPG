@@ -139,6 +139,19 @@ public class Target {
 		this.targetSetAlly  = null;
 	}
 	
+	//グループ攻撃魔法
+	public Target( String groupName , Integer myKeys , Skill skill ) {
+		
+		this.skillName      = skill.getName();
+		this.selectionName  = groupName + "グループ";
+		this.executionId    = myKeys;
+		this.category	    = skill.getCategory();
+		this.executionSkill = skill;
+		this.targetSetEnemy = null;
+		this.targetSetAlly  = null;
+		this.groupName		= groupName;
+	}
+	
 	//全体攻撃特技
 	public Target( Map<Integer,MonsterData> monsterDataMap , Set<Integer> targetSetEnemy , Integer myKeys , Skill skill ) {
 		

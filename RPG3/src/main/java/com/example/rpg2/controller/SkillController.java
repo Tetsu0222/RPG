@@ -169,6 +169,10 @@ public class SkillController {
 		//単体特技かつ攻撃・妨害特技→対象選択の範囲を敵に指定
 		}else if( skill.getRange().equals( "single" ) && skill.getCategory().equals( "targetenemy" ) ) {
 			session.setAttribute( "mode" , "targetMonsterSkill" );
+			
+		//グループ攻撃の魔法
+		}else if( skill.getRange().equals( "group" ) && skill.getCategory().equals( "targetenemy" ) ) {
+			session.setAttribute( "mode" , "targetGroupNameMonsterSkill" );
 		
 		//味方全体への特技
 		}else if( !skill.getRange().equals( "single" ) && skill.getCategory().equals( "targetally" ) ) {
@@ -220,6 +224,22 @@ public class SkillController {
 		mv.setViewName( "battle" );
 		Battle battle = (Battle)session.getAttribute( "battle" );
 		battle.selectionMonsterSkill( myKeys , key , skill );
+		
+		session.setAttribute( "battle" , battle );
+		session.setAttribute( "mode" , "log" );
+		
+		return mv;
+	}
+	
+	
+	//ターゲット選択(グループ攻撃魔法)
+	@GetMapping( "/target/skill/monsterGroup/{name}" )
+	public ModelAndView magicTargetMonsterGroup( @PathVariable( name = "name" ) String name ,
+												 ModelAndView mv ) {
+
+		mv.setViewName( "battle" );
+		Battle battle = (Battle)session.getAttribute( "battle" );
+		battle.selectionMonsterSkill( name , myKeys ,  skill );
 		
 		session.setAttribute( "battle" , battle );
 		session.setAttribute( "mode" , "log" );

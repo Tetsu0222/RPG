@@ -408,35 +408,34 @@ public class PublicController {
 				possible = true;
 			}
 			
-			
 		//敵側の生存チェック
 		}else if( battle.getMonsterDataMap().get( actionObj ) != null ){
 			
-				if( battle.getMonsterDataMap().get( actionObj ).getSurvival() == 0 ) {
+			if( battle.getMonsterDataMap().get( actionObj ).getSurvival() == 0 ) {
 					
-					//行動対象者が死亡している場合は、該当インデックスを次の行動対象者で上書き
-					if( turnqueue.peek() != null ) {
-						this.actionObj = turnqueue.poll();
+				//行動対象者が死亡している場合は、該当インデックスを次の行動対象者で上書き
+				if( turnqueue.peek() != null ) {
+					this.actionObj = turnqueue.poll();
 						
-						//次の行動対象者も生存チェックを実行
-						if( this.isPossible( battle )) {
-							possible = true;
+					//次の行動対象者も生存チェックを実行
+					if( this.isPossible( battle )) {
+						possible = true;
 						
-						//自メソッドを繰り返し、結果的に値がなくなっていればターン終了判定(false)を返す。
-						}else{
-							possible = false;
-						}
-					
-					//次の値が存在しなければターン終了(falseを返す)
+					//自メソッドを繰り返し、結果的に値がなくなっていればターン終了判定(false)を返す。
 					}else{
 						possible = false;
 					}
 					
-				//生存していれば処理実行
+				//次の値が存在しなければターン終了(falseを返す)
 				}else{
-					possible = true;
+					possible = false;
 				}
+					
+			//生存していれば処理実行
+			}else{
+				possible = true;
 			}
+		}
 		
 		return possible;
 	}

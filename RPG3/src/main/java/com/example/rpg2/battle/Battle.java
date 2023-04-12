@@ -160,6 +160,12 @@ public class Battle {
 		targetMap.put( myKeys , target );
 	}
 	
+	//敵へのグループ攻撃特技が選択された時の処理
+	public void selectionMonsterSkill( String name , Integer myKeys , Skill skill ) {
+		Target target = new Target( name , myKeys , skill );
+		targetMap.put( myKeys , target );
+	}
+	
 	//敵への全体特技が選択された場合の事前処理
 	public void selectionMonsterSkill( Integer myKeys , Skill skill ) {
 		Target target = new Target( monsterDataMap , targetSetEnemy , myKeys ,  skill );
@@ -351,7 +357,8 @@ public class Battle {
 						//全体攻撃の処理
 						}else if( targetMap.get( key ).getTargetSetEnemy() != null ) {
 							this.generalAttack( taregetEnemyAction , key );
-							
+						
+						//グループ攻撃の処理
 						}else if( targetMap.get( key ).getGroupName() != null ) {
 							this.groupAttack( taregetEnemyAction , key , magic , skill );
 
@@ -627,9 +634,9 @@ public class Battle {
 		        		if( magic != null ) {
 		        			this.selectionMonsterMagic( target , key , magic );
 		        			
-		        		//特技(工事中）
+		        		//特技
 		        		}else if( skill != null ) {
-		        			//this.selectionMonsterSkill( target , key , skill );
+		        			this.selectionMonsterSkill( target , key , skill );
 		        		
 		        		//通常攻撃（未実装）
 		        		}else{
