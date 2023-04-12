@@ -216,90 +216,90 @@ public class Battle {
 	//------------------------------------------------------------------------------
 	public void startBattle( Integer key ) {
 		
-            //----------------------------------------------------
-            //------------------味方側の処理----------------------
-            //----------------------------------------------------
-            if( partyMap.get( key ) != null ) {
-    			AllyData allyData = partyMap.get( key );
-    			Integer  target	  = targetMap.get( key ).getSelectionId();
-    			String   movementPattern = targetMap.get( key ).getCategory();
-				Skill skill = targetMap.get( key ).getExecutionSkill();
-				Magic magic = targetMap.get( key ).getExecutionMagic();
-				boolean isMpEmpty = false;
+		//----------------------------------------------------
+        //------------------味方側の処理----------------------
+        //----------------------------------------------------
+		if( partyMap.get( key ) != null ) {
+    		AllyData allyData = partyMap.get( key );
+    		Integer  target	  = targetMap.get( key ).getSelectionId();
+    		String   movementPattern = targetMap.get( key ).getCategory();
+			Skill skill = targetMap.get( key ).getExecutionSkill();
+			Magic magic = targetMap.get( key ).getExecutionMagic();
+			boolean isMpEmpty = false;
 
-    			//ターン中に死亡している場合は、処理を中断(カウンターなどを想定)
-    			if( allyData.getSurvival() == 0 ) {
-    				movementPattern = "";
-    			}
+    		//ターン中に死亡している場合は、処理を中断(カウンターなどを想定)
+    		if( allyData.getSurvival() == 0 ) {
+    			movementPattern = "";
+    		}
     			
-				//行動不能系の状態異常の所持数をチェック
-    			BadStatusBefore badStatusBefore = new BadStatusBefore();
-    			Integer juds = badStatusBefore.execution( allyData );
+			//行動不能系の状態異常の所持数をチェック
+    		BadStatusBefore badStatusBefore = new BadStatusBefore();
+    		Integer juds = badStatusBefore.execution( allyData );
     			
-    			//行動不能の状態異常があれば、そのメッセージを格納
-    			if( badStatusBefore.getMessage() != null ) {
-    				this.mesageList.add( badStatusBefore.getMessage() );
-    			}
+    		//行動不能の状態異常があれば、そのメッセージを格納
+    		if( badStatusBefore.getMessage() != null ) {
+    			this.mesageList.add( badStatusBefore.getMessage() );
+    		}
     			
-    			//行動不能と判定された状態異常が1つ以上あれば処理中断
-    			if( juds > 0 ) {
-    				this.badStatusAfter( allyData, key );
-    				movementPattern = "";
-    			}
+    		//行動不能と判定された状態異常が1つ以上あれば処理中断
+    		if( juds > 0 ) {
+    			this.badStatusAfter( allyData, key );
+    			movementPattern = "";
+    		}
+    		
+    		//混乱中の場合の処理
+    		Confusion confusion = new Confusion();
+    		if( allyData.getStatusSet().contains( confusion )) {
+    			movementPattern = "confusion";
+    		}
     			
-    			Confusion confusion = new Confusion();
-    			
-    			if( allyData.getStatusSet().contains( confusion )) {
-    				movementPattern = "confusion";
-    			}
-    			
-    			//通常攻撃の処理
-				if( movementPattern.equals( "attack" )) {
+    		//通常攻撃の処理
+			if( movementPattern.equals( "attack" )) {
 					
-					//通常攻撃を生成
-					TaregetEnemyAction at = new Attack( allyData );
+				//通常攻撃を生成
+				TaregetEnemyAction at = new Attack( allyData );
 					
-					//通常攻撃を実施
-					this.mesageList.add( at.getStratMessage() );
-					this.singleAttack( at,  target , key , magic , skill );
+				//通常攻撃を実施
+				this.mesageList.add( at.getStratMessage() );
+				this.singleAttack( at,  target , key , magic , skill );
 
-				//回復・補助魔法の処理
-				}else if( movementPattern.equals( "targetally" ) || movementPattern.equals( "resuscitationmagic" ) || movementPattern.equals( "resuscitationskill" ) ) {
+			//回復・補助魔法の処理
+			}else if( movementPattern.equals( "targetally" ) || movementPattern.equals( "resuscitationmagic" ) || movementPattern.equals( "resuscitationskill" ) ) {
 					
-					//回復or補助or蘇生の魔法か特技か判定して該当オブジェクトを生成
-					TargetAllyAction targetAllyAction = SortingRecoveryAction.sortingCreateRecoveryAction( allyData , magic , skill );
+				//回復or補助or蘇生の魔法か特技か判定して該当オブジェクトを生成
+				TargetAllyAction targetAllyAction = SortingRecoveryAction.sortingCreateRecoveryAction( allyData , magic , skill );
 					
-					//行動を宣言
-					this.mesageList.add( targetAllyAction.getStratMessage() );
+				//行動を宣言
+				this.mesageList.add( targetAllyAction.getStratMessage() );
 					
-					//MP判定 MPが足りないとtureが返る。
-					if( targetAllyAction.isNotEnoughMp() ){
-						this.mesageList.add( targetAllyAction.getNotEnoughMpMessage() );
-						isMpEmpty = true;
+				//MP判定 MPが足りないとtureが返る。
+				if( targetAllyAction.isNotEnoughMp() ){
+					this.mesageList.add( targetAllyAction.getNotEnoughMpMessage() );
+					isMpEmpty = true;
 						
-					//MP判定OK
-					}else{
+				//MP判定OK
+				}else{
 						
-						//魔法特技の指定回数分の処理
-						for( int i = 0 ; i < SortingRecoveryAction.actions ; i++ ){
+					//魔法特技の指定回数分の処理
+					for( int i = 0 ; i < SortingRecoveryAction.actions ; i++ ){
 							
-							//無差別回復
-							if( SortingRecoveryAction.targetRandom ) {
-								List<Integer> targetList = new ArrayList<Integer>( targetSetAlly );
-								target = random.nextInt( targetList.size() );
-								this.singleSupport( targetAllyAction , target , key );
+						//無差別回復
+						if( SortingRecoveryAction.targetRandom ) {
+							List<Integer> targetList = new ArrayList<Integer>( targetSetAlly );
+							target = random.nextInt( targetList.size() );
+							this.singleSupport( targetAllyAction , target , key );
 							
-							//蘇生
-							}else if( SortingRecoveryAction.isResuscitation ) {
+						//蘇生
+						}else if( SortingRecoveryAction.isResuscitation ) {
 								
-								//全体蘇生魔法の処理
-								if( targetMap.get( key ).getTargetSetAlly() != null ) {
-									this.resuscitationMagicExecution( targetAllyAction , -1 , key );
+							//全体蘇生魔法の処理
+							if( targetMap.get( key ).getTargetSetAlly() != null ) {
+								this.resuscitationMagicExecution( targetAllyAction , -1 , key );
 									
-								//単体蘇生魔法の処理
-								}else{
-									this.resuscitationMagicExecution( targetAllyAction , target , key );
-								}
+							//単体蘇生魔法の処理
+							}else{
+								this.resuscitationMagicExecution( targetAllyAction , target , key );
+							}
 								
 							//全体回復魔法の処理
 							}else if( targetMap.get( key ).getTargetSetAlly() != null ) {
@@ -308,171 +308,169 @@ public class Battle {
 							//単体回復魔法の処理
 							}else{
 								this.singleSupport( targetAllyAction , target , key );
-							}
 						}
 					}
-					
-				//攻撃・妨害の処理
-				}else if( movementPattern.equals( "targetenemy" )) {
-					
-					//行動用のオブジェクトと攻撃回数を生成(特技か魔法を判定して合致するものを生成)
-					TaregetEnemyAction taregetEnemyAction = SortingAttackAction.sortingCreateAttackAction( allyData , magic , skill );
-					
-					//行動を宣言
-					this.mesageList.add( taregetEnemyAction.getStratMessage() );
-					
-					//MP判定 MPが足りないとtureが返る。
-					if( taregetEnemyAction.isNotEnoughMp() ){
-						this.mesageList.add( taregetEnemyAction.getNotEnoughMpMessage() );
-						isMpEmpty = true;
-						
-					//MP判定OK
-					}else{
-						
-						//魔法特技の攻撃回数分の処理
-						for( int i = 0 ; i < SortingAttackAction.actions ; i++ ){
-							
-							//対象撃破時のターゲット自動変更のために再生成
-							taregetEnemyAction = SortingAttackAction.sortingRegenerationAttackAction( allyData , magic , skill );
-							
-							//無差別攻撃
-							if( SortingAttackAction.targetRandom ) {
-								List<Integer> targetList = new ArrayList<Integer>( targetSetEnemy );
-								
-								//連続攻撃中に敵が全滅していた場合は、処理終了
-								if( targetList.size() == 0 ) {
-									break;
-								}
-								
-								//ターゲットを無差別に選択、前述のif分で例外は発生しない。
-								target = random.nextInt( targetList.size() ) + 4;
-								this.singleAttack( taregetEnemyAction , target , key , magic , skill );
-								
-							//全体攻撃の処理
-							}else if( targetMap.get( key ).getTargetSetEnemy() != null ) {
-								this.generalAttack( taregetEnemyAction , key );
-							
-							}else if( targetMap.get( key ).getGroupName() != null ) {
-								this.groupAttack( taregetEnemyAction , key , magic , skill );
-
-							//単体攻撃の処理
-							}else{
-								this.singleAttack( taregetEnemyAction , target , key , magic , skill );
-							}
-						}
-					}
-					
-				//防御選択時の行動
-				}else if( movementPattern.equals( "defense" )) {
-					this.mesageList.add( allyData.getName() + "は防御している" );
-				
-				//混乱中の行動
-				}else if( movementPattern.equals( "confusion" )) {
-					this.confusion( allyData );
 				}
+					
+			//攻撃・妨害の処理
+			}else if( movementPattern.equals( "targetenemy" )) {
+					
+				//行動用のオブジェクトと攻撃回数を生成(特技か魔法を判定して合致するものを生成)
+				TaregetEnemyAction taregetEnemyAction = SortingAttackAction.sortingCreateAttackAction( allyData , magic , skill );
+					
+				//行動を宣言
+				this.mesageList.add( taregetEnemyAction.getStratMessage() );
+					
+				//MP判定 MPが足りないとtureが返る。
+				if( taregetEnemyAction.isNotEnoughMp() ){
+					this.mesageList.add( taregetEnemyAction.getNotEnoughMpMessage() );
+					isMpEmpty = true;
+						
+				//MP判定OK
+				}else{
+						
+					//魔法特技の攻撃回数分の処理
+					for( int i = 0 ; i < SortingAttackAction.actions ; i++ ){
+							
+						//対象撃破時のターゲット自動変更のために再生成
+						taregetEnemyAction = SortingAttackAction.sortingRegenerationAttackAction( allyData , magic , skill );
+							
+						//無差別攻撃
+						if( SortingAttackAction.targetRandom ) {
+							List<Integer> targetList = new ArrayList<Integer>( targetSetEnemy );
+								
+							//連続攻撃中に敵が全滅していた場合は、処理終了
+							if( targetList.size() == 0 ) {
+								break;
+							}
+								
+							//ターゲットを無差別に選択、前述のif分で例外は発生しない。
+							target = random.nextInt( targetList.size() ) + 4;
+							this.singleAttack( taregetEnemyAction , target , key , magic , skill );
+								
+						//全体攻撃の処理
+						}else if( targetMap.get( key ).getTargetSetEnemy() != null ) {
+							this.generalAttack( taregetEnemyAction , key );
+							
+						}else if( targetMap.get( key ).getGroupName() != null ) {
+							this.groupAttack( taregetEnemyAction , key , magic , skill );
+
+						//単体攻撃の処理
+						}else{
+							this.singleAttack( taregetEnemyAction , target , key , magic , skill );
+						}
+					}
+				}
+					
+			//防御選択時の行動
+			}else if( movementPattern.equals( "defense" )) {
+				this.mesageList.add( allyData.getName() + "は防御している" );
 				
+			//混乱中の行動
+			}else if( movementPattern.equals( "confusion" )) {
+				this.confusion( allyData );
+			}
+				
+			//MP消費処理
+			if( !isMpEmpty ) {
 				//MP消費処理
-				if( !isMpEmpty ) {
-					//MP消費処理
-					allyData = ConsumptionMP.consumptionMP( allyData , magic , skill );
-					partyMap.put( key , allyData );
-				}
+				allyData = ConsumptionMP.consumptionMP( allyData , magic , skill );
+				partyMap.put( key , allyData );
+			}
 
-				//行動終了後に作用する状態異常の処理
-				this.badStatusAfter( allyData, key );
+			//行動終了後に作用する状態異常の処理
+			this.badStatusAfter( allyData, key );
 		        
 				
-	        //----------------------------------------------------
-	        //------------------敵側の処理------------------------
-	        //----------------------------------------------------
-            }else if( monsterDataMap.get( key ) != null ){
+		//----------------------------------------------------
+		//------------------敵側の処理------------------------
+		//----------------------------------------------------
+		}else if( monsterDataMap.get( key ) != null ){
             	
-            	//行動対象のモンスターのデータを生成
-    			MonsterData monsterData = monsterDataMap.get( key );
+            //行動対象のモンスターのデータを生成
+    		MonsterData monsterData = monsterDataMap.get( key );
     			
-				//行動不能系の状態異常の所持数をチェック
-    			BadStatusBefore badStatusBefor = new BadStatusBefore();
-    			Integer juds = badStatusBefor.execution( monsterData );
+			//行動不能系の状態異常の所持数をチェック
+    		BadStatusBefore badStatusBefor = new BadStatusBefore();
+    		Integer juds = badStatusBefor.execution( monsterData );
     			
-    			if( badStatusBefor.getMessage() != null ) {
-    				this.mesageList.add( badStatusBefor.getMessage() );
-    			}
-    			
-				//味方のセットをリストへ変換
-				List<Integer> targetList = new ArrayList<Integer>( targetSetAlly );
-    			
-    			//モンスターの行動回数を設定
-    			List<Integer> actionsList = monsterData.getActionsList();
-    			int actions = actionsList.get( 0 );
-    			
-    			//行動回数がランダムの場合の処理
-    			if( actionsList.size() > 1 ) {
-    				Random random = new Random();
-    				int index = random.nextInt( actionsList.size() );
-    				actions = actionsList.get( index );
-    			}
-    			
-    			//行動不能と判定された状態異常が1つ以上あれば処理中断
-    			if( juds > 0 ) {
-    				this.badStatusAfter( monsterData , key );
-    				actions = 0;
-    			}
-    			
-    			//ターン中に死亡している場合は、処理を中断(カウンターなどを想定)
-    			if( monsterData.getSurvival() == 0 ) {
-    				actions = 0;
-    			}
-    			
-    			//複数行動に対応
-    			for( int a = 0 ; a < actions ; a++ ) {
-    				
-    				EnemyAction enemyAction = new EnemyAction();
-    				
-    				//モンスターの行動を決定
-	    			enemyAction.decision( monsterData );
-	    			
-	    			//ターン中に死亡してた場合は、行動処理を上書き(カウンターや反射ダメージなどを想定）
-	    			if( monsterData.getSurvival() == 0 ) {
-	    				enemyAction.setRange( "death" );
-	    				enemyAction.setPattern( "death" );
-	    				break;
-	    			}
-	    			
-	            	//ターン中に敵か味方のいずれかが全滅している場合は、行動を終了させる。
-	            	if( targetSetEnemy.size() == 0 || targetSetAlly.size() == 0 ) {
-	            		break;
-	            	}
-	    			
-	    			//単体攻撃処理
-	    			if( enemyAction.getRange().equals( "single" )){
-	    				this.singleAttack( targetList , enemyAction );
-	    				
-	    			//全体攻撃を処理
-	    			}else if( enemyAction.getRange().equals( "whole" )){
-	    				this.wholeAttack( targetList , enemyAction );
-	
-		    		//ミス系
-		    		}else if( enemyAction.getPattern().equals( "miss" )){
-		    			enemyAction.noAction();
-		    			mesageList.add( monsterData.getName() + "の攻撃!!" );
-		    			mesageList.add( "しかし、攻撃は外れてしまった…" );
-		    			
-		    		//死亡時
-		    		}else{
-		    			enemyAction.noAction();
-		    		}
-    			}
-    			
-    			//行動終了後の状態異常を処理
-    			this.badStatusAfter( monsterData , key );
+    		if( badStatusBefor.getMessage() != null ) {
+    			this.mesageList.add( badStatusBefor.getMessage() );
     		}
+    			
+			//味方のセットをリストへ変換
+			List<Integer> targetList = new ArrayList<Integer>( targetSetAlly );
+    			
+    		//モンスターの行動回数を設定
+    		List<Integer> actionsList = monsterData.getActionsList();
+    		int actions = actionsList.get( 0 );
+    			
+    		//行動回数がランダムの場合の処理
+    		if( actionsList.size() > 1 ) {
+    			Random random = new Random();
+    			int index = random.nextInt( actionsList.size() );
+    			actions = actionsList.get( index );
+    		}
+    			
+    		//行動不能と判定された状態異常が1つ以上あれば処理中断
+    		if( juds > 0 ) {
+    			this.badStatusAfter( monsterData , key );
+    			actions = 0;
+    		}
+    			
+    		//ターン中に死亡している場合は、処理を中断(カウンターなどを想定)
+    		if( monsterData.getSurvival() == 0 ) {
+    			actions = 0;
+    		}
+    			
+    		//複数行動に対応
+    		for( int a = 0 ; a < actions ; a++ ) {
+    				
+    			EnemyAction enemyAction = new EnemyAction();
+    				
+    			//モンスターの行動を決定
+	    		enemyAction.decision( monsterData );
+	    			
+	    		//ターン中に死亡してた場合は、行動処理を上書き(カウンターや反射ダメージなどを想定）
+	    		if( monsterData.getSurvival() == 0 ) {
+	    			enemyAction.setRange( "death" );
+	    			enemyAction.setPattern( "death" );
+	    			break;
+	    		}
+	    			
+	            //ターン中に敵か味方のいずれかが全滅している場合は、行動を終了させる。
+	            if( targetSetEnemy.size() == 0 || targetSetAlly.size() == 0 ) {
+	            	break;
+	            }
+	    			
+	    		//単体攻撃処理
+	    		if( enemyAction.getRange().equals( "single" )){
+	    			this.singleAttack( targetList , enemyAction );
+	    				
+	    		//全体攻撃を処理
+	    		}else if( enemyAction.getRange().equals( "whole" )){
+	    			this.wholeAttack( targetList , enemyAction );
+	
+		    	//ミス系
+		    	}else if( enemyAction.getPattern().equals( "miss" )){
+		    		enemyAction.noAction();
+		    		mesageList.add( monsterData.getName() + "の攻撃!!" );
+		    		mesageList.add( "しかし、攻撃は外れてしまった…" );
+		    			
+		    	//死亡時
+		    	}else{
+		    		enemyAction.noAction();
+		    	}
+    		}
+    			
+    		//行動終了後の状態異常を処理
+    		this.badStatusAfter( monsterData , key );
+    	}
 	}
 	
 	//-----------------------------------------------------------------------------------------------------------------------
 	
 	
-	
-	//---------------------------------------------別クラスへ分ける予定------------------------------------------------------
 	//-----------------------------------------------------------------------------------------------------------------------
 	//-----------------------------------------戦闘処理を補助するメソッド群--------------------------------------------------
 	//-----------------------------------------------------------------------------------------------------------------------
