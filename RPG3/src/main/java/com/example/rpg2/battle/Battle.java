@@ -62,15 +62,15 @@ public class Battle {
 	
 	Random random = new Random();
 	
-	private BattleSupportAttack battleSupportAttack;
+	private BattleSupportAttack   battleSupportAttack;
 	private BattleSupportRecovery battleSupportRecovery;
-	private BattleSupportStatus battleSupportStatus;
-	private BattleSupportEnemy battleSupportEnemy;
+	private BattleSupportStatus   battleSupportStatus;
+	private BattleSupportEnemy    battleSupportEnemy;
 	
 	//コンストラクタ(戦闘不能と蘇生の関係で、複数のコレクションで敵味方の座標とオブジェクトを管理)
 	public Battle( Set<AllyData> partySet , Set<MonsterData> monsterDataSet , List<String> allyNameList , List<String> enemyNameList ) {
 		
-		List<AllyData> partyList = new ArrayList<>( partySet );
+		List<AllyData>    partyList       = new ArrayList<>( partySet );
 		List<MonsterData> monsterDataList = new ArrayList<>( monsterDataSet );
 		
 		//プレイアブルメンバーを生成
@@ -109,10 +109,7 @@ public class Battle {
 	}
 	
 	
-	//------------------------------------------------------------------------------
 	//---------------行動選択処理(選択中の行動と対象者の表示に必要)-----------------
-	//------------------------------------------------------------------------------
-	
 	//通常攻撃が選択された場合の事前処理
 	public void selectionAttack( Integer myKeys , Integer key ) {
 		battleSupportAttack.selectionAttack( myKeys , key );
@@ -222,22 +219,17 @@ public class Battle {
         });
 	}
 	
-	
-	
-	//------------------------------------------------------------------------------
-	//----------------------------------戦闘開始------------------------------------
-	//------------------------------------------------------------------------------
+
+	//戦闘処理
 	public void startBattle( Integer key ) {
 		
-		//----------------------------------------------------
         //------------------味方側の処理----------------------
-        //----------------------------------------------------
 		if( partyMap.get( key ) != null ) {
     		AllyData allyData = partyMap.get( key );
     		Integer  target	  = targetMap.get( key ).getSelectionId();
     		String   movementPattern = targetMap.get( key ).getCategory();
-			Skill skill = targetMap.get( key ).getExecutionSkill();
-			Magic magic = targetMap.get( key ).getExecutionMagic();
+			Skill 	 skill    = targetMap.get( key ).getExecutionSkill();
+			Magic 	 magic    = targetMap.get( key ).getExecutionMagic();
 			boolean isMpEmpty = false;
 
     		//ターン中に死亡している場合は、処理を中断(カウンターなどを想定)
@@ -274,7 +266,6 @@ public class Battle {
 				
 				//処理結果を獲得
 				this.result();
-
 				
 			//回復・補助魔法の処理
 			}else if( movementPattern.equals( "targetally" ) || movementPattern.equals( "resuscitationmagic" ) || movementPattern.equals( "resuscitationskill" ) ) {
@@ -284,7 +275,6 @@ public class Battle {
 				
 				//処理結果を格納
 				this.resultRecovery();
-					
 				
 			//攻撃・妨害の処理
 			}else if( movementPattern.equals( "targetenemy" )) {
@@ -295,33 +285,29 @@ public class Battle {
 				//処理結果を取得
 				this.result();
 				
-				
 			//防御選択時の行動
 			}else if( movementPattern.equals( "defense" )) {
 				this.mesageList.add( allyData.getName() + "は防御している" );
-				
 				
 			//混乱中の行動
 			}else if( movementPattern.equals( "confusion" )) {
 				battleSupportStatus.confusion( allyData );
 			}
-				
 			
 			//MP消費処理
 			if( !isMpEmpty ) {
-				//MP消費処理
 				allyData = ConsumptionMP.consumptionMP( allyData , magic , skill );
 				partyMap.put( key , allyData );
 			}
 
 			//行動終了後に作用する状態異常の処理
 			battleSupportStatus.badStatusAfter( allyData, key );
+			
+			//行動終了後の状態異常の処理結果を取得
 			this.resultStatus();
-
+			
 				
-		//----------------------------------------------------
 		//------------------敵側の処理------------------------
-		//----------------------------------------------------
 		}else if( monsterDataMap.get( key ) != null ){
             
 			//敵の行動を処理
@@ -339,10 +325,7 @@ public class Battle {
 	}
 	
 	//-----------------------------------------------------------------------------------------------------------------------
-	
-	
-	//-----------------------------------------------------------------------------------------------------------------------
-	//-----------------------------------------戦闘処理を補助するメソッド群--------------------------------------------------
+	//-----------------------------------------戦闘処理の結果を格納するメソッド群--------------------------------------------
 	//-----------------------------------------------------------------------------------------------------------------------
 	
 	//攻撃の結果取得メソッド
@@ -395,9 +378,9 @@ public class Battle {
 		this.partyMap		= battleSupportEnemy.getPartyMap();
 	}
 	
-	
-	//敵の行動を処理
-	
+	//-----------------------------------------------------------------------------------------------------------------------
+	//-----------------------------------------ターンの開始と終了処理のメソッド群--------------------------------------------
+	//-----------------------------------------------------------------------------------------------------------------------
 	
 	//ターンスタート時の処理
 	public void startSkill() {

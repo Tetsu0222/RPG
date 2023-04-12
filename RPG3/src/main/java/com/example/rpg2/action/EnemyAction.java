@@ -9,6 +9,7 @@ import com.example.rpg2.battle.MonsterData;
 import com.example.rpg2.entity.MonsterPattern;
 import com.example.rpg2.process.Awakening;
 import com.example.rpg2.process.BadStatusAlly;
+import com.example.rpg2.process.EnemyTarget;
 import com.example.rpg2.process.Funeral;
 import com.example.rpg2.process.IsDefense;
 
@@ -47,9 +48,8 @@ public class EnemyAction {
 	//単体攻撃を処理
 	public AllyData attackSkillSingle( Map<Integer,AllyData> partyMap , List<Integer> targetList ) {
 		
-		//攻撃する相手を乱数で決定
-		Integer target = random.nextInt( targetList.size() );
-		this.targetId  = targetList.get( target );
+		//対象をランダムに指定
+		this.targetId = EnemyTarget.enemyTarget( targetList );
 		AllyData allyData = partyMap.get( targetId );
 		
 		//悪性ステータス異常
