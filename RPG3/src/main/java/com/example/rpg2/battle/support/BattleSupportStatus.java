@@ -3,7 +3,6 @@ package com.example.rpg2.battle.support;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Set;
 
@@ -36,9 +35,6 @@ public class BattleSupportStatus {
 	
 	//表示するログを管理
 	private List<String> mesageList;
-	
-	//キーは敵味方混合、値は乱数補正後の素早さ。素早さ順で降順ソートしたリスト
-	private List<Entry<Integer, Integer>> turnList;
 	
 	//グループ攻撃用のセット
 	private List<String> enemyNameList;
