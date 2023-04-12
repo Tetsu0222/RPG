@@ -407,7 +407,7 @@ public class Battle {
 	//-----------------------------------------戦闘処理を補助するメソッド群--------------------------------------------------
 	//-----------------------------------------------------------------------------------------------------------------------
 	
-	//単体攻撃の結果取得メソッド
+	//攻撃の結果取得メソッド
 	public void result() {
 		this.targetSetEnemy = battleSupportAttack.getTargetSetEnemy();
 		this.monsterDataMap = battleSupportAttack.getMonsterDataMap();
@@ -418,7 +418,7 @@ public class Battle {
 	}
 	
 	
-	//単体攻撃の結果取得メソッド
+	//回復補助蘇生の結果取得メソッド
 	public void resultRecovery() {
 		this.targetSetEnemy = battleSupportRecovery.getTargetSetEnemy();
 		this.monsterDataMap = battleSupportRecovery.getMonsterDataMap();

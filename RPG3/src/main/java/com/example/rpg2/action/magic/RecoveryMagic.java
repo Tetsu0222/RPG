@@ -56,7 +56,7 @@ public class RecoveryMagic implements TargetAllyAction {
 					
 				HP += recovery;
 					
-				if( receptionAllyData.getCurrentHp() < HP ) {
+				if( receptionAllyData.getMaxHP() < HP ) {
 					HP = receptionAllyData.getMaxHP();
 				}
 				receptionAllyData.setCurrentHp( HP );
