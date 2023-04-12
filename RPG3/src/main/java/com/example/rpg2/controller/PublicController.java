@@ -47,6 +47,8 @@ public class PublicController {
 	private List<String> allyNameList = new ArrayList<>();
 	private List<String> enemyNameList = new ArrayList<>();
 	
+	private int turnCount = 1;
+	
 	
 	//TOP画面に対応
 	@GetMapping( "/" )
@@ -280,13 +282,13 @@ public class PublicController {
 		//スタートスキルのメッセージを出力
 		if( battle.getMesageList().size() > 0  ) {
 			session.setAttribute( "battle" , battle );
-			session.setAttribute( "mode" , "battle" );
+			session.setAttribute( "mode"   , "battle" );
 		
 		//スタートスキルのメッセージがなければスキップ
 		}else{
 			this.next( mv );
 		}
-		
+
 		return mv;
 	}
 	
@@ -307,15 +309,15 @@ public class PublicController {
 			
 			//行動前かつターン中に死亡している場合は、行動自体をスキップする。
 			if( battle.getPartyMap().get( turnqueue.peek() ) != null ){
-				if( battle.getPartyMap().get( turnqueue.peek() ).getSurvival() == 0  ) {
+				if( battle.getPartyMap().get( turnqueue.peek() ).getSurvival() == 0 ) {
 					turnqueue.poll();
-					this.next( mv );
+					//this.next( mv );
 				}
 				
 			}else if( battle.getMonsterDataMap().get( turnqueue.peek() ) != null ){
-				if( battle.getMonsterDataMap().get( turnqueue.peek() ).getSurvival() == 0  ) {
+				if( battle.getMonsterDataMap().get( turnqueue.peek() ).getSurvival() == 0 ) {
 					turnqueue.poll();
-					this.next( mv );
+					//this.next( mv );
 				}
 			}
 			
@@ -339,26 +341,19 @@ public class PublicController {
 				session.setAttribute( "mode" , "battle" );
 			}
 			
-		//全キャラクターの行動終了
+		//全キャラクターの行動終了(ターン中に敵を倒すと2回処理されている)
 		}else{
 			
 			//ターン終了時に発動する処理
 			battle.endSkill();
+			battle.getMesageList().add( turnCount + "ターン目終了" );
+			this.turnCount += 1;
 			
-			//ターン終了時に処理したメッセージの出力
-			if( battle.getMesageList().size() > 0 ) {
-				session.invalidate();
-				session.setAttribute( "battle" , battle );
-				session.setAttribute( "mode" , "end" );
-				
-			//メッセージがなければスキップ
-			}else{
-				session.invalidate();
-				session.setAttribute( "battle" , battle );
-				session.setAttribute( "mode" , "log" );
-			}
+			session.invalidate();
+			session.setAttribute( "battle" , battle );
+			session.setAttribute( "mode"   , "end"  );
 		}
-
+		
 		return mv;
 	}
 	

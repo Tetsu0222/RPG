@@ -912,7 +912,7 @@ public class Battle {
 		
 		for( int index : targetSetAlly ) {
 			
-			Target target = targetMap.get(index);
+			Target   target   = targetMap.get( index );
 			AllyData allyData = partyMap.get( index );
 			
 			//防御の発動処理
@@ -958,6 +958,6 @@ public class Battle {
 				.forEach( s -> s.setEndSkillMessage( null ));
 			}
 		}
-		
 	}
+	
 }
