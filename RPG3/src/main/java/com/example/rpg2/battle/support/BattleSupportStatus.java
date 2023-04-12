@@ -7,10 +7,12 @@ import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Set;
 
+import com.example.rpg2.action.ConfusionActions;
 import com.example.rpg2.battle.AllyData;
 import com.example.rpg2.battle.Battle;
 import com.example.rpg2.battle.MonsterData;
 import com.example.rpg2.battle.Target;
+import com.example.rpg2.process.BadStatusAfter;
 
 import lombok.Data;
 
@@ -33,7 +35,7 @@ public class BattleSupportStatus {
 	private Set<Integer> targetSetEnemy;
 	
 	//表示するログを管理
-	private List<String> mesageList = new ArrayList<>();
+	private List<String> mesageList;
 	
 	//キーは敵味方混合、値は乱数補正後の素早さ。素早さ順で降順ソートしたリスト
 	private List<Entry<Integer, Integer>> turnList;
@@ -53,6 +55,103 @@ public class BattleSupportStatus {
 		this.targetSetEnemy = battle.getTargetSetEnemy();
 		this.enemyNameList = battle.getEnemyNameList();
 		this.allyNameList = battle.getAllyNameList();
+	}
+	
+	
+	//味方側のダメージ系の状態異常処理（行動終了後に処理する状態異常のメソッド）
+	public void badStatusAfter( AllyData allyData , Integer key ) {
+		
+		this.mesageList = new ArrayList<>();
+		
+		BadStatusAfter badStatusAfter = new BadStatusAfter( targetSetAlly , targetMap , targetSetEnemy );
+		this.partyMap = badStatusAfter.execution( partyMap , allyData , key );
+		this.targetSetAlly = badStatusAfter.getTargetSetAlly();
+		this.targetMap     = badStatusAfter.getTargetMap();
+		
+		//自然治癒メッセージを追加
+		if( badStatusAfter.getRecoveryMessage() != null ) {
+			this.mesageList.add( badStatusAfter.getRecoveryMessage() );
+		}
+		
+		//状態異常のメッセージを追加
+		if( badStatusAfter.getResultMessage() != null ) {
+			this.mesageList.add( badStatusAfter.getResultMessage() );
+		}
+		
+		//状態異常のダメージで死亡した場合のメッセージを追加
+		if( badStatusAfter.getDedMessage() != null ) {
+			this.mesageList.add( badStatusAfter.getDedMessage() );
+		}
+	}
+	
+	
+	//敵側のダメージ系の状態異常処理（行動終了後に処理する状態異常のメソッド）
+	public void badStatusAfter( MonsterData monsterData , Integer key ) {
+		
+		this.mesageList = new ArrayList<>();
+		
+		BadStatusAfter badStatusAfter = new BadStatusAfter( targetSetAlly , targetMap , targetSetEnemy );
+		this.monsterDataMap = badStatusAfter.execution( monsterDataMap , monsterData , key );
+		this.targetSetEnemy = badStatusAfter.getTargetSetEnemy();
+		
+		//自然治癒メッセージを追加
+		if( badStatusAfter.getRecoveryMessage() != null ) {
+			this.mesageList.add( badStatusAfter.getRecoveryMessage() );
+		}
+		
+		//状態異常のメッセージを追加
+		if( badStatusAfter.getResultMessage() != null ) {
+			this.mesageList.add( badStatusAfter.getResultMessage() );
+		}
+		
+		//状態異常のダメージで死亡した場合のメッセージを追加
+		if( badStatusAfter.getDedMessage() != null ) {
+			this.mesageList.add( badStatusAfter.getDedMessage() );
+		}
+		
+	}
+	
+	
+	//混乱中の行動処理
+	public void confusion( AllyData allyData ) {
+		
+		this.mesageList = new ArrayList<>();
+		
+		Random random = new Random();
+		int target = random.nextInt( 2 );
+		
+		//味方をターゲットとした混乱行動
+		if( target == 0 ) {
+			List<Integer> targetList = new ArrayList<Integer>( targetSetAlly );
+			int index = random.nextInt( targetList.size() );
+			AllyData targetAllyData = partyMap.get( targetList.get( index ) );
+			targetAllyData = ConfusionActions.action( allyData , targetAllyData , random );
+			
+			if( targetAllyData.getCurrentHp() == 0 ) {
+				
+				//敵リストから対象を削除
+				targetSetAlly.remove( targetList.get( index ) );
+			}
+			
+			this.mesageList.add( ConfusionActions.message );
+			partyMap.put( targetList.get( index ) , targetAllyData );
+			
+		//敵をターゲットとした混乱行動	
+		}else{
+			List<Integer> targetList = new ArrayList<Integer>( targetSetEnemy );
+			int index = random.nextInt( targetList.size() );
+			MonsterData monsterData = monsterDataMap.get( targetList.get( index ) );
+			monsterData = ConfusionActions.action( allyData , monsterData , random );
+			
+			if( monsterData.getCurrentHp() == 0 ) {
+				
+				//敵リストから対象を削除
+				targetSetEnemy.remove( targetList.get( index ) );
+			}
+			
+			this.mesageList.add( ConfusionActions.message );
+			monsterDataMap.put( targetList.get( index ) , monsterData );
+		}
 	}
 
 }

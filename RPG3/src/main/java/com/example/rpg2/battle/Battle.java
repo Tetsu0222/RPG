@@ -13,15 +13,14 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import com.example.rpg2.action.ConfusionActions;
 import com.example.rpg2.action.EnemyAction;
 import com.example.rpg2.action.endskill.SortingEndSkill;
 import com.example.rpg2.action.startskill.SortingStartSkill;
 import com.example.rpg2.battle.support.BattleSupportAttack;
 import com.example.rpg2.battle.support.BattleSupportRecovery;
+import com.example.rpg2.battle.support.BattleSupportStatus;
 import com.example.rpg2.entity.Magic;
 import com.example.rpg2.entity.Skill;
-import com.example.rpg2.process.BadStatusAfter;
 import com.example.rpg2.process.BadStatusBefore;
 import com.example.rpg2.process.CancelDefense;
 import com.example.rpg2.process.ChoiceDefense;
@@ -65,6 +64,7 @@ public class Battle {
 	
 	private BattleSupportAttack battleSupportAttack;
 	private BattleSupportRecovery battleSupportRecovery;
+	private BattleSupportStatus battleSupportStatus;
 	
 	//コンストラクタ(戦闘不能と蘇生の関係で、複数のコレクションで敵味方の座標とオブジェクトを管理)
 	public Battle( Set<AllyData> partySet , Set<MonsterData> monsterDataSet , List<String> allyNameList , List<String> enemyNameList ) {
@@ -102,6 +102,7 @@ public class Battle {
 	public void createSupport () {
 		this.battleSupportAttack   = new BattleSupportAttack( this );
 		this.battleSupportRecovery = new BattleSupportRecovery( this );
+		this.battleSupportStatus   = new BattleSupportStatus( this );
 	}
 	
 	
@@ -252,7 +253,7 @@ public class Battle {
     			
     		//行動不能と判定された状態異常が1つ以上あれば処理中断
     		if( juds > 0 ) {
-    			this.badStatusAfter( allyData, key );
+    			battleSupportStatus.badStatusAfter( allyData, key );
     			movementPattern = "";
     		}
     		
@@ -299,7 +300,7 @@ public class Battle {
 				
 			//混乱中の行動
 			}else if( movementPattern.equals( "confusion" )) {
-				this.confusion( allyData );
+				battleSupportStatus.confusion( allyData );
 			}
 				
 			
@@ -311,8 +312,9 @@ public class Battle {
 			}
 
 			//行動終了後に作用する状態異常の処理
-			this.badStatusAfter( allyData, key );
-		        
+			battleSupportStatus.badStatusAfter( allyData, key );
+			this.resultStatus();
+
 				
 		//----------------------------------------------------
 		//------------------敵側の処理------------------------
@@ -346,7 +348,7 @@ public class Battle {
     			
     		//行動不能と判定された状態異常が1つ以上あれば処理中断
     		if( juds > 0 ) {
-    			this.badStatusAfter( monsterData , key );
+    			battleSupportStatus.badStatusAfter( monsterData , key );
     			actions = 0;
     		}
     			
@@ -396,7 +398,8 @@ public class Battle {
     		}
     			
     		//行動終了後の状態異常を処理
-    		this.badStatusAfter( monsterData , key );
+    		battleSupportStatus.badStatusAfter( monsterData , key );
+    		this.resultStatus();
     	}
 	}
 	
@@ -409,6 +412,7 @@ public class Battle {
 	
 	//攻撃の結果取得メソッド
 	public void result() {
+		this.targetSetAlly  = battleSupportAttack.getTargetSetAlly();
 		this.targetSetEnemy = battleSupportAttack.getTargetSetEnemy();
 		this.monsterDataMap = battleSupportAttack.getMonsterDataMap();
 		this.mesageList     = battleSupportAttack.getMesageList();
@@ -420,6 +424,7 @@ public class Battle {
 	
 	//回復補助蘇生の結果取得メソッド
 	public void resultRecovery() {
+		this.targetSetAlly  = battleSupportRecovery.getTargetSetAlly();
 		this.targetSetEnemy = battleSupportRecovery.getTargetSetEnemy();
 		this.monsterDataMap = battleSupportRecovery.getMonsterDataMap();
 		this.mesageList     = battleSupportRecovery.getMesageList();
@@ -429,53 +434,20 @@ public class Battle {
 	}
 	
 	
-	//味方側のダメージ系の状態異常処理（行動終了後に処理する状態異常のメソッド）
-	public void badStatusAfter( AllyData allyData , Integer key ) {
-		BadStatusAfter badStatusAfter = new BadStatusAfter( targetSetAlly , targetMap , targetSetEnemy );
-		this.partyMap = badStatusAfter.execution( partyMap , allyData , key );
-		this.targetSetAlly = badStatusAfter.getTargetSetAlly();
-		this.targetMap     = badStatusAfter.getTargetMap();
+	//状態異常の結果取得メソッド
+	public void resultStatus() {
+		this.targetSetAlly  = battleSupportStatus.getTargetSetAlly();
+		this.targetSetEnemy = battleSupportStatus.getTargetSetEnemy();
+		this.monsterDataMap = battleSupportStatus.getMonsterDataMap();
+		this.targetMap      = battleSupportStatus.getTargetMap();
+		this.enemyNameList  = battleSupportStatus.getEnemyNameList();
+		this.partyMap		= battleSupportStatus.getPartyMap();
 		
-		//自然治癒メッセージを追加
-		if( badStatusAfter.getRecoveryMessage() != null ) {
-			this.mesageList.add( badStatusAfter.getRecoveryMessage() );
-		}
-		
-		//状態異常のメッセージを追加
-		if( badStatusAfter.getResultMessage() != null ) {
-			this.mesageList.add( badStatusAfter.getResultMessage() );
-		}
-		
-		//状態異常のダメージで死亡した場合のメッセージを追加
-		if( badStatusAfter.getDedMessage() != null ) {
-			this.mesageList.add( badStatusAfter.getDedMessage() );
+		for( String message : battleSupportStatus.getMesageList() ) {
+			this.mesageList.add( message );
 		}
 	}
 	
-	
-	//敵側のダメージ系の状態異常処理（行動終了後に処理する状態異常のメソッド）
-	public void badStatusAfter( MonsterData monsterData , Integer key ) {
-		BadStatusAfter badStatusAfter = new BadStatusAfter( targetSetAlly , targetMap , targetSetEnemy );
-		this.monsterDataMap = badStatusAfter.execution( monsterDataMap , monsterData , key );
-		this.targetSetEnemy = badStatusAfter.getTargetSetEnemy();
-		
-		//自然治癒メッセージを追加
-		if( badStatusAfter.getRecoveryMessage() != null ) {
-			this.mesageList.add( badStatusAfter.getRecoveryMessage() );
-		}
-		
-		//状態異常のメッセージを追加
-		if( badStatusAfter.getResultMessage() != null ) {
-			this.mesageList.add( badStatusAfter.getResultMessage() );
-		}
-		
-		//状態異常のダメージで死亡した場合のメッセージを追加
-		if( badStatusAfter.getDedMessage() != null ) {
-			this.mesageList.add( badStatusAfter.getDedMessage() );
-		}
-		
-	}
-
 	
 	//敵の単体攻撃を処理するメソッド
 	public void singleAttack( List<Integer> targetList , EnemyAction enemyAction ) {
@@ -545,46 +517,6 @@ public class Battle {
 			}else{
 				partyMap.put( enemyAction.getTargetId() , allyData );
 			}
-		}
-	}
-	
-	
-	//混乱中の行動処理
-	public void confusion( AllyData allyData ) {
-		Random random = new Random();
-		int target = random.nextInt( 2 );
-		
-		//味方をターゲットとした混乱行動
-		if( target == 0 ) {
-			List<Integer> targetList = new ArrayList<Integer>( targetSetAlly );
-			int index = random.nextInt( targetList.size() );
-			AllyData targetAllyData = partyMap.get( targetList.get( index ) );
-			targetAllyData = ConfusionActions.action( allyData , targetAllyData , random );
-			
-			if( targetAllyData.getCurrentHp() == 0 ) {
-				
-				//敵リストから対象を削除
-				targetSetAlly.remove( targetList.get( index ) );
-			}
-			
-			this.mesageList.add( ConfusionActions.message );
-			partyMap.put( targetList.get( index ) , targetAllyData );
-			
-		//敵をターゲットとした混乱行動	
-		}else{
-			List<Integer> targetList = new ArrayList<Integer>( targetSetEnemy );
-			int index = random.nextInt( targetList.size() );
-			MonsterData monsterData = monsterDataMap.get( targetList.get( index ) );
-			monsterData = ConfusionActions.action( allyData , monsterData , random );
-			
-			if( monsterData.getCurrentHp() == 0 ) {
-				
-				//敵リストから対象を削除
-				targetSetEnemy.remove( targetList.get( index ) );
-			}
-			
-			this.mesageList.add( ConfusionActions.message );
-			monsterDataMap.put( targetList.get( index ) , monsterData );
 		}
 	}
 	
