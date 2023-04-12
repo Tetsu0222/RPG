@@ -278,22 +278,15 @@ public class PublicController {
 		
 		//ターンの最初に発動する効果を処理
 		battle.startSkill();
-		
-		//スタートスキルのメッセージを出力
-		if( battle.getMesageList().size() > 0  ) {
-			session.setAttribute( "battle" , battle );
-			session.setAttribute( "mode"   , "battle" );
-		
-		//スタートスキルのメッセージがなければスキップ
-		}else{
-			this.next( mv );
-		}
+		battle.getMesageList().add( turnCount + "ターン目開始" );
+		session.setAttribute( "battle" , battle );
+		session.setAttribute( "mode"   , "battle" );
 
 		return mv;
 	}
 	
 	
-	//戦闘続行(行動対象者の生存判定をここでやる)
+	//戦闘続行
 	@GetMapping( "/next" )
 	public ModelAndView next( ModelAndView mv ) {
 		
@@ -307,41 +300,70 @@ public class PublicController {
 		//素早さ順に行動
 		if( turnqueue.peek() != null ) {
 			
-			//行動前かつターン中に死亡している場合は、行動自体をスキップする。
+			//行動前かつターン中に死亡している場合は、行動自体をスキップする。ここ上手く直したい…
 			if( battle.getPartyMap().get( turnqueue.peek() ) != null ){
 				if( battle.getPartyMap().get( turnqueue.peek() ).getSurvival() == 0 ) {
 					turnqueue.poll();
-					//this.next( mv );
+				}
+				
+				if( battle.getPartyMap().get( turnqueue.peek() ).getSurvival() == 0 ) {
+					turnqueue.poll();
+				}
+				
+				if( battle.getPartyMap().get( turnqueue.peek() ).getSurvival() == 0 ) {
+					turnqueue.poll();
 				}
 				
 			}else if( battle.getMonsterDataMap().get( turnqueue.peek() ) != null ){
 				if( battle.getMonsterDataMap().get( turnqueue.peek() ).getSurvival() == 0 ) {
 					turnqueue.poll();
-					//this.next( mv );
+				}
+				
+				if( battle.getMonsterDataMap().get( turnqueue.peek() ).getSurvival() == 0 ) {
+					turnqueue.poll();
+				}
+				
+				if( battle.getMonsterDataMap().get( turnqueue.peek() ).getSurvival() == 0 ) {
+					turnqueue.poll();
 				}
 			}
 			
-			battle.startBattle( turnqueue.poll() );
+			if( turnqueue.peek() != null ) {
 			
-			//戦闘終了判定
-			if( battle.getTargetSetAlly().size() == 0 ) {
-				session.invalidate();
-				battle.getMesageList().add( "全滅してしまった…" );
-				session.setAttribute( "battle" , battle );
-				session.setAttribute( "mode" , "result" );
+				battle.startBattle( turnqueue.poll() );
 				
-			}else if( battle.getTargetSetEnemy().size() == 0 ) {
-				session.invalidate();
-				battle.getMesageList().add( "戦いに勝利した!!!" );
-				session.setAttribute( "battle" , battle );
-				session.setAttribute( "mode" , "result" );
+				//戦闘終了判定
+				if( battle.getTargetSetAlly().size() == 0 ) {
+					session.invalidate();
+					battle.getMesageList().add( "全滅してしまった…" );
+					session.setAttribute( "battle" , battle );
+					session.setAttribute( "mode" , "result" );
+					
+				}else if( battle.getTargetSetEnemy().size() == 0 ) {
+					session.invalidate();
+					battle.getMesageList().add( "戦いに勝利した!!!" );
+					session.setAttribute( "battle" , battle );
+					session.setAttribute( "mode" , "result" );
+					
+				}else{
+					session.invalidate();
+					session.setAttribute( "battle" , battle );
+					session.setAttribute( "mode" , "battle" );
+				}
 				
 			}else{
+				
+				//ターン終了時に発動する処理
+				battle.endSkill();
+				battle.getMesageList().add( turnCount + "ターン目終了" );
+				this.turnCount += 1;
+				
+				session.invalidate();
 				session.setAttribute( "battle" , battle );
-				session.setAttribute( "mode" , "battle" );
+				session.setAttribute( "mode"   , "end"  );
 			}
 			
-		//全キャラクターの行動終了(ターン中に敵を倒すと2回処理されている)
+		//全キャラクターの行動終了
 		}else{
 			
 			//ターン終了時に発動する処理
