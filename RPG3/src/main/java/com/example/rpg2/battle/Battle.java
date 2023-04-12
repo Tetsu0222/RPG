@@ -279,7 +279,7 @@ public class Battle {
 				isMpEmpty = battleSupportRecovery.magicOrSkillRecovery( allyData , magic , skill , target , key );
 				
 				//処理結果を格納
-				this.result();
+				this.resultRecovery();
 					
 				
 			//攻撃・妨害の処理
@@ -415,6 +415,17 @@ public class Battle {
 		this.targetMap      = battleSupportAttack.getTargetMap();
 		this.enemyNameList  = battleSupportAttack.getEnemyNameList();
 		this.partyMap		= battleSupportAttack.getPartyMap();
+	}
+	
+	
+	//単体攻撃の結果取得メソッド
+	public void resultRecovery() {
+		this.targetSetEnemy = battleSupportRecovery.getTargetSetEnemy();
+		this.monsterDataMap = battleSupportRecovery.getMonsterDataMap();
+		this.mesageList     = battleSupportRecovery.getMesageList();
+		this.targetMap      = battleSupportRecovery.getTargetMap();
+		this.enemyNameList  = battleSupportRecovery.getEnemyNameList();
+		this.partyMap		= battleSupportRecovery.getPartyMap();
 	}
 	
 	
