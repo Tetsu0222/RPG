@@ -13,10 +13,8 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import com.example.rpg2.action.Attack;
 import com.example.rpg2.action.ConfusionActions;
 import com.example.rpg2.action.EnemyAction;
-import com.example.rpg2.action.SortingAttackAction;
 import com.example.rpg2.action.SortingRecoveryAction;
 import com.example.rpg2.action.TaregetEnemyAction;
 import com.example.rpg2.action.TargetAllyAction;
@@ -267,13 +265,12 @@ public class Battle {
     			
     		//通常攻撃の処理
 			if( movementPattern.equals( "attack" )) {
-					
-				//通常攻撃を生成
-				TaregetEnemyAction at = new Attack( allyData );
-					
-				//通常攻撃を実施
-				this.mesageList.add( at.getStratMessage() );
-				this.singleAttack( at,  target , key , magic , skill );
+				
+				//通常攻撃の処理実行
+				battleSupportAttack.normalAttack( target , key , magic , skill , allyData );
+				
+				//処理結果を獲得
+				this.attackResult();
 
 			//回復・補助魔法の処理
 			}else if( movementPattern.equals( "targetally" ) || movementPattern.equals( "resuscitationmagic" ) || movementPattern.equals( "resuscitationskill" ) ) {
@@ -326,55 +323,13 @@ public class Battle {
 					
 			//攻撃・妨害の処理
 			}else if( movementPattern.equals( "targetenemy" )) {
-					
-				//行動用のオブジェクトと攻撃回数を生成(特技か魔法を判定して合致するものを生成)
-				TaregetEnemyAction taregetEnemyAction = SortingAttackAction.sortingCreateAttackAction( allyData , magic , skill );
-					
-				//行動を宣言
-				this.mesageList.add( taregetEnemyAction.getStratMessage() );
-					
-				//MP判定 MPが足りないとtureが返る。
-				if( taregetEnemyAction.isNotEnoughMp() ){
-					this.mesageList.add( taregetEnemyAction.getNotEnoughMpMessage() );
-					isMpEmpty = true;
-						
-				//MP判定OK
-				}else{
-						
-					//魔法特技の攻撃回数分の処理
-					for( int i = 0 ; i < SortingAttackAction.actions ; i++ ){
-							
-						//対象撃破時のターゲット自動変更のために再生成
-						taregetEnemyAction = SortingAttackAction.sortingRegenerationAttackAction( allyData , magic , skill );
-							
-						//無差別攻撃
-						if( SortingAttackAction.targetRandom ) {
-							List<Integer> targetList = new ArrayList<Integer>( targetSetEnemy );
-								
-							//連続攻撃中に敵が全滅していた場合は、処理終了
-							if( targetList.size() == 0 ) {
-								break;
-							}
-								
-							//ターゲットを無差別に選択、前述のif分で例外は発生しない。
-							target = random.nextInt( targetList.size() ) + 4;
-							this.singleAttack( taregetEnemyAction , target , key , magic , skill );
-								
-						//全体攻撃の処理
-						}else if( targetMap.get( key ).getTargetSetEnemy() != null ) {
-							this.generalAttack( taregetEnemyAction , key );
-						
-						//グループ攻撃の処理
-						}else if( targetMap.get( key ).getGroupName() != null ) {
-							this.groupAttack( taregetEnemyAction , key , magic , skill );
-
-						//単体攻撃の処理
-						}else{
-							this.singleAttack( taregetEnemyAction , target , key , magic , skill );
-						}
-					}
-				}
-					
+				
+				//攻撃魔法か特技を発動、MPが足りていたかどうかの結果が返る。
+				isMpEmpty = battleSupportAttack.magicOrSkillAttack( allyData , magic , skill , target , key );
+				
+				//処理結果を取得
+				this.attackResult();
+				
 			//防御選択時の行動
 			}else if( movementPattern.equals( "defense" )) {
 				this.mesageList.add( allyData.getName() + "は防御している" );
@@ -488,14 +443,13 @@ public class Battle {
 	//-----------------------------------------戦闘処理を補助するメソッド群--------------------------------------------------
 	//-----------------------------------------------------------------------------------------------------------------------
 	
-	//単体攻撃のメソッド
-	public void singleAttack( TaregetEnemyAction taregetEnemyAction , Integer target , Integer key , Magic magic , Skill skill ) {
-		
-		battleSupportAttack.singleAttack( taregetEnemyAction , target , key , magic , skill );
+	//単体攻撃の結果取得メソッド
+	public void attackResult() {
 		this.targetSetEnemy = battleSupportAttack.getTargetSetEnemy();
 		this.monsterDataMap = battleSupportAttack.getMonsterDataMap();
 		this.mesageList     = battleSupportAttack.getMesageList();
 		this.targetMap      = battleSupportAttack.getTargetMap();
+		this.enemyNameList  = battleSupportAttack.getEnemyNameList();
 	}
 	
 	
@@ -537,16 +491,6 @@ public class Battle {
 		this.mesageList     = battleSupportAttack.getMesageList();
 		this.targetMap      = battleSupportAttack.getTargetMap();
 		this.enemyNameList  = battleSupportAttack.getEnemyNameList();
-	}
-	
-	
-	//全体攻撃
-	public void generalAttack( TaregetEnemyAction taregetEnemyAction , Integer key ) {
-		
-		battleSupportAttack.generalAttack( taregetEnemyAction ,  key );
-		this.targetSetEnemy = battleSupportAttack.getTargetSetEnemy();
-		this.monsterDataMap = battleSupportAttack.getMonsterDataMap();
-		this.mesageList     = battleSupportAttack.getMesageList();
 	}
 	
 	

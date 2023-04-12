@@ -8,6 +8,8 @@ import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.example.rpg2.action.Attack;
+import com.example.rpg2.action.SortingAttackAction;
 import com.example.rpg2.action.TaregetEnemyAction;
 import com.example.rpg2.battle.AllyData;
 import com.example.rpg2.battle.Battle;
@@ -142,6 +144,77 @@ public class BattleSupportAttack {
 	//--------------------------------------------------------------------------------------
 	
 	
+	//通常攻撃の処理
+	public void normalAttack( Integer target , Integer key , Magic magic , Skill skill , AllyData allyData ) {
+		
+		//通常攻撃を生成
+		TaregetEnemyAction at = new Attack( allyData );
+			
+		//通常攻撃を実施
+		this.mesageList.add( at.getStratMessage() );
+		this.singleAttack( at,  target , key , magic , skill );
+	}
+	
+	
+	//攻撃魔法か特技の処理
+	public boolean magicOrSkillAttack( AllyData allyData , Magic magic , Skill skill , Integer  target , Integer key ) {
+		
+		boolean isMpEmpty = false;
+		
+		//行動用のオブジェクトと攻撃回数を生成(特技か魔法を判定して合致するものを生成)
+		TaregetEnemyAction taregetEnemyAction = SortingAttackAction.sortingCreateAttackAction( allyData , magic , skill );
+			
+		//行動を宣言
+		this.mesageList.add( taregetEnemyAction.getStratMessage() );
+			
+		//MP判定 MPが足りないとtureが返る。
+		if( taregetEnemyAction.isNotEnoughMp() ){
+			this.mesageList.add( taregetEnemyAction.getNotEnoughMpMessage() );
+			isMpEmpty = true;
+				
+		//MP判定OK
+		}else{
+				
+			//魔法特技の攻撃回数分の処理
+			for( int i = 0 ; i < SortingAttackAction.actions ; i++ ){
+					
+				//対象撃破時のターゲット自動変更のために再生成
+				taregetEnemyAction = SortingAttackAction.sortingRegenerationAttackAction( allyData , magic , skill );
+					
+				//無差別攻撃
+				if( SortingAttackAction.targetRandom ) {
+					List<Integer> targetList = new ArrayList<Integer>( targetSetEnemy );
+						
+					//連続攻撃中に敵が全滅していた場合は、処理終了
+					if( targetList.size() == 0 ) {
+						break;
+					}
+						
+					//ターゲットを無差別に選択、前述のif分で例外は発生しない。
+					target = random.nextInt( targetList.size() ) + 4;
+					this.singleAttack( taregetEnemyAction , target , key , magic , skill );
+						
+				//全体攻撃の処理
+				}else if( targetMap.get( key ).getTargetSetEnemy() != null ) {
+					this.generalAttack( taregetEnemyAction , key );
+				
+				//グループ攻撃の処理
+				}else if( targetMap.get( key ).getGroupName() != null ) {
+					this.groupAttack( taregetEnemyAction , key , magic , skill );
+
+				//単体攻撃の処理
+				}else{
+					this.singleAttack( taregetEnemyAction , target , key , magic , skill );
+				}
+			}
+		}
+		
+		return isMpEmpty;
+	}
+	
+	
+	
+	//--------------------------------------------------------------------------------------
 	
 	//単体攻撃のメソッド
 	public void singleAttack( TaregetEnemyAction taregetEnemyAction , Integer target , Integer key , Magic magic , Skill skill ) {
