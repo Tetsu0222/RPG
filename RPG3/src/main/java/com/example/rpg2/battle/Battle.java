@@ -198,14 +198,14 @@ public class Battle {
 		//味方の座標と素早さをマップへ格納
 		for( Integer index : targetSetAlly ) {
 			Integer spe   = partyMap.get( index ).getCurrentSPE();
-			spe += random.nextInt( spe / 2 );
+			spe += random.nextInt( spe / 2 + 1 );
 			turnMap.put( index , spe );
 		}
 		
 		//敵の座標と素早さをマップへ格納
 		for( Integer index : targetSetEnemy ) {
 			Integer spe   = monsterDataMap.get( index ).getCurrentSPE();
-			spe += random.nextInt( spe / 2 );
+			spe += random.nextInt( spe / 2 + 1 );
 			turnMap.put( index , spe );
 		}
 		
@@ -253,8 +253,7 @@ public class Battle {
     		}
     		
     		//混乱中の場合の処理
-    		Confusion confusion = new Confusion();
-    		if( allyData.getStatusSet().contains( confusion )) {
+    		if( allyData.getStatusSet().contains( new Confusion() )) {
     			movementPattern = "confusion";
     		}
     			

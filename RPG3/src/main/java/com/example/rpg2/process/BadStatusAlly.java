@@ -8,6 +8,8 @@ import com.example.rpg2.battle.AllyData;
 import com.example.rpg2.entity.MonsterPattern;
 import com.example.rpg2.status.Burn;
 import com.example.rpg2.status.Confusion;
+import com.example.rpg2.status.HolyBarrier;
+import com.example.rpg2.status.Normal;
 import com.example.rpg2.status.Paralysis;
 import com.example.rpg2.status.Poison;
 import com.example.rpg2.status.Sleep;
@@ -22,58 +24,64 @@ public class BadStatusAlly {
 	private String  buffMessage;
 	
 	//状態異常の処理
-	public AllyData bad( AllyData allyData , MonsterPattern monsterPattern) {
+	public AllyData bad( AllyData allyData , MonsterPattern monsterPattern ) {
 		
-		Random random = new Random();
-		
-		int x = random.nextInt( 1 + allyData.getResistance() );
+		//凍てつく波動の処理
+		if( monsterPattern.getBuffcategory().equals( "wave" )) {
+			allyData = this.wave( allyData, allyData.getStatusSet() );
+			
+		}else {
 
-		if( allyData.getSurvival() == 2 ) {
-			this.buffMessage = allyData.getName() + "は聖なる守りの加護を得ている。";
+			Random random = new Random();
 			
-		//状態異常完全耐性
-		}else if( allyData.getResistance() == 4 ) {
-			this.buffMessage = allyData.getName() + "は状態異常を受け付けない。";
-			
-		//状態異常判定
-		}else if( x == 0 ){
-			
-			//毒付与
-			if( monsterPattern.getBuffcategory().equals( "poison" ) && allyData.getSurvival() == 1 ) {
-				Set<Status> statusSet = this.badStatus( allyData );
-				allyData = this.poison( allyData , statusSet );
+			int x = random.nextInt( 1 + allyData.getResistance() );
+	
+			if( allyData.getSurvival() == 2 ) {
+				this.buffMessage = allyData.getName() + "は聖なる守りの加護を得ている。";
 				
-			//火傷付与
-			}else if( monsterPattern.getBuffcategory().equals( "burn" ) && allyData.getSurvival() == 1 ) {
-				Set<Status> statusSet = this.badStatus( allyData );
-				allyData = this.burn( allyData , statusSet );
+			//状態異常完全耐性
+			}else if( allyData.getResistance() == 4 ) {
+				this.buffMessage = allyData.getName() + "は状態異常を受け付けない。";
 				
-			//睡眠付与
-			}else if( monsterPattern.getBuffcategory().equals( "sleep" ) && allyData.getSurvival() == 1 ) {
-				Set<Status> statusSet = this.badStatusSleep( allyData );
-				allyData = this.sleep( allyData , statusSet );
+			//状態異常判定
+			}else if( x == 0 ){
 				
-			//麻痺の付与
-			}else if( monsterPattern.getBuffcategory().equals( "paralysis" ) && allyData.getSurvival() == 1 ) {
-				Set<Status> statusSet = this.badStatus( allyData );
-				allyData = this.paralysis( allyData , statusSet );
+				//毒付与
+				if( monsterPattern.getBuffcategory().equals( "poison" ) && allyData.getSurvival() == 1 ) {
+					Set<Status> statusSet = this.badStatus( allyData );
+					allyData = this.poison( allyData , statusSet );
+					
+				//火傷付与
+				}else if( monsterPattern.getBuffcategory().equals( "burn" ) && allyData.getSurvival() == 1 ) {
+					Set<Status> statusSet = this.badStatus( allyData );
+					allyData = this.burn( allyData , statusSet );
+					
+				//睡眠付与
+				}else if( monsterPattern.getBuffcategory().equals( "sleep" ) && allyData.getSurvival() == 1 ) {
+					Set<Status> statusSet = this.badStatusSleep( allyData );
+					allyData = this.sleep( allyData , statusSet );
+					
+				//麻痺の付与
+				}else if( monsterPattern.getBuffcategory().equals( "paralysis" ) && allyData.getSurvival() == 1 ) {
+					Set<Status> statusSet = this.badStatus( allyData );
+					allyData = this.paralysis( allyData , statusSet );
+					
+				//気絶の付与
+				}else if( monsterPattern.getBuffcategory().equals( "swoon" ) && allyData.getSurvival() == 1 ) {
+					Set<Status> statusSet = this.badStatus( allyData );
+					allyData = this.swoon( allyData , statusSet );
 				
-			//気絶の付与
-			}else if( monsterPattern.getBuffcategory().equals( "swoon" ) && allyData.getSurvival() == 1 ) {
-				Set<Status> statusSet = this.badStatus( allyData );
-				allyData = this.swoon( allyData , statusSet );
-			
-			//混乱の付与
-			}else if( monsterPattern.getBuffcategory().equals( "confusion" ) && allyData.getSurvival() == 1 ) {
-				Set<Status> statusSet = this.badStatus( allyData );
-				allyData = this.confusion( allyData , statusSet );
+				//混乱の付与
+				}else if( monsterPattern.getBuffcategory().equals( "confusion" ) && allyData.getSurvival() == 1 ) {
+					Set<Status> statusSet = this.badStatus( allyData );
+					allyData = this.confusion( allyData , statusSet );
+				}
+				
+			//状態異常判定が失敗
+			}else{
+				this.buffMessage = allyData.getName() + "は状態異常にならない";
 			}
-			
-		//状態異常判定が失敗
-		}else{
-			this.buffMessage = allyData.getName() + "は状態異常にならない";
 		}
-		
 		return allyData;
 	}
 	
@@ -150,6 +158,22 @@ public class BadStatusAlly {
 		statusSet.add( new Confusion( allyData ) );
 		allyData.setStatusSet( statusSet );
 		this.buffMessage = allyData.getName() + "は正気を失った…";
+		
+		return allyData;
+	}
+	
+	//いてつく波動の処理
+	public AllyData wave( AllyData allyData , Set<Status> statusSet ) {
+		
+		statusSet.remove( new HolyBarrier() );
+		
+		if(statusSet.size() == 0 ) {
+			statusSet.add( new Normal() );
+		}
+		allyData.setSurvival( 1 );
+		allyData.setCurrentDEF( allyData.getDefaultDEF() );
+		allyData.setCurrentATK( allyData.getDefaultATK() );
+		this.buffMessage = allyData.getName() + "は加護を失った…";
 		
 		return allyData;
 	}

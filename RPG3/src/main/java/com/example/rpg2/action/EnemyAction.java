@@ -110,15 +110,14 @@ public class EnemyAction {
 		Integer plusDamage = 0;
 		
 		if( monsterPattern.getPoint() == 0 ){
-			plusDamage = random.nextInt( monsterData.getCurrentATK() + 1 ) / 4;
+			plusDamage = ( random.nextInt( monsterData.getCurrentATK() + 1 ) / 10 ) - ( random.nextInt( monsterData.getCurrentATK() + 1 ) / 10 );
 			
 		}else{
-			plusDamage = random.nextInt( monsterPattern.getPoint() + 1 ) / 8
-							+ random.nextInt( monsterData.getCurrentATK() ) / 8;
+			plusDamage = monsterPattern.getPoint() + ( random.nextInt( monsterData.getCurrentATK() + 1 ) / 10 ) - ( random.nextInt( monsterData.getCurrentATK() + 1 ) / 10 );
 		}
 		
 		//(攻撃力-防御力/2) + 乱数 = ダメージ
-		this.damage = ( monsterData.getCurrentATK() - ( allyData.getCurrentDEF() / 2 )) + plusDamage;
+		this.damage = ( monsterData.getCurrentATK() - ( allyData.getCurrentDEF() / 2 + 1 )) + plusDamage;
 		
 		//防御状態チェック
 		if( IsDefense.isDefense( allyData )){
@@ -164,15 +163,14 @@ public class EnemyAction {
 		Integer plusDamage = 0;
 		
 		if( monsterPattern.getPoint() == 0 ){
-			plusDamage = random.nextInt( monsterData.getCurrentATK() + 1 ) / 4;
+			plusDamage = 0;
 			
 		}else{
-			plusDamage = random.nextInt( monsterPattern.getPoint() + 1 ) / 8
-							+ random.nextInt( monsterData.getCurrentATK() ) / 8;
+			plusDamage = ( random.nextInt( monsterPattern.getPoint() + 1 ) / 10 ) - ( random.nextInt( monsterPattern.getPoint() + 1 ) / 10 );
 		}
 		
 		//攻撃力 + 乱数 = ダメージ(防御力無視だけで暫定対応、耐性値を実装して値に干渉する予定)
-		this.damage = monsterData.getCurrentATK() + plusDamage;
+		this.damage = monsterPattern.getPoint() + plusDamage;
 		
 		if( IsDefense.isDefense( allyData )){
 			this.damage = damage / 2;

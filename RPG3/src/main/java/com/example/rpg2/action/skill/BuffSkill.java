@@ -96,6 +96,7 @@ public class BuffSkill implements TargetAllyAction{
 			//聖なる守り
 			}else if( skill.getBuffcategory().equals( "holybarrier" ) ) {
 				Set<Status> statusSet = this.goodStatus( receptionAllyData );
+				statusSet.remove( new HolyBarrier() );
 				statusSet.add( new HolyBarrier( receptionAllyData ) );
 				receptionAllyData.setStatusSet( statusSet );
 				receptionAllyData.setSurvival( 2 );

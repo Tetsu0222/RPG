@@ -31,6 +31,10 @@ public class HolyBarrier implements Status{
 		this.count = 3;
 	}
 	
+	public HolyBarrier() {
+		
+	}
+	
 	@Override
 	public Integer actionStatusBefore() {
 

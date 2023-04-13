@@ -270,9 +270,7 @@ public class PublicController {
 		
 		//各キャラクターの行動順を規定
 		battle.turn();
-		
 		List<Entry<Integer, Integer>> turnList = battle.getTurnList();
-		
 		for( Entry<Integer, Integer> entry : turnList) {
 			Integer key = entry.getKey();
 			turnqueue.add( key );

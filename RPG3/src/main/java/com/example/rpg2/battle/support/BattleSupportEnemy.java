@@ -44,13 +44,13 @@ public class BattleSupportEnemy {
 	
 	
 	public BattleSupportEnemy( Battle battle ) {
-		this.partyMap = battle.getPartyMap();
+		this.partyMap 		= battle.getPartyMap();
 		this.monsterDataMap = battle.getMonsterDataMap();
-		this.targetMap = battle.getTargetMap();
-		this.targetSetAlly = battle.getTargetSetAlly();
+		this.targetMap 		= battle.getTargetMap();
+		this.targetSetAlly  = battle.getTargetSetAlly();
 		this.targetSetEnemy = battle.getTargetSetEnemy();
-		this.enemyNameList = battle.getEnemyNameList();
-		this.allyNameList = battle.getAllyNameList();
+		this.enemyNameList  = battle.getEnemyNameList();
+		this.allyNameList 	= battle.getAllyNameList();
 	}
 	
 	
