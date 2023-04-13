@@ -205,6 +205,8 @@ public class PublicController {
 	
 		//戦闘処理用のオブジェクトを生成
 		Battle battle = new Battle( partySet , monsterDataSet , allyNameList , enemyNameList );
+		
+		//先頭処理をサポートするクラスを生成
 		battle.createSupport();
 		
 		//戦闘画面用のデータをセッションスコープに保存

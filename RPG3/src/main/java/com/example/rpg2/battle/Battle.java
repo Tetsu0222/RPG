@@ -1,9 +1,6 @@
 package com.example.rpg2.battle;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -27,6 +24,7 @@ import com.example.rpg2.process.ChoiceDefense;
 import com.example.rpg2.process.ConsumptionMP;
 import com.example.rpg2.process.IsEndSkillStop;
 import com.example.rpg2.process.IsStartSkillStop;
+import com.example.rpg2.process.TurnOrderCreate;
 import com.example.rpg2.status.Confusion;
 
 import lombok.Data;
@@ -98,7 +96,6 @@ public class Battle {
 		this.enemyNameList = enemyNameList;
 		
 	}
-	
 	
 	//サポートクラスの生成
 	public void createSupport () {
@@ -185,41 +182,12 @@ public class Battle {
 	//--------------------------------------------------------------------------------------
 	
 	
-	
 	//行動順を決定
 	public void turn() {
-		
-		//各キャラの座標と素早さで構成されたマップ
-		Map<Integer,Integer> turnMap = new HashMap<>();
-		
-		//素早さの補正用
-		Random random = new Random();
-		
-		//味方の座標と素早さをマップへ格納
-		for( Integer index : targetSetAlly ) {
-			Integer spe   = partyMap.get( index ).getCurrentSPE();
-			spe += random.nextInt( spe / 2 + 1 );
-			turnMap.put( index , spe );
-		}
-		
-		//敵の座標と素早さをマップへ格納
-		for( Integer index : targetSetEnemy ) {
-			Integer spe   = monsterDataMap.get( index ).getCurrentSPE();
-			spe += random.nextInt( spe / 2 + 1 );
-			turnMap.put( index , spe );
-		}
-		
-		//敵味方の混合マップからエントリーを抽出、各キャラの座標が素早さの高い順（降順）でソートされているリストを生成
-		this.turnList = new ArrayList<Entry<Integer, Integer>>( turnMap.entrySet() );
-        Collections.sort( turnList , new Comparator<Entry<Integer, Integer>>() {
-            public int compare( Entry<Integer, Integer> obj1 , Entry<Integer, Integer> obj2 )
-            {
-            	return obj2.getValue().compareTo( obj1.getValue() );
-            }
-        });
+		this.turnList = TurnOrderCreate.create( partyMap , monsterDataMap , targetSetAlly , targetSetEnemy );
 	}
 	
-
+	
 	//戦闘処理
 	public void startBattle( Integer key ) {
 		
@@ -260,14 +228,20 @@ public class Battle {
     		//通常攻撃の処理
 			if( movementPattern.equals( "attack" )) {
 				
+				//サポートクラスとデータを同期
+				this.battleSupportAttack = new BattleSupportAttack  ( this );
+				
 				//通常攻撃の処理実行
 				battleSupportAttack.normalAttack( target , key , magic , skill , allyData );
-				
-				//処理結果を獲得
+
+				//サポートクラスから処理結果を取得
 				this.result();
 				
 			//回復・補助魔法の処理
 			}else if( movementPattern.equals( "targetally" ) || movementPattern.equals( "resuscitationmagic" ) || movementPattern.equals( "resuscitationskill" ) ) {
+				
+				//サポートクラスとデータを同期
+				this.battleSupportRecovery = new BattleSupportRecovery( this );
 				
 				//回復・補助・蘇生の魔法か特技の処理、MPが足りていたかどうかの結果が返る。
 				isMpEmpty = battleSupportRecovery.magicOrSkillRecovery( allyData , magic , skill , target , key );
@@ -278,10 +252,13 @@ public class Battle {
 			//攻撃・妨害の処理
 			}else if( movementPattern.equals( "targetenemy" )) {
 				
+				//サポートクラスとデータを同期
+				this.battleSupportAttack = new BattleSupportAttack  ( this );
+				
 				//攻撃魔法か特技を発動、MPが足りていたかどうかの結果が返る。
 				isMpEmpty = battleSupportAttack.magicOrSkillAttack( allyData , magic , skill , target , key );
 				
-				//処理結果を取得
+				//処理結果をサポートクラスから取得
 				this.result();
 				
 			//防御選択時の行動
@@ -290,7 +267,14 @@ public class Battle {
 				
 			//混乱中の行動
 			}else if( movementPattern.equals( "confusion" )) {
+				
+				//サポートクラスとデータを同期
+				this.battleSupportStatus = new BattleSupportStatus( this );
+				
+				//混乱の行動を処理
 				battleSupportStatus.confusion( allyData );
+				
+				//処理結果をサポートクラスから取得
 				this.resultStatus();
 			}
 			
@@ -299,6 +283,9 @@ public class Battle {
 				allyData = ConsumptionMP.consumptionMP( allyData , magic , skill );
 				partyMap.put( key , allyData );
 			}
+			
+			//サポートクラスとデータを同期
+			this.battleSupportStatus = new BattleSupportStatus( this );
 
 			//行動終了後に作用する状態異常の処理
 			battleSupportStatus.badStatusAfter( allyData, key );
@@ -309,12 +296,18 @@ public class Battle {
 				
 		//------------------敵側の処理------------------------
 		}else if( monsterDataMap.get( key ) != null ){
+			
+			//サポートクラスとデータを同期
+			this.battleSupportEnemy = new BattleSupportEnemy( this );
             
 			//敵の行動を処理
 			this.battleSupportEnemy.enemyAction( key , battleSupportStatus , targetSetAlly);
 			
 			//敵の行動結果を取得
     		this.resultEnemy();
+    		
+    		//サポートクラスとデータを同期
+    		this.battleSupportStatus   = new BattleSupportStatus  ( this );
 			
     		//行動終了後の状態異常を処理
     		battleSupportStatus.badStatusAfter( monsterDataMap.get( key ) , key );
