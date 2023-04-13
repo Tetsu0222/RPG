@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+	
+	<head>
+		<meta charset="UTF-8">
+		<title>Insert title here</title>
+	</head>
+	
+	<body>
+		
+		<!-- プレイアブルキャラクターの編集 -->
+		<table border="1" th:if=="${session.mode == 'ally'}">
+			
+			<tr>
+				<th>id</th>
+				<th>名前</th>
+				<th>HP</th>
+				<th>MP</th>
+				<th>攻撃力</th>
+				<th>防御力</th>
+				<th>素早さ</th>
+			</tr>
+			
+			<tr th:each="ally:${allyList}">
+				<td>
+					<a th:text="${ally.id}"></a>
+				</td>
+				<td>
+					<a th:text="${ally.name}"></a>
+				</td>
+				<td>
+					<a th:text="${ally.hp}"></a>
+				</td>
+				<td>
+					<a th:text="${ally.mp}"></a>
+				</td>
+				<td>
+					<a th:text="${ally.atk}"></a>
+				</td>
+				<td>
+					<a th:text="${ally.def}"></a>
+				</td>
+				<td>
+					<a th:text="${ally.spe}"></a>
+				</td>
+			</tr>
+		</table>
+		
+	</body>
+	
+</html>
