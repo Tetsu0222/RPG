@@ -7,6 +7,7 @@ import com.example.rpg2.action.TargetAllyAction;
 import com.example.rpg2.battle.AllyData;
 import com.example.rpg2.entity.Skill;
 import com.example.rpg2.status.HolyBarrier;
+import com.example.rpg2.status.MagicBarrier;
 import com.example.rpg2.status.Normal;
 import com.example.rpg2.status.Status;
 
@@ -101,6 +102,14 @@ public class BuffSkill implements TargetAllyAction{
 				receptionAllyData.setStatusSet( statusSet );
 				receptionAllyData.setSurvival( 2 );
 				this.resultMessage = receptionAllyData.getName() + "は聖なる守りに包まれる。";
+				
+			//マジックバリア
+			}else if( skill.getBuffcategory().equals( "magicbarrier" ) ) {
+				Set<Status> statusSet = this.goodStatus( receptionAllyData );
+				statusSet.remove( new MagicBarrier() );
+				statusSet.add( new MagicBarrier( receptionAllyData ) );
+				receptionAllyData.setStatusSet( statusSet );
+				this.resultMessage = receptionAllyData.getName() + "は魔法に強くなった!!";
 			
 				
 			//毒を治す魔法

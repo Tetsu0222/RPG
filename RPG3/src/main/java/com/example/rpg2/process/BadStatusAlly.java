@@ -9,6 +9,7 @@ import com.example.rpg2.entity.MonsterPattern;
 import com.example.rpg2.status.Burn;
 import com.example.rpg2.status.Confusion;
 import com.example.rpg2.status.HolyBarrier;
+import com.example.rpg2.status.MagicBarrier;
 import com.example.rpg2.status.Normal;
 import com.example.rpg2.status.Paralysis;
 import com.example.rpg2.status.Poison;
@@ -166,6 +167,7 @@ public class BadStatusAlly {
 	public AllyData wave( AllyData allyData , Set<Status> statusSet ) {
 		
 		statusSet.remove( new HolyBarrier() );
+		statusSet.remove( new MagicBarrier() );
 		
 		if(statusSet.size() == 0 ) {
 			statusSet.add( new Normal() );

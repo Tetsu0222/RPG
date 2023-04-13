@@ -111,13 +111,13 @@ public class EnemyAction {
 		
 		if( monsterPattern.getPoint() == 0 ){
 			plusDamage = ( random.nextInt( monsterData.getCurrentATK() + 1 ) / 10 ) - ( random.nextInt( monsterData.getCurrentATK() + 1 ) / 10 );
-			
+			//(攻撃力-防御力/2) + 乱数 = ダメージ
+			this.damage = ( monsterData.getCurrentATK() - ( allyData.getCurrentDEF() / 2 + 1 )) + plusDamage;
 		}else{
-			plusDamage = monsterPattern.getPoint() + ( random.nextInt( monsterData.getCurrentATK() + 1 ) / 10 ) - ( random.nextInt( monsterData.getCurrentATK() + 1 ) / 10 );
+			plusDamage = ( random.nextInt( monsterPattern.getPoint() + 1 ) / 10 ) - ( random.nextInt( monsterPattern.getPoint() + 1 ) / 10 );
+			//行動に設定された威力 + 乱数 = ダメージ
+			this.damage = monsterPattern.getPoint() + plusDamage;
 		}
-		
-		//(攻撃力-防御力/2) + 乱数 = ダメージ
-		this.damage = ( monsterData.getCurrentATK() - ( allyData.getCurrentDEF() / 2 + 1 )) + plusDamage;
 		
 		//防御状態チェック
 		if( IsDefense.isDefense( allyData )){
@@ -172,7 +172,13 @@ public class EnemyAction {
 		//攻撃力 + 乱数 = ダメージ(防御力無視だけで暫定対応、耐性値を実装して値に干渉する予定)
 		this.damage = monsterPattern.getPoint() + plusDamage;
 		
+		//防御状態をチェック
 		if( IsDefense.isDefense( allyData )){
+			this.damage = damage / 2;
+		}
+		
+		//マジックバリア状態をチェック、第2引数はダミー
+		if( IsDefense.isDefense( allyData , 1 )){
 			this.damage = damage / 2;
 		}
 		

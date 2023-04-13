@@ -3,13 +3,13 @@ package com.example.rpg2.status;
 import com.example.rpg2.battle.AllyData;
 import com.example.rpg2.battle.MonsterData;
 
-public class Defense implements Status{
-	
-	private String  name = "防御";
+public class MagicBarrier implements Status{
+
+	private String  name = "マジックバリア";
+	private String  targetName;
 	private Integer count;
 	
-	
-	public int hashCode() {
+public int hashCode() {
 		
 		return name.hashCode();
 	}
@@ -20,15 +20,17 @@ public class Defense implements Status{
 	}
 	
 	
-	public Defense( AllyData allyData ) {
-		this.count = 1;
+	public MagicBarrier( AllyData allyData ) {
+		this.targetName = allyData.getName();
+		this.count = 3;
 	}
 	
-	public Defense( MonsterData monsterData ) {
-		this.count = 1;
+	public MagicBarrier( MonsterData monsterData ) {
+		this.targetName = monsterData.getName();
+		this.count = 3;
 	}
 	
-	public Defense() {
+	public MagicBarrier() {
 		
 	}
 	
@@ -58,14 +60,21 @@ public class Defense implements Status{
 	
 	@Override
 	public Integer countDown() {
-		//選択解除のみ
+		
+		if( count < 0 ) {
+			this.count = 0;
+			
+		}else {
+			this.count -= 1;
+		}
+		
 		return count;
 	}
 	
 	@Override
 	public String recoverymessage() {
 		
-		return "no";
+		return targetName + "のマジックバリアの効果が切れてしまった…";
 	}
 	
 	

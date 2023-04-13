@@ -2,6 +2,8 @@ package com.example.rpg2.process;
 
 import com.example.rpg2.battle.AllyData;
 import com.example.rpg2.battle.MonsterData;
+import com.example.rpg2.status.Defense;
+import com.example.rpg2.status.MagicBarrier;
 
 public class IsDefense {
 	
@@ -10,13 +12,10 @@ public class IsDefense {
 	public static boolean isDefense( AllyData allyData ) {
 		
 		//対象者のステータス異常の中に防御が含まれているか確認(1が返れば含まれていると判定)
-		Long i = allyData.getStatusSet()
-				.stream()
-				.filter( s -> s.getName().equals( "防御" ) )
-				.count();
+		boolean i = allyData.getStatusSet().contains( new Defense() );
 		
 		//防御が含まれていればtureを返す。
-		return i == 1;
+		return i;
 	}
 	
 	
@@ -24,13 +23,21 @@ public class IsDefense {
 	public static boolean isDefense( MonsterData monsterData ) {
 		
 		//対象者のステータス異常の中に防御が含まれているか確認(1が返れば含まれていると判定)
-		Long i = monsterData.getStatusSet()
-				.stream()
-				.filter( s -> s.getName().equals( "防御" ) )
-				.count();
+		boolean i = monsterData.getStatusSet().contains( new Defense() );
 		
 		//防御が含まれていればtureを返す。
-		return i == 1;
+		return i;
+	}
+	
+	
+	//味方のマジックバリア状態チェック
+	public static boolean isDefense( AllyData allyData , Integer dummy ) {
+		
+		//対象者のステータス異常の中に防御が含まれているか確認(1が返れば含まれていると判定)
+		boolean i = allyData.getStatusSet().contains( new MagicBarrier() );
+		
+		//防御が含まれていればtureを返す。
+		return i;
 	}
 
 }
