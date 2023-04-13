@@ -54,8 +54,9 @@ public class BattleSupportEnemy {
 	}
 	
 	
-	public void enemyAction( Integer key , BattleSupportStatus battleSupportStatus) {
+	public void enemyAction( Integer key , BattleSupportStatus battleSupportStatus , Set<Integer> targetSetAlly ) {
 		
+		this.targetSetAlly = targetSetAlly;
 		
         //行動対象のモンスターのデータを生成
 		MonsterData monsterData = monsterDataMap.get( key );

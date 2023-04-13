@@ -311,7 +311,7 @@ public class Battle {
 		}else if( monsterDataMap.get( key ) != null ){
             
 			//敵の行動を処理
-			this.battleSupportEnemy.enemyAction( key , battleSupportStatus );
+			this.battleSupportEnemy.enemyAction( key , battleSupportStatus , targetSetAlly);
 			
 			//敵の行動結果を取得
     		this.resultEnemy();

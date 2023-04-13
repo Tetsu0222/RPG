@@ -78,8 +78,8 @@ public class ConfusionActions {
 			
 			HP += recovery;
 			
-			if( targetAllyData.getMaxHP() < recovery ) {
-				recovery = targetAllyData.getMaxHP();
+			if( targetAllyData.getMaxHP() < HP ) {
+				HP = targetAllyData.getMaxHP();
 			}
 			
 			targetAllyData.setCurrentHp( HP );
@@ -131,13 +131,13 @@ public class ConfusionActions {
 		//有害行動
 		}else if( actionConfusion == 4 ) {
 			
-			int recovery = monsterData.getCurrentHp() / 5;
+			int recovery = monsterData.getCurrentHp() / 100;
 			int HP = monsterData.getCurrentHp();
 			
 			HP += recovery;
 			
-			if( monsterData.getMaxHP() < recovery ) {
-				recovery = monsterData.getMaxHP();
+			if( monsterData.getMaxHP() < HP ) {
+				HP = monsterData.getMaxHP();
 			}
 			
 			monsterData.setCurrentHp( HP );
