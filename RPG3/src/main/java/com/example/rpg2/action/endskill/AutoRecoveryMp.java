@@ -11,7 +11,7 @@ public class AutoRecoveryMp implements EndSkill{
 		Random random = new Random();
 		
 		//回復量を設定
-		int recovery = allyData.getMaxMP() / 10 + random.nextInt( 10 ) - random.nextInt( 10 );
+		int recovery = allyData.getMaxMP() / 30 + random.nextInt( 10 ) - random.nextInt( 10 );
 		int MP		 = allyData.getCurrentMp();
 		
 		//自動回復がダメージとならないように分岐

@@ -124,6 +124,13 @@ public class EnemyAction {
 			this.damage = damage / 2;
 		}
 		
+		//ブレス攻撃かつ対象がフバーハかチェック、第2引数はダミー
+		if( monsterPattern.getAttribute().equals( "breath" )) {
+			if( IsDefense.isDefense( allyData , "ダミー" )){
+				this.damage = damage / 2;
+			}
+		}
+		
 		if( damage < 0 ) {
 			this.damage = 0;
 			this.battleMessage = allyData.getName() + "にダメージを与えられない…";

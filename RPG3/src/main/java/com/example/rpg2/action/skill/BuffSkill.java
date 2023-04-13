@@ -7,6 +7,7 @@ import com.example.rpg2.action.TargetAllyAction;
 import com.example.rpg2.battle.AllyData;
 import com.example.rpg2.entity.Skill;
 import com.example.rpg2.status.HolyBarrier;
+import com.example.rpg2.status.Hubaha;
 import com.example.rpg2.status.MagicBarrier;
 import com.example.rpg2.status.Normal;
 import com.example.rpg2.status.Status;
@@ -110,7 +111,14 @@ public class BuffSkill implements TargetAllyAction{
 				statusSet.add( new MagicBarrier( receptionAllyData ) );
 				receptionAllyData.setStatusSet( statusSet );
 				this.resultMessage = receptionAllyData.getName() + "は魔法に強くなった!!";
-			
+				
+			//フバーハ
+			}else if( skill.getBuffcategory().equals( "fubaha" ) ) {
+				Set<Status> statusSet = this.goodStatus( receptionAllyData );
+				statusSet.remove( new Hubaha() );
+				statusSet.add( new Hubaha( receptionAllyData ) );
+				receptionAllyData.setStatusSet( statusSet );
+				this.resultMessage = receptionAllyData.getName() + "を優しい衣が包み込む!!";		
 				
 			//毒を治す魔法
 			}else if( skill.getBuffcategory().equals( "poison" ) ) {

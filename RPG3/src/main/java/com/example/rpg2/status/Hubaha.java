@@ -3,13 +3,13 @@ package com.example.rpg2.status;
 import com.example.rpg2.battle.AllyData;
 import com.example.rpg2.battle.MonsterData;
 
-public class MagicBarrier implements Status{
-
-	private String  name = "マジックバリア";
+public class Hubaha implements Status{
+	
+	private String  name = "フバーハ";
 	private String  targetName;
 	private Integer count;
 	
-public int hashCode() {
+	public int hashCode() {
 		
 		return name.hashCode();
 	}
@@ -20,17 +20,17 @@ public int hashCode() {
 	}
 	
 	
-	public MagicBarrier( AllyData allyData ) {
+	public Hubaha( AllyData allyData ) {
 		this.targetName = allyData.getName();
 		this.count = 5;
 	}
 	
-	public MagicBarrier( MonsterData monsterData ) {
+	public Hubaha( MonsterData monsterData ) {
 		this.targetName = monsterData.getName();
 		this.count = 5;
 	}
 	
-	public MagicBarrier() {
+	public Hubaha() {
 		
 	}
 	
@@ -74,7 +74,7 @@ public int hashCode() {
 	@Override
 	public String recoverymessage() {
 		
-		return targetName + "のマジックバリアの効果が切れてしまった…";
+		return targetName + "のフバーハの効果が切れてしまった…";
 	}
 	
 	

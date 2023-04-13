@@ -291,6 +291,7 @@ public class Battle {
 			//混乱中の行動
 			}else if( movementPattern.equals( "confusion" )) {
 				battleSupportStatus.confusion( allyData );
+				this.resultStatus();
 			}
 			
 			//MP消費処理
