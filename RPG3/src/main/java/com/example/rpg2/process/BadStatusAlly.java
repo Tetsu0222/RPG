@@ -32,7 +32,11 @@ public class BadStatusAlly {
 		if( monsterPattern.getBuffcategory().equals( "wave" )) {
 			allyData = this.wave( allyData, allyData.getStatusSet() );
 			
-		}else {
+		//守備力ダウン系の処理
+		}else if( monsterPattern.getBuffcategory().equals( "DEF" )) {
+			allyData = this.defDown( allyData );
+			
+		}else{
 
 			Random random = new Random();
 			
@@ -179,6 +183,25 @@ public class BadStatusAlly {
 		allyData.setCurrentDEF( allyData.getDefaultDEF() );
 		allyData.setCurrentATK( allyData.getDefaultATK() );
 		this.buffMessage = allyData.getName() + "は加護を失った…";
+		
+		return allyData;
+	}
+	
+	//防御力ダウンの処理
+	public AllyData defDown( AllyData allyData ) {
+		
+		int down = allyData.getDefaultDEF()/10;
+		int def = allyData.getCurrentDEF();
+		
+		def = def - down;
+		
+		allyData.setCurrentDEF( def );
+		this.buffMessage = allyData.getName() + "は守備力が下がった!!";
+		
+		if( allyData.getCurrentDEF() < 0 ) {
+			allyData.setCurrentDEF( 0 );
+			this.buffMessage = allyData.getName() + "にこれ以上の効果はないようだ…";
+		}
 		
 		return allyData;
 	}
