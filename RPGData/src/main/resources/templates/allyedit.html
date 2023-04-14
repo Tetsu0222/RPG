@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+	
+	<head>
+		<meta charset="UTF-8">
+		<title>Insert title here</title>
+	</head>
+	
+	<body>
+		
+		
+		<!-- プレイアブルキャラクターの編集 -->
+		
+		<!-- 検索に対応 -->
+		<div>
+			<form th:action="@{/}" method="post" th:object="${session.allyQuery}">
+				<table border="1">
+					<tr>
+						<th>名前</th>
+						<th></th>
+					</tr>
+					<tr>
+						<td>
+							<input type="text"  size="50" name="name" th:value="*{name}">
+						</td>
+						<td>
+							<button type="submit" th:formaction="@{/ally/query}">検索</button>
+						</td>
+					</tr>
+				</table>
+			</form>
+			
+			<form th:action="@{/}" method="get">
+				<button type="submit" th:formaction="@{/ally/create}">新規登録</button>
+			</form>
+			
+			<table border="1">
+				<tr>
+					<th>id</th>
+					<th>名前</th>
+					<th>HP</th>
+					<th>MP</th>
+					<th>攻撃力</th>
+					<th>防御力</th>
+					<th>素早さ</th>
+					<th>耐性力</th>
+					<th>ターン開始スキル</th>
+					<th>ターン終了時のスキル</th>
+					<th></th>
+				</tr>
+				
+				<!-- 既存の一覧 -->
+				<form th:action="@{/}" method="post">
+				<tr th:each="ally:${allyList}">
+					<td>
+						<a th:text="${ally.id}"></a>
+					</td>
+					<td>
+						<a th:text="${ally.name}"></a>
+					</td>
+					<td>
+						<a th:text="${ally.hp}"></a>
+					</td>
+					<td>
+						<a th:text="${ally.mp}"></a>
+					</td>
+					<td>
+						<a th:text="${ally.atk}"></a>
+					</td>
+					<td>
+						<a th:text="${ally.def}"></a>
+					</td>
+					<td>
+						<a th:text="${ally.spe}"></a>
+					</td>
+					<td>
+						<a th:text="${ally.resistance}"></a>
+					</td>
+					<td>
+						<a th:text="${ally.turnstartskill}"></a>
+					</td>
+					<td>
+						<a th:text="${ally.turnendskill}"></a>
+					</td>
+					<td>
+						<button type="submit" th:formaction="@{/ally/delete/__${ally.id}__}">削除</button>
+					</td>
+				</tr>
+				</form>
+				
+			</table>
+		</div>
+		
+		<!-- ページの設定 -->
+		<div>
+			<table>
+				<tr>
+					<th>
+						<a th:text="|${allyPage.getNumber() + 1} / ${allyPage.getTotalPages()} ページを表示中|"></a>
+					</th>
+					<th></th>
+					<th></th>
+				</tr>
+				<tr>
+					<td>
+						<div th:if="${allyPage.isFirst()}">
+							<a>←前</a>
+						</div>
+						<div>
+							<a th:unless="${allyPage.isFirst()}" th:href="@{/ally/query(page = ${allyPage.getNumber() - 1})}">←前</a>
+						</div>
+					</td>
+					<td>
+						<div th:if="${allyPage.isLast()}">
+							<a>次→</a>
+						</div>
+						<div>
+							<a th:unless="${allyPage.isLast()}" th:href="@{/ally/query(page = (${allyPage.getNumber()+ 1}))}">次→</a>
+						</div>
+					</td>
+				</tr>
+			</table>
+		</div>
+		
+	</body>
+	
+</html>

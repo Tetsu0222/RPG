@@ -71,7 +71,7 @@ public class PublicController {
 	public ModelAndView ally( ModelAndView mv ,
 							  @PageableDefault( page = 0 , size = 10 , sort = "id" ) Pageable pageable ) {
 		
-		mv.setViewName( "edit" );
+		mv.setViewName( "allyedit" );
 		
 		//前回までの検索状態をセッションから取得
 		AllyQuery allyQuery = (AllyQuery)session.getAttribute( "allyQuery" );
@@ -92,8 +92,8 @@ public class PublicController {
         }
         
 		Page<Ally> pageList = allyDaoImp.findByCriteria( allyQuery , prevPageable );
-		session.setAttribute( "allyList" , pageList.getContent() );
-		session.setAttribute( "mode" , "ally" );
+
+		mv.addObject( "allyList" , pageList.getContent());
 		mv.addObject( "allyForm" , new AllyForm() );
 		mv.addObject( "allyPage", pageList );
 		
@@ -106,7 +106,7 @@ public class PublicController {
     public ModelAndView queryTodo( @PageableDefault( page = 0 , size = 10 , sort = "id" ) Pageable pageable ,
                                    ModelAndView mv) {
     	
-    	mv.setViewName( "edit" );
+    	mv.setViewName( "allyedit" );
     	
         //現在のページ位置を保存
         session.setAttribute( "prevPageable" , pageable );
@@ -115,17 +115,32 @@ public class PublicController {
         AllyQuery allyQuery = (AllyQuery)session.getAttribute( "allyQuery" );
         Page<Ally> pageList = allyDaoImp.findByCriteria( allyQuery , pageable );
         
-        session.setAttribute( "mode" , "ally" );
-        session.setAttribute( "allyList" , pageList.getContent() );
         session.setAttribute( "allyQuery" , allyQuery );
         
-        mv.addObject( "allyForm" , new AllyForm() );
+		mv.addObject( "allyList" , pageList.getContent());
+		mv.addObject( "allyForm" , new AllyForm() );
 		mv.addObject( "allyPage", pageList );
 
         return mv;
     }
 	
 	
+	//味方側のキャラクター新規登録に対応
+	@GetMapping( "/ally/create" )
+	public ModelAndView allyCreate( ModelAndView mv ) {
+		
+		List<Ally> allyList = allyRepository.findAll();
+		
+		mv.setViewName( "allycreate" );
+		mv.addObject( "allyForm" , new AllyForm() );
+		
+		session.setAttribute( "allyList" , allyList );
+		
+		return mv;
+		
+	}
+    
+    
 	//味方側のキャラクター新規登録に対応
 	@PostMapping( "/ally/create" )
 	public String allyCreate( @ModelAttribute @Validated AllyForm allyForm ,
@@ -137,12 +152,11 @@ public class PublicController {
 			Ally ally = allyForm.toEntity();
 			allyRepository.saveAndFlush( ally );
 			
-			return "redirect:/edit/ally";
+			return "redirect:/ally/create";
 			
 		//エラーあり	
 		}else{
-			
-			return "edit";
+			return "allycreate";
 		}
 	}
 	
@@ -153,15 +167,14 @@ public class PublicController {
 									@PageableDefault( page = 0 , size = 10 , sort = "id" ) Pageable pageable ,
 									ModelAndView mv ) {
 		
-		mv.setViewName( "edit" );
+		mv.setViewName( "allyedit" );
 		
         Page<Ally> pageList = allyDaoImp.findByCriteria( allyQuery , pageable );
         
 		session.setAttribute( "allyQuery" , allyQuery );
-		session.setAttribute( "allyList" , pageList.getContent() );
 		session.setAttribute( "prevPageable" , pageable );
-		session.setAttribute( "mode" , "ally" );
 		
+		mv.addObject( "allyList" , pageList.getContent());
 		mv.addObject( "allyForm" , new AllyForm() );
 		mv.addObject( "allyPage", pageList );
 		

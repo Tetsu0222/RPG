@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+	
+	<head>
+		<meta charset="UTF-8">
+		<title>Insert title here</title>
+	</head>
+	
+	<body>
+		<!-- 新規追加 -->
+		<div>
+			<table border="1">
+				<tr>
+					<th>id</th>
+					<th>名前</th>
+					<th>HP</th>
+					<th>MP</th>
+					<th>攻撃力</th>
+					<th>防御力</th>
+					<th>素早さ</th>
+					<th>魔法</th>
+					<th>特技</th>
+					<th>耐性力</th>
+					<th>ターン開始スキル</th>
+					<th>ターン終了時のスキル</th>
+					<th></th>
+				</tr>
+				
+				<form th:action="@{/}" method="post" th:object="${allyForm}">
+					<tr>
+						<td>
+							<!-- id部分は空欄 -->
+						</td>
+						<td>
+							<input type="text" size="50" name="name" th:value="*{name}">
+							<div th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
+						</td>
+						<td>
+							<input type="text" size="5" name="hp" th:value="*{hp}">
+							<div th:if="${#fields.hasErrors('hp')}" th:errors="*{hp}"></div>
+						</td>
+						<td>
+							<input type="text" size="5" name="mp" th:value="*{mp}">
+							<div th:if="${#fields.hasErrors('mp')}" th:errors="*{mp}"></div>
+						</td>
+						<td>
+							<input type="text" size="5" name="atk"  th:value="*{atk}">
+							<div th:if="${#fields.hasErrors('atk')}" th:errors="*{atk}"></div>
+						</td>
+						<td>
+							<input type="text" size="5" name="def"  th:value="*{def}">
+							<div th:if="${#fields.hasErrors('def')}" th:errors="*{def}"></div>
+						</td>
+						<td>
+							<input type="text" size="5" name="spe"  th:value="*{spe}">
+							<div th:if="${#fields.hasErrors('spe')}" th:errors="*{spe}"></div>
+						</td>
+						<td>
+							<input type="text" size="100" name="magic"  th:value="*{magic}">
+							<div th:if="${#fields.hasErrors('magic')}" th:errors="*{magic}"></div>
+						</td>
+						<td>
+							<input type="text" size="100" name="skill"  th:value="*{skill}">
+							<div th:if="${#fields.hasErrors('skill')}" th:errors="*{skill}"></div>
+						</td>
+						<td>
+							<input type="text" size="5" name="resistance"  th:value="*{resistance}">
+							<div th:if="${#fields.hasErrors('resistance')}" th:errors="*{resistance}"></div>
+						</td>
+						<td>
+							<input type="text" size="10" name="turnstartskill"  th:value="*{turnstartskill}">
+							<div th:if="${#fields.hasErrors('turnstartskill')}" th:errors="*{turnstartskill}"></div>
+						</td>
+						<td>
+							<input type="text" size="10" name="turnendskill"  th:value="*{turnendskill}">
+							<div th:if="${#fields.hasErrors('turnendskill')}" th:errors="*{turnendskill}"></div>
+						</td>
+						<td>
+							<button type="submit" th:formaction="@{/ally/create}">登録</button>
+						</td>
+					</tr>
+				</form>
+				
+				<!-- 既存の一覧 -->
+				<form th:action="@{/}" method="post">
+					<tr th:each="ally:${session.allyList}">
+						<td>
+							<a th:text="${ally.id}"></a>
+						</td>
+						<td>
+							<a th:text="${ally.name}"></a>
+						</td>
+						<td>
+							<a th:text="${ally.hp}"></a>
+						</td>
+						<td>
+							<a th:text="${ally.mp}"></a>
+						</td>
+						<td>
+							<a th:text="${ally.atk}"></a>
+						</td>
+						<td>
+							<a th:text="${ally.def}"></a>
+						</td>
+						<td>
+							<a th:text="${ally.spe}"></a>
+						</td>
+						<td>
+							<a th:text="${ally.magic}"></a>
+						</td>
+						<td>
+							<a th:text="${ally.skill}"></a>
+						</td>
+						<td>
+							<a th:text="${ally.resistance}"></a>
+						</td>
+						<td>
+							<a th:text="${ally.turnstartskill}"></a>
+						</td>
+						<td>
+							<a th:text="${ally.turnendskill}"></a>
+						</td>
+						<td>
+							<button type="submit" th:formaction="@{/ally/delete/__${ally.id}__}">削除</button>
+						</td>
+					</tr>
+				</form>
+				
+			</table>
+		</div>
+	</body>
+	
+</html>
