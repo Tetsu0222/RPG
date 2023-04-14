@@ -80,36 +80,47 @@
 					</td>
 					<td>
 						<input type="text" size="50" name="name" th:value="*{name}">
+						<div th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
 					</td>
 					<td>
 						<input type="text" size="5" name="hp" th:value="*{hp}">
+						<div th:if="${#fields.hasErrors('hp')}" th:errors="*{hp}"></div>
 					</td>
 					<td>
 						<input type="text" size="5" name="mp" th:value="*{mp}">
+						<div th:if="${#fields.hasErrors('mp')}" th:errors="*{mp}"></div>
 					</td>
 					<td>
 						<input type="text" size="5" name="atk"  th:value="*{atk}">
+						<div th:if="${#fields.hasErrors('atk')}" th:errors="*{atk}"></div>
 					</td>
 					<td>
 						<input type="text" size="5" name="def"  th:value="*{def}">
+						<div th:if="${#fields.hasErrors('def')}" th:errors="*{def}"></div>
 					</td>
 					<td>
 						<input type="text" size="5" name="spe"  th:value="*{spe}">
+						<div th:if="${#fields.hasErrors('spe')}" th:errors="*{spe}"></div>
 					</td>
 					<td>
 						<input type="text" size="100" name="magic"  th:value="*{magic}">
+						<div th:if="${#fields.hasErrors('magic')}" th:errors="*{magic}"></div>
 					</td>
 					<td>
 						<input type="text" size="100" name="skill"  th:value="*{skill}">
+						<div th:if="${#fields.hasErrors('skill')}" th:errors="*{skill}"></div>
 					</td>
 					<td>
 						<input type="text" size="5" name="resistance"  th:value="*{resistance}">
+						<div th:if="${#fields.hasErrors('resistance')}" th:errors="*{resistance}"></div>
 					</td>
 					<td>
 						<input type="text" size="10" name="turnstartskill"  th:value="*{turnstartskill}">
+						<div th:if="${#fields.hasErrors('turnstartskill')}" th:errors="*{turnstartskill}"></div>
 					</td>
 					<td>
 						<input type="text" size="10" name="turnendskill"  th:value="*{turnendskill}">
+						<div th:if="${#fields.hasErrors('turnendskill')}" th:errors="*{turnendskill}"></div>
 					</td>
 					<td>
 						<button type="submit" th:formaction="@{/ally/create}">登録</button>

@@ -4,6 +4,8 @@ import java.util.List;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -62,13 +64,22 @@ public class PublicController {
 	
 	//味方側のキャラクター新規登録に対応
 	@PostMapping( "/ally/create" )
-	public String allyCreate( @ModelAttribute AllyForm allyForm ,
+	public String allyCreate( @ModelAttribute @Validated AllyForm allyForm ,
+								BindingResult result ,
 								Model model ) {
 		
-		Ally ally = allyForm.toEntity();
-		allyRepository.saveAndFlush( ally );
-		
-		return "redirect:/edit/ally";
+		//エラーなし
+		if(!result.hasErrors()) {
+			Ally ally = allyForm.toEntity();
+			allyRepository.saveAndFlush( ally );
+			
+			return "redirect:/edit/ally";
+			
+		//エラーあり	
+		}else{
+			
+			return "edit";
+		}
 	}
 	
 	
@@ -82,6 +93,16 @@ public class PublicController {
 		return "redirect:/edit/ally";
 	}
 	
+	
+	
+	
+	
+	
+	
+	
+	//-------------------------------------------------------------
+	//------------コントローラークラスを別に分ける予定-------------
+	//-------------------------------------------------------------
 	
 	//敵側のキャラクター編集に対応
 	@GetMapping( "/edit/monster" )

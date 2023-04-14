@@ -1,26 +1,53 @@
 package com.example.rpgdata.form;
 
+
+
 import com.example.rpgdata.entity.Ally;
 
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 @Data
 public class AllyForm {
 	
 	private Integer id;
+	
+	@NotBlank
 	private String name;
+	
+	@Min(value = 1 )
 	private Integer hp;
+	
+	@Min(value = 1 )
 	private Integer mp;
+	
+	@Min(value = 1 )
 	private Integer atk;
+	
+	@Min(value = 1 )
 	private Integer def;
+	
+	@Min(value = 1 )
 	private Integer spe;
+	
+	@NotBlank
 	private String magic;
+	
+	@NotBlank
 	private String skill;
+	
+	@Min(value = 0 )
 	private Integer resistance;
+	
+	@NotBlank
 	private String turnstartskill;
+	
+	@NotBlank
 	private String turnendskill;
 	
 	
+	//入力データからエンティティクラスを生成
 	public Ally toEntity() {
 		Ally ally = new Ally();
 		ally.setId( id );
