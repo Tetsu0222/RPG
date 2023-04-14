@@ -7,6 +7,13 @@
 	</head>
 	
 	<body>
+		
+		<div th:if="${session.announcement == 'success'}">
+			<h3>
+				登録完了!
+			</h3>
+		</div>
+
 		<!-- 新規追加 -->
 		<div>
 			<table border="1">
@@ -23,7 +30,7 @@
 							<a>id</a>
 						</td>
 						<td>
-							<a th:text="${id}"></a>
+							<input type="hidden" th:text="${id}" name="id" th:value="*{id}">
 						</td>
 					</tr>
 					
@@ -137,12 +144,6 @@
 						</td>
 					</tr>
 					
-				</form>
-				
-			</table>
-			
-				<form th:action="@{/}" method="post">
-					
 					<div th:if="${session.mode == 'create'}">
 						<button type="submit" th:formaction="@{/ally/create}">登録</button>
 					</div>
@@ -153,6 +154,8 @@
 					<button type="submit" th:formaction="@{/ally/cancel}">戻る</button>
 					
 				</form>
+				
+			</table>
 			
 		</div>
 	</body>

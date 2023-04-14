@@ -149,9 +149,10 @@ public class PublicController {
 								Model model ) {
 		
 		//エラーなし
-		if(!result.hasErrors()) {
+		if( !result.hasErrors() ) {
 			Ally ally = allyForm.toEntity();
 			allyRepository.saveAndFlush( ally );
+			session.setAttribute( "announcement" , "success" );
 			
 			return "redirect:/ally/create";
 			
@@ -171,8 +172,30 @@ public class PublicController {
         Ally ally = allyRepository.findById( id ).orElseThrow();
         
         mv.addObject( "allyForm" , ally );
-        session.setAttribute("mode", "update");
+        session.setAttribute( "mode" , "update" );
+        
         return mv;
+    }
+    
+    
+    //更新に対応
+    @PostMapping("/ally/update")
+    public String update( @ModelAttribute @Validated AllyForm allyForm ,
+    						BindingResult result ,
+    						Model model ) {
+    	
+		//エラーなし
+		if( !result.hasErrors() ) {
+			Ally ally = allyForm.toEntity();
+			allyRepository.saveAndFlush( ally );
+			session.setAttribute( "announcement" , "success" );
+			
+			return "redirect:/ally/" + allyForm.getId() ;
+			
+		//エラーあり	
+		}else{
+			return "allycreate";
+		}
     }
 	
 	
@@ -211,6 +234,8 @@ public class PublicController {
 	//戻るに対応
 	@PostMapping( "/ally/cancel" )
 	public String cancel( Model model ) {
+		
+		session.setAttribute( "announcement" , "normal" );
 		
 		return "redirect:/edit/ally";
 	}
