@@ -3,7 +3,10 @@ package com.example.rpgdata.controller;
 import java.util.List;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.example.rpgdata.entity.Ally;
@@ -11,6 +14,7 @@ import com.example.rpgdata.entity.Magic;
 import com.example.rpgdata.entity.Monster;
 import com.example.rpgdata.entity.MonsterPattern;
 import com.example.rpgdata.entity.Skill;
+import com.example.rpgdata.form.AllyForm;
 import com.example.rpgdata.repository.AllyRepository;
 import com.example.rpgdata.repository.MagicRepository;
 import com.example.rpgdata.repository.MonsterPatternRepository;
@@ -48,9 +52,23 @@ public class PublicController {
 		mv.setViewName( "edit" );
 		List<Ally> allyList = allyRepository.findAll();
 		mv.addObject( "allyList" , allyList );
+		mv.addObject( "allyForm" , new AllyForm() );
 		session.setAttribute( "mode" , "ally" );
 		
 		return mv;
+	}
+	
+	//味方側のキャラクター編集に対応
+	@PostMapping( "/ally/create" )
+	public String allycreate( @ModelAttribute AllyForm allyForm ,
+								Model model ) {
+		
+		System.out.println( allyForm.getName() );
+		Ally ally = allyForm.toEntity();
+		System.out.println( ally.getName() );
+		allyRepository.saveAndFlush( ally );
+		
+		return "redirect:/edit/ally";
 	}
 	
 	
