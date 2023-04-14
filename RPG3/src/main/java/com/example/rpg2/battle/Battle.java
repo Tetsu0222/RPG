@@ -301,7 +301,7 @@ public class Battle {
 			this.battleSupportEnemy = new BattleSupportEnemy( this );
             
 			//敵の行動を処理
-			this.battleSupportEnemy.enemyAction( key , battleSupportStatus , targetSetAlly);
+			this.battleSupportEnemy.enemyAction( key , battleSupportStatus );
 			
 			//敵の行動結果を取得
     		this.resultEnemy();

@@ -54,9 +54,7 @@ public class BattleSupportEnemy {
 	}
 	
 	
-	public void enemyAction( Integer key , BattleSupportStatus battleSupportStatus , Set<Integer> targetSetAlly ) {
-		
-		this.targetSetAlly = targetSetAlly;
+	public void enemyAction( Integer key , BattleSupportStatus battleSupportStatus ) {
 		
         //行動対象のモンスターのデータを生成
 		MonsterData monsterData = monsterDataMap.get( key );
@@ -193,11 +191,11 @@ public class BattleSupportEnemy {
 			
 			//攻撃結果で味方が倒れた場合の処理とその結果の格納
 			if( allyData.getSurvival() == 0 ) {
-				targetSetAlly.remove( enemyAction.getTargetId() );
-				targetMap.put( enemyAction.getTargetId() , new Target( enemyAction.getTargetId() ) );
-				partyMap.put( enemyAction.getTargetId() , allyData );
+				this.targetSetAlly.remove( enemyAction.getTargetId() );
+				this.targetMap.put( enemyAction.getTargetId() , new Target( enemyAction.getTargetId() ) );
+				this.partyMap.put( enemyAction.getTargetId() , allyData );
 				if( enemyAction.getDedMessage() != null ) {
-					mesageList.add( enemyAction.getDedMessage() );
+					this.mesageList.add( enemyAction.getDedMessage() );
 				}
 			
 			//処理結果を格納
