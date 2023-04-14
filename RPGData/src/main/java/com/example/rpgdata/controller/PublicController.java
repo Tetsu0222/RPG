@@ -135,6 +135,7 @@ public class PublicController {
 		mv.addObject( "allyForm" , new AllyForm() );
 		
 		session.setAttribute( "allyList" , allyList );
+		session.setAttribute( "mode" , "create" );
 		
 		return mv;
 		
