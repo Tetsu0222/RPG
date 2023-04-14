@@ -54,7 +54,7 @@
 						<a th:text="${ally.id}"></a>
 					</td>
 					<td>
-						<a th:text="${ally.name}"></a>
+						<a th:href="@{/ally/__${ally.id}__}" th:text="${ally.name}"></a>
 					</td>
 					<td>
 						<a th:text="${ally.hp}"></a>

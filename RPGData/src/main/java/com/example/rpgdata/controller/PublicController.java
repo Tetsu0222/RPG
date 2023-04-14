@@ -125,7 +125,7 @@ public class PublicController {
     }
 	
 	
-	//味方側のキャラクター新規登録に対応
+	//味方側のキャラクター新規登録のボタンに対応
 	@GetMapping( "/ally/create" )
 	public ModelAndView allyCreate( ModelAndView mv ) {
 		
@@ -160,6 +160,20 @@ public class PublicController {
 			return "allycreate";
 		}
 	}
+	
+	
+	//プレイアブルキャラクターの名前押下に対応→更新画面へ遷移
+    @GetMapping("/ally/{id}")
+    public ModelAndView allyById( @PathVariable( name = "id" ) int id , 
+    								ModelAndView mv ) {
+    	
+        mv.setViewName( "allycreate" );
+        Ally ally = allyRepository.findById( id ).orElseThrow();
+        
+        mv.addObject( "allyForm" , ally );
+        session.setAttribute("mode", "update");
+        return mv;
+    }
 	
 	
 	//味方側のキャラクター検索に対応
