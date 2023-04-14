@@ -37,7 +37,7 @@ public class AllyDaoImp implements AllyDao{
 		String name = "%" + allyQuery.getName() + "%";
 		
 		//今後の検索条件の追加に備えて、リストにて検索条件を格納
-		predicates.add(builder.like(root.get( Ally_.NAME ) , name ));
+		predicates.add( builder.like(root.get( Ally_.NAME ) , name ));
 		
 		//検索条件を格納する配列を生成
 		Predicate[] predArray = new Predicate[ predicates.size() ];
@@ -53,7 +53,7 @@ public class AllyDaoImp implements AllyDao{
 		
 	    TypedQuery<Ally> typedQuery = entityManager.createQuery( query );
 	    
-	    //総レコード数取得設定
+	    //総レコード数の取得
 	    int totalRows = typedQuery.getResultList().size();
 	    
 	    //先頭レコードの位置設定

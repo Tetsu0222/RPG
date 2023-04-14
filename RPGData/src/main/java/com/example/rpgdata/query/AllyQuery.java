@@ -20,6 +20,8 @@ public class AllyQuery {
 	private String turnendskill;
 	*/
 	
+	
+	//初回接続時に、全検索となるように空白で設定
 	public AllyQuery() {
 		this.name = "";
 	}

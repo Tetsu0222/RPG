@@ -50,6 +50,7 @@ public class PublicController {
 	private EntityManager entityManager;
 	private AllyDaoImp allyDaoImp;
 	
+	//タイミングをズラして初期化
 	@PostConstruct
 	public void init() {
 		allyDaoImp = new AllyDaoImp( entityManager );
@@ -149,20 +150,20 @@ public class PublicController {
 	//味方側のキャラクター検索に対応
 	@PostMapping( "/ally/query" )
 	public ModelAndView allyQuery( @ModelAttribute AllyQuery allyQuery , 
-									@PageableDefault( page = 0 , size = 5 , sort = "id" ) Pageable pageable ,
+									@PageableDefault( page = 0 , size = 10 , sort = "id" ) Pageable pageable ,
 									ModelAndView mv ) {
 		
 		mv.setViewName( "edit" );
 		
-		Page<Ally> pageList = allyDaoImp.findByCriteria( allyQuery , pageable );
-		
+        Page<Ally> pageList = allyDaoImp.findByCriteria( allyQuery , pageable );
+        
 		session.setAttribute( "allyQuery" , allyQuery );
 		session.setAttribute( "allyList" , pageList.getContent() );
 		session.setAttribute( "prevPageable" , pageable );
 		session.setAttribute( "mode" , "ally" );
 		
 		mv.addObject( "allyForm" , new AllyForm() );
-		mv.addObject( "todoPage", pageList );
+		mv.addObject( "allyPage", pageList );
 		
 		return mv;
 	}

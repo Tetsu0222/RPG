@@ -154,24 +154,34 @@
 		
 		<!-- ページの設定 -->
 		<div>
-			<span th:text="|${allyPage.getNumber() + 1} / ${allyPage.getTotalPages()} ページを表示中|"> </span>
-			<ul>
-				<li>
-				<span th:if="${allyPage.isFirst()}">←前</span>
-					<a th:unless="${allyPage.isFirst()}" th:href="@{/ally/query(page = ${allyPage.getNumber() - 1})}">←前</a>
-				</li>
-				<li th:each="i : ${#numbers.sequence(allyPage.getNumber()-2 < 0 ? 0 : allyPage.getNumber()-2, 
-									allyPage.getNumber()+2 > allyPage.getTotalPages()-1 ? allyPage.getTotalPages()-1 : allyPage.getNumber()+2)}">
-					<span th:if="${i == allyPage.getNumber()}" th:text="${i + 1}"></span>
-					<a th:unless="${i == allyPage.getNumber()}" th:href="@{/ally/query(page=${i})}" th:text="${i + 1}"></a>
-				</li>
-				<li>
-					<span th:if="${allyPage.isLast()}">次→</span>
-					<a th:unless="${allyPage.isLast()}" th:href="@{/ally/query(page = (${allyPage.getNumber()+ 1}))}">次→</a>
-				</li>
-			</ul>
+			<table>
+				<tr>
+					<th>
+						<a th:text="|${allyPage.getNumber() + 1} / ${allyPage.getTotalPages()} ページを表示中|"></a>
+					</th>
+					<th></th>
+					<th></th>
+				</tr>
+				<tr>
+					<td>
+						<div th:if="${allyPage.isFirst()}">
+							<a>←前</a>
+						</div>
+						<div>
+							<a th:unless="${allyPage.isFirst()}" th:href="@{/ally/query(page = ${allyPage.getNumber() - 1})}">←前</a>
+						</div>
+					</td>
+					<td>
+						<div th:if="${allyPage.isLast()}">
+							<a>次→</a>
+						</div>
+						<div>
+							<a th:unless="${allyPage.isLast()}" th:href="@{/ally/query(page = (${allyPage.getNumber()+ 1}))}">次→</a>
+						</div>
+					</td>
+				</tr>
+			</table>
 		</div>
-		
 		
 	</body>
 	
