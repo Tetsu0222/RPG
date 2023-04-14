@@ -2,6 +2,7 @@ package com.example.rpgdata.controller;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
@@ -67,17 +68,61 @@ public class PublicController {
 	//味方側のキャラクター編集に対応
 	@GetMapping( "/edit/ally" )
 	public ModelAndView ally( ModelAndView mv ,
-							  @PageableDefault( page = 0 , size = 5 , sort = "id" ) Pageable pageable ) {
+							  @PageableDefault( page = 0 , size = 10 , sort = "id" ) Pageable pageable ) {
 		
 		mv.setViewName( "edit" );
-		List<Ally> allyList = allyRepository.findAll();
-		mv.addObject( "allyForm"  , new AllyForm()   );
-		mv.addObject( "allyQuery" , new AllyQuery()  );
-		session.setAttribute( "allyList" , allyList );
-		session.setAttribute( "mode"     , "ally"   );
+		
+		//前回までの検索状態をセッションから取得
+		AllyQuery allyQuery = (AllyQuery)session.getAttribute( "allyQuery" );
+		
+		//セッションに情報がなければ新規生成
+        if( allyQuery == null ) {
+        	allyQuery = new AllyQuery();
+            session.setAttribute( "allyQuery" , allyQuery );
+        }
+        
+        //前回までのページ設定をセッションから取得
+        Pageable prevPageable = (Pageable)session.getAttribute( "prevPageable" );
+        
+        //セッションに情報がなければ新規生成
+        if( prevPageable == null ) {
+        	prevPageable = pageable;
+        	session.setAttribute( "prevPageable" , prevPageable );
+        }
+        
+		Page<Ally> pageList = allyDaoImp.findByCriteria( allyQuery , prevPageable );
+		session.setAttribute( "allyList" , pageList.getContent() );
+		session.setAttribute( "mode" , "ally" );
+		mv.addObject( "allyForm" , new AllyForm() );
+		mv.addObject( "allyPage", pageList );
 		
 		return mv;
 	}
+	
+	
+	//ページリンクの押下に対応
+    @GetMapping("/ally/query")
+    public ModelAndView queryTodo( @PageableDefault( page = 0 , size = 10 , sort = "id" ) Pageable pageable ,
+                                   ModelAndView mv) {
+    	
+    	mv.setViewName( "edit" );
+    	
+        //現在のページ位置を保存
+        session.setAttribute( "prevPageable" , pageable );
+        
+        //sessionに保存されている条件で検索
+        AllyQuery allyQuery = (AllyQuery)session.getAttribute( "allyQuery" );
+        Page<Ally> pageList = allyDaoImp.findByCriteria( allyQuery , pageable );
+        
+        session.setAttribute( "mode" , "ally" );
+        session.setAttribute( "allyList" , pageList.getContent() );
+        session.setAttribute( "allyQuery" , allyQuery );
+        
+        mv.addObject( "allyForm" , new AllyForm() );
+		mv.addObject( "allyPage", pageList );
+
+        return mv;
+    }
 	
 	
 	//味方側のキャラクター新規登録に対応
@@ -104,14 +149,20 @@ public class PublicController {
 	//味方側のキャラクター検索に対応
 	@PostMapping( "/ally/query" )
 	public ModelAndView allyQuery( @ModelAttribute AllyQuery allyQuery , 
+									@PageableDefault( page = 0 , size = 5 , sort = "id" ) Pageable pageable ,
 									ModelAndView mv ) {
 		
 		mv.setViewName( "edit" );
-		List<Ally> allyList = allyDaoImp.findByCriteria( allyQuery );
-		session.setAttribute( "allyList" , allyList );
-		mv.addObject( "allyForm"  , new AllyForm()   );
-		mv.addObject( "allyQuery" , new AllyQuery()  );
-		session.setAttribute( "mode"     , "ally"   );
+		
+		Page<Ally> pageList = allyDaoImp.findByCriteria( allyQuery , pageable );
+		
+		session.setAttribute( "allyQuery" , allyQuery );
+		session.setAttribute( "allyList" , pageList.getContent() );
+		session.setAttribute( "prevPageable" , pageable );
+		session.setAttribute( "mode" , "ally" );
+		
+		mv.addObject( "allyForm" , new AllyForm() );
+		mv.addObject( "todoPage", pageList );
 		
 		return mv;
 	}

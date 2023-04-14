@@ -1,10 +1,11 @@
 package com.example.rpgdata.dao;
 
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import com.example.rpgdata.entity.Ally;
 import com.example.rpgdata.query.AllyQuery;
 
 public interface AllyDao {
-	List<Ally> findByCriteria( AllyQuery allyQuery );
+	Page<Ally> findByCriteria( AllyQuery allyQuery , Pageable pageable );
 }
