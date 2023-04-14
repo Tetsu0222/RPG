@@ -193,6 +193,14 @@ public class PublicController {
 	}
 	
 	
+	//戻るに対応
+	@PostMapping( "/ally/cancel" )
+	public String cancel( Model model ) {
+		
+		return "redirect:/edit/ally";
+	}
+	
+	
 	
 	
 	
