@@ -6,6 +6,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -58,15 +59,25 @@ public class PublicController {
 		return mv;
 	}
 	
-	//味方側のキャラクター編集に対応
+	
+	//味方側のキャラクター新規登録に対応
 	@PostMapping( "/ally/create" )
-	public String allycreate( @ModelAttribute AllyForm allyForm ,
+	public String allyCreate( @ModelAttribute AllyForm allyForm ,
 								Model model ) {
 		
-		System.out.println( allyForm.getName() );
 		Ally ally = allyForm.toEntity();
-		System.out.println( ally.getName() );
 		allyRepository.saveAndFlush( ally );
+		
+		return "redirect:/edit/ally";
+	}
+	
+	
+	//味方側のキャラクター削除に対応
+	@PostMapping( "/ally/delete/{id}" )
+	public String allyDelete( @PathVariable( name = "id" ) int id ,
+							  Model model ) {
+		
+		allyRepository.deleteById( id );
 		
 		return "redirect:/edit/ally";
 	}

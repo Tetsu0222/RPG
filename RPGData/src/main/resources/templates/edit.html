@@ -28,6 +28,7 @@
 				<th></th>
 			</tr>
 			
+			<form th:action="@{/}" method="post" th:object="${allyForm}">
 			<tr th:each="ally:${allyList}">
 				<td>
 					<a th:text="${ally.id}"></a>
@@ -66,9 +67,10 @@
 					<a th:text="${ally.turnendskill}"></a>
 				</td>
 				<td>
-					
+					<button type="submit" th:formaction="@{/ally/delete/__${ally.id}__}">削除</button>
 				</td>
 			</tr>
+			</form>
 			
 			<!-- 新規追加 -->
 			<form th:action="@{/}" method="post" th:object="${allyForm}">
