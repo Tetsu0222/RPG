@@ -7,7 +7,11 @@
 	</head>
 	
 	<body>
+		
+		
 		<!-- プレイアブルキャラクターの編集 -->
+		
+		<!-- 検索に対応 -->
 		<div th:if=="${session.mode == 'ally'}">
 			<form th:action="@{/}" method="post" th:object="${allyQuery}">
 				<table border="1">

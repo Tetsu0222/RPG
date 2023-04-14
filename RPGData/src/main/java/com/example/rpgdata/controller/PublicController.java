@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.example.rpgdata.dao.AllyDaoImp;
 import com.example.rpgdata.entity.Ally;
 import com.example.rpgdata.entity.Magic;
 import com.example.rpgdata.entity.Monster;
@@ -27,6 +28,9 @@ import com.example.rpgdata.repository.MonsterPatternRepository;
 import com.example.rpgdata.repository.MonsterRepository;
 import com.example.rpgdata.repository.SkillRepository;
 
+import jakarta.annotation.PostConstruct;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
@@ -40,6 +44,15 @@ public class PublicController {
 	private final MonsterPatternRepository  monsterPatternRepository;
 	private final SkillRepository			skillRepository;
 	private final HttpSession				session;
+	
+	@PersistenceContext
+	private EntityManager entityManager;
+	private AllyDaoImp allyDaoImp;
+	
+	@PostConstruct
+	public void init() {
+		allyDaoImp = new AllyDaoImp( entityManager );
+	}
 	
 	
 	//TOP画面に対応
@@ -90,10 +103,15 @@ public class PublicController {
 	
 	//味方側のキャラクター検索に対応
 	@PostMapping( "/ally/query" )
-	public ModelAndView allyQuery( @ModelAttribute @Validated AllyQuery allyQuery , 
+	public ModelAndView allyQuery( @ModelAttribute AllyQuery allyQuery , 
 									ModelAndView mv ) {
 		
 		mv.setViewName( "edit" );
+		List<Ally> allyList = allyDaoImp.findByCriteria( allyQuery );
+		session.setAttribute( "allyList" , allyList );
+		mv.addObject( "allyForm"  , new AllyForm()   );
+		mv.addObject( "allyQuery" , new AllyQuery()  );
+		session.setAttribute( "mode"     , "ally"   );
 		
 		return mv;
 	}
