@@ -2,6 +2,8 @@ package com.example.rpgdata.controller;
 
 import java.util.List;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -18,6 +20,7 @@ import com.example.rpgdata.entity.Monster;
 import com.example.rpgdata.entity.MonsterPattern;
 import com.example.rpgdata.entity.Skill;
 import com.example.rpgdata.form.AllyForm;
+import com.example.rpgdata.query.AllyQuery;
 import com.example.rpgdata.repository.AllyRepository;
 import com.example.rpgdata.repository.MagicRepository;
 import com.example.rpgdata.repository.MonsterPatternRepository;
@@ -50,13 +53,15 @@ public class PublicController {
 	
 	//味方側のキャラクター編集に対応
 	@GetMapping( "/edit/ally" )
-	public ModelAndView ally( ModelAndView mv ) {
+	public ModelAndView ally( ModelAndView mv ,
+							  @PageableDefault( page = 0 , size = 5 , sort = "id" ) Pageable pageable ) {
 		
 		mv.setViewName( "edit" );
 		List<Ally> allyList = allyRepository.findAll();
-		mv.addObject( "allyList" , allyList );
-		mv.addObject( "allyForm" , new AllyForm() );
-		session.setAttribute( "mode" , "ally" );
+		mv.addObject( "allyForm"  , new AllyForm()   );
+		mv.addObject( "allyQuery" , new AllyQuery()  );
+		session.setAttribute( "allyList" , allyList );
+		session.setAttribute( "mode"     , "ally"   );
 		
 		return mv;
 	}
@@ -80,6 +85,17 @@ public class PublicController {
 			
 			return "edit";
 		}
+	}
+	
+	
+	//味方側のキャラクター検索に対応
+	@PostMapping( "/ally/query" )
+	public ModelAndView allyQuery( @ModelAttribute @Validated AllyQuery allyQuery , 
+									ModelAndView mv ) {
+		
+		mv.setViewName( "edit" );
+		
+		return mv;
 	}
 	
 	
