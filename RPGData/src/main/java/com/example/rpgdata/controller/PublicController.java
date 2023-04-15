@@ -220,8 +220,6 @@ public class PublicController {
 			magic = "26";
 		}
 		
-		System.out.println( magic );
-		
         //キャラクターの使用可能な魔法を一覧で格納するリストを生成
         List<Magic> magicList = new ArrayList<>();
         
@@ -236,10 +234,21 @@ public class PublicController {
 					.map( s -> Integer.parseInt( s ) )
 					.map( s ->  magicRepository.findById( s ) )
 					.forEach( s -> magicList.add( s.orElseThrow() ));
-        
+		
+		//ダミー魔法を除いた全魔法リストを生成
+		List<Magic> magicAllList = magicRepository.findAll().stream()
+															.filter( s -> s.getId() != 26 )
+															.toList();
+		
+		//全魔法リストからすでに使用可能魔法を削除し、追加可能な魔法だけを抽出
+		List<Magic> magicAddPossibleList = magicAllList.stream()
+														.filter( s -> !magicList.contains( s ))
+														.toList();
+		
         session.setAttribute( "magicmode" , "reading" );
         session.setAttribute( "ally" , ally );
         mv.addObject( "magicList" , magicList );
+        mv.addObject( "magicAllList" , magicAddPossibleList );
         
 		return mv;
 		

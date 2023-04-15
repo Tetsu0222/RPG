@@ -44,4 +44,5 @@ public class Magic {
     
     @Column( name = "frequency" )
     private Integer frequency;
+    
 }

@@ -72,6 +72,13 @@
 				
 			</table>
 			
+			<form th:action="@{/}" method="post">
+				<select name="magicAddId">
+					<option th:each="a : ${magicAllList}" th:value="${a.id}" th:text="${a.name}" th:selected="${a.id} == *{addId}"></option>
+				</select>
+				<button type="submit" th:formaction="@{/ally/magic/add}">使用可能な魔法に追加</button>
+			</form>
+			
 		</div>
 		
 	</body>
