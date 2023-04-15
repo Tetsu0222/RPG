@@ -1,12 +1,6 @@
 package com.example.rpgdata.controller;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -35,6 +29,7 @@ import com.example.rpgdata.repository.MagicRepository;
 import com.example.rpgdata.repository.MonsterPatternRepository;
 import com.example.rpgdata.repository.MonsterRepository;
 import com.example.rpgdata.repository.SkillRepository;
+import com.example.rpgdata.support.MagicList;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityManager;
@@ -215,39 +210,15 @@ public class PublicController {
         
         //選択されたキャラクターの情報を取得
         Ally ally = allyRepository.findById( id ).orElseThrow();
-        
-        //キャラクターの魔法id一覧（無加工データ）を取得
-        String magic = ally.getMagic();
-        
-        //使用可能な魔法がなければ、ダミー魔法を生成
-		if( magic == null || magic.equals("") ) {
-			magic = "26";
-		}
 		
         //キャラクターの使用可能な魔法を一覧で格納するリストを生成
-        List<Magic> magicList = new ArrayList<>();
+        List<Magic> magicList = MagicList.create( ally , magicRepository );
         
-		//魔法一覧をid配列へ変換
-		String[] magicSource = magic.split( "," );
-		
-		//配列をリストへ変換
-		List<String> sourceList = Arrays.asList( magicSource );
-		
-		//idリストから魔法を検索していき、使用可能な魔法一覧リストへ格納していく。
-		sourceList.stream()
-					.map( s -> Integer.parseInt( s ) )
-					.map( s ->  magicRepository.findById( s ) )
-					.forEach( s -> magicList.add( s.orElseThrow() ));
-		
 		//ダミー魔法を除いた全魔法リストを生成
-		List<Magic> magicAllList = magicRepository.findAll().stream()
-															.filter( s -> s.getId() != 26 )
-															.toList();
+		List<Magic> magicAllList = MagicList.create( magicRepository );
 		
-		//全魔法リストからすでに使用可能魔法を削除し、追加可能な魔法だけを抽出
-		List<Magic> magicAddPossibleList = magicAllList.stream()
-														.filter( s -> !magicList.contains( s ))
-														.toList();
+		//全魔法リストから追加可能な魔法だけを抽出
+		List<Magic> magicAddPossibleList = MagicList.create( magicList , magicAllList );
 		
         session.setAttribute( "magicmode" , "reading" );
         session.setAttribute( "ally" , ally );
@@ -265,27 +236,16 @@ public class PublicController {
     public String magicAdd( @RequestParam( name = "magicAddId" ) String magicAddId ,
     						Model model ) {
     	
+    	//セッションからプレイアブルキャラクターの情報を取得
     	Ally ally = (Ally)session.getAttribute( "ally" );
     	
-    	System.out.println( magicAddId );
-    	
-    	String magic = ally.getMagic();
-    	
-        //使用可能な魔法がなければ、選択された魔法をそのまま追加
-		if( magic == null || magic.equals("") ) {
-			magic = magicAddId;
+    	//魔法の追加処理
+    	String magic = MagicList.add( ally , magicAddId );
 		
-		//使用可能な魔法に、選択された魔法を追加
-		}else{
-			String[] magicSource = magic.split( "," );
-			Set<String> sourceSet = new TreeSet<>();
-			Collections.addAll( sourceSet , magicSource );
-			
-			sourceSet.add( magicAddId );
-			magic = sourceSet.stream().collect( Collectors.joining( "," ));
-		}
-		
+    	//追加された魔法を設定
 		ally.setMagic( magic );
+		
+		//保存
 		allyRepository.saveAndFlush( ally );
 		
     	return "redirect:/ally/magic/" + ally.getId();
@@ -298,15 +258,16 @@ public class PublicController {
 	public String allyMagicDelete( @PathVariable( name = "id" ) String magicId ,
 							  		Model model ) {
 		
+		//セッションからプレイアブルキャラクターの情報を取得
 		Ally ally = (Ally)session.getAttribute( "ally" );
 		
-		String magic = ally.getMagic();
-		String[] magicSource = magic.split( "," );
-		List<String> sourceList = Arrays.asList( magicSource );
-		sourceList = sourceList.stream().filter( s -> !s.equals( magicId )).toList();
-		magic = sourceList.stream().collect( Collectors.joining( "," ));
+		//魔法の削除を実行
+		String magic = MagicList.delete( ally , magicId );
 		
+		//削除後の魔法を設定
 		ally.setMagic( magic );
+		
+		//保存
 		allyRepository.saveAndFlush( ally );
 		
 		return "redirect:/ally/magic/" + ally.getId();

@@ -33,7 +33,12 @@
 							<a th:text="${magic.id}"></a>
 						</td>
 						<td>
-							<a th:href="@{/magic/__${magic.id}__}" th:text="${magic.name}"></a>
+							<div th:unless="${magic.id == 26}">
+								<a th:href="@{/magic/__${magic.id}__}" th:text="${magic.name}"></a>
+							</div>
+							<div th:if="${magic.id == 26}">
+								<a th:text="${magic.name}"></a>
+							</div>
 						</td>
 						<td>
 							<a th:text="${magic.mp}"></a>
