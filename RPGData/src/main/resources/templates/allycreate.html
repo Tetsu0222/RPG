@@ -102,15 +102,13 @@
 							</tr>
 						</div>
 						
-						<tr>
-							<td>
-								<a>特技</a>
-							</td>
-							<td>
-								<input type="text" size="100" name="skill"  th:value="*{skill}">
-								<div th:if="${#fields.hasErrors('skill')}" th:errors="*{skill}"></div>
-							</td>
-						</tr>
+						<div th:if="${session.mode == 'update'}">
+							<tr>
+								<td>
+									<a th:href="@{/ally/skill/__${id}__}" >特技一覧</a>
+								</td>
+							</tr>
+						</div>
 						
 						<tr>
 							<td>
@@ -174,6 +172,7 @@
 		<div th:if="${session.announcement == 'magicskill'}">
 			<form th:action="@{/}" method="post">
 				<button type="submit" th:formaction="@{/ally/magic}">魔法の設定</button>
+				<button type="submit" th:formaction="@{/ally/skill}">特技の設定</button>
 				<button type="submit" th:formaction="@{/ally/complete}">登録完了</button>
 			</form>
 		</div>

@@ -57,9 +57,37 @@ public class SkillController {
     }
     
     
+    //プレイアブルキャラクターの新規作成→特技登録に対応
+    @PostMapping("/ally/skill")
+    public ModelAndView skill2( ModelAndView mv ) {
+    	
+        mv.setViewName( "skill" );
+        
+    	//セッションからプレイアブルキャラクターの情報を取得
+    	Ally ally = (Ally)session.getAttribute( "ally" );
+		
+        //キャラクターの使用可能な魔法を一覧で格納するリストを生成
+        List<Skill> skillList = SkillList.create( ally , skillRepository );
+        
+		//ダミー魔法を除いた全魔法リストを生成
+		List<Skill> skillAllList = SkillList.create( skillRepository );
+		
+		//全魔法リストから追加可能な魔法だけを抽出
+		List<Skill> skillAddPossibleList = SkillList.create( skillList , skillAllList );
+		
+        session.setAttribute( "skillmode" , "reading" );
+        session.setAttribute( "ally" , ally );
+        mv.addObject( "skillList" , skillList );
+        mv.addObject( "skillAllList" , skillAddPossibleList );
+        
+		return mv;
+		
+    }
+    
+    
     //プレイアブルキャラクターの使用可能な特技を追加
     @PostMapping("/ally/skill/add")
-    public String magicAdd( @RequestParam( name = "skillAddId" ) String skillAddId ,
+    public String skillAdd( @RequestParam( name = "skillAddId" ) String skillAddId ,
     						Model model ) {
     	
     	//セッションからプレイアブルキャラクターの情報を取得
@@ -80,7 +108,7 @@ public class SkillController {
     
 	//キャラクターの使用可能な特技を削除
 	@PostMapping( "/ally/skill/delete/{id}" )
-	public String allyMagicDelete( @PathVariable( name = "id" ) String skillId ,
+	public String allySkillDelete( @PathVariable( name = "id" ) String skillId ,
 							  		Model model ) {
 		
 		//セッションからプレイアブルキャラクターの情報を取得
