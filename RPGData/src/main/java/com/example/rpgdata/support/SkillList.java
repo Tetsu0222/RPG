@@ -2,7 +2,11 @@ package com.example.rpgdata.support;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import com.example.rpgdata.entity.Ally;
 import com.example.rpgdata.entity.Skill;
@@ -59,5 +63,60 @@ public class SkillList {
 				.toList();
 
 		return skillAddPossibleList;
+	}
+	
+	
+	//使用可能な特技の追加に対応
+	public static String add( Ally ally , String skillId ) {
+		
+		//プレイアブルキャラクターの今の特技を取得
+    	String skill = ally.getSkill();
+    	
+        //使用可能な特技がなければ、選択された特技をそのまま追加
+		if( skill == null || skill.equals("") ) {
+			skill = skillId;
+		
+		//使用可能な特技に、選択された特技を追加
+		}else{
+			
+			//今の特技を配列に変換
+			String[] skillSource = skill.split( "," );
+			
+			//ソート可能なセットを生成
+			Set<String> sourceSet = new TreeSet<>();
+			
+			//配列をセットへ変換
+			Collections.addAll( sourceSet , skillSource );
+			
+			//セットに選択された特技を追加
+			sourceSet.add( skillId );
+			
+			//セットから特技へ再変換
+			skill = sourceSet.stream().collect( Collectors.joining( "," ));
+		}
+		
+		return skill;
+	}
+	
+	
+	//特技の削除に対応
+	public static String delete( Ally ally , String skillId ) {
+		
+		//プレイアブルキャラクターの今の魔法を取得
+		String skill = ally.getSkill();
+		
+		//魔法を配列に変換
+		String[] skillSource = skill.split( "," );
+		
+		//配列をリストへ変換
+		List<String> sourceList = Arrays.asList( skillSource );
+		
+		//リストから削除指定された魔法を除く処理
+		sourceList = sourceList.stream().filter( s -> !s.equals( skillId )).toList();
+		
+		//リストから魔法へ再変換
+		skill = sourceList.stream().collect( Collectors.joining( "," ));
+		
+		return skill;
 	}
 }

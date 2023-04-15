@@ -23,6 +23,8 @@
 					<th>説明文</th>
 					<th>バフ効果</th>
 					<th>発動回数</th>
+					<th>対象選択</th>
+					<th>最大発動回数</th>
 					<th></th>
 				</tr>
 				
@@ -86,6 +88,24 @@
 				</form>
 				
 			</table>
+			
+			<form th:action="@{/}" method="post">
+				<div th:unless="${skillAllList.size() == 0}">
+					<select name="skillAddId">
+						<option th:each="a : ${skillAllList}" th:value="${a.id}" th:text="${a.name}" th:selected="${a.id} == *{addId}"></option>
+					</select>
+					<button type="submit" th:formaction="@{/ally/skill/add}">使用可能な特技に追加</button>
+				</div>
+				<div th:if="${skillAllList.size() == 0}">
+					<a>すべての特技が使用できます。</a>
+				</div>
+			</form>
+			
+			<form th:action="@{/}" method="get">
+				<div th:if="${session.announcement == 'magicskill'}">
+					<button type="submit" th:formaction="@{/ally/create}">戻る</button>
+				</div>
+			</form>
 			
 			
 		</div>

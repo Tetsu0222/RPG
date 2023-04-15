@@ -72,7 +72,7 @@ public class MagicList {
 	}
 	
 	
-	//魔法の追加に対応
+	//使用可能な魔法の追加に対応
 	public static String add( Ally ally , String magicAddId ) {
 		
 		//プレイアブルキャラクターの今の魔法を取得
@@ -105,7 +105,7 @@ public class MagicList {
 	}
 	
 	
-	//魔法の削除に対応
+	//使用可能な魔法の削除に対応
 	public static String delete( Ally ally , String magicId ) {
 		
 		//プレイアブルキャラクターの今の魔法を取得
