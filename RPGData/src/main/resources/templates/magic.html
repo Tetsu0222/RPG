@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+
+<html xmlns:th="http://www.thymeleaf.org">
+	<head>
+		<meta charset="UTF-8">
+		<title>Insert title here</title>
+	</head>
+	
+	<body>
+		
+		<!-- 使用可能な魔法一覧を表示 -->
+		<div th:if="${session.magicmode == 'reading'}">
+			
+			<table border="1">
+				<tr>
+					<th>id</th>
+					<th>名前</th>
+					<th>消費MP</th>
+					<th>カテゴリー</th>
+					<th>威力</th>
+					<th>補正値</th>
+					<th>範囲</th>
+					<th>説明文</th>
+					<th>バフ効果</th>
+					<th>発動回数</th>
+					<th></th>
+				</tr>
+				
+				<!-- 使用可能な魔法一覧 -->
+				<form th:action="@{/}" method="post">
+					<tr th:each="magic:${magicList}">
+						<td>
+							<a th:text="${magic.id}"></a>
+						</td>
+						<td>
+							<a th:href="@{/magic/__${magic.id}__}" th:text="${magic.name}"></a>
+						</td>
+						<td>
+							<a th:text="${magic.mp}"></a>
+						</td>
+						<td>
+							<a th:text="${magic.category}"></a>
+						</td>
+						<td>
+							<a th:text="${magic.point}"></a>
+						</td>
+						<td>
+							<a th:text="${magic.percentage}"></a>
+						</td>
+						<td>
+							<a th:text="${magic.range}"></a>
+						</td>
+						<td>
+							<a th:text="${magic.text}"></a>
+						</td>
+						<td>
+							<a th:text="${magic.buffcategory}"></a>
+						</td>
+						<td>
+							<a th:text="${magic.frequency}"></a>
+						</td>
+
+						<td>
+							<button type="submit" th:formaction="@{/ally/magic/delete/__${magic.id}__}">削除(未実装)</button>
+						</td>
+					</tr>
+					
+					<button type="submit" th:formaction="@{/ally/cancel}">戻る</button>
+				</form>
+				
+			</table>
+			
+		</div>
+		
+	</body>
+
+</html>

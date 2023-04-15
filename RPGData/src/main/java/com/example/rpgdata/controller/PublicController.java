@@ -1,5 +1,7 @@
 package com.example.rpgdata.controller;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -196,6 +198,42 @@ public class PublicController {
 		}else{
 			return "allycreate";
 		}
+    }
+    
+    
+    //魔法一覧に対応
+    @GetMapping("/ally/magic/{id}")
+    public ModelAndView magic( @PathVariable( name = "id" ) int id , 
+    							ModelAndView mv ) {
+    	
+        mv.setViewName( "magic" );
+        
+        //選択されたキャラクターの情報を取得
+        Ally ally = allyRepository.findById( id ).orElseThrow();
+        
+        //キャラクターの使用可能な魔法を一覧で格納するリストを生成
+        List<Magic> magicList = new ArrayList<>();
+        
+        //キャラクターの魔法id一覧（無加工データ）を取得
+		String magic = ally.getMagic();
+		
+		//魔法一覧をid配列へ変換
+		String[] magicSource = magic.split( "," );
+		
+		//配列をリストへ変換
+		List<String> sourceList = Arrays.asList( magicSource );
+		
+		//idリストから魔法を検索していき、使用可能な魔法一覧リストへ格納していく。
+		sourceList.stream()
+					.map( s -> Integer.parseInt( s ) )
+					.map( s ->  magicRepository.findById( s ) )
+					.forEach( s -> magicList.add( s.orElseThrow() ));
+        
+        session.setAttribute( "magicmode" , "reading" );
+        mv.addObject( "magicList" , magicList );
+        
+		return mv;
+		
     }
 	
 	

@@ -41,6 +41,8 @@
 					<th>攻撃力</th>
 					<th>防御力</th>
 					<th>素早さ</th>
+					<th>魔法</th>
+					<th>特技</th>
 					<th>耐性力</th>
 					<th>ターン開始スキル</th>
 					<th>ターン終了時のスキル</th>
@@ -70,6 +72,12 @@
 					</td>
 					<td>
 						<a th:text="${ally.spe}"></a>
+					</td>
+					<td>
+						<a th:href="@{/ally/magic/__${ally.id}__}" >魔法一覧</a>
+					</td>
+					<td>
+						<a th:href="@{/ally/skill/__${ally.id}__}" >特技一覧(未実装）</a>
 					</td>
 					<td>
 						<a th:text="${ally.resistance}"></a>
