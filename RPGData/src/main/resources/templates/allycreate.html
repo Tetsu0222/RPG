@@ -94,6 +94,14 @@
 							</td>
 						</tr>
 						
+						<div th:if="${session.mode == 'update'}">
+							<tr>
+								<td>
+									<a th:href="@{/ally/magic/__${id}__}" >魔法一覧</a>
+								</td>
+							</tr>
+						</div>
+						
 						<tr>
 							<td>
 								<a>特技</a>

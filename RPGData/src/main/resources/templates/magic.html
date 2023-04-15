@@ -68,9 +68,15 @@
 					</tr>
 					
 					<div th:unless="${session.announcement == 'magicskill'}">
-						<button type="submit" th:formaction="@{/ally/cancel}">戻る</button>
+						<div th:unless="${session.mode == 'update'}">
+							<button type="submit" th:formaction="@{/ally/cancel}">戻る</button>
+						</div>
 					</div>
-
+					
+					<div th:if="${session.mode == 'update'}">
+						<button type="submit" th:formaction="@{/ally/__${session.ally.id}__}">戻る</button>
+					</div>
+					
 				</form>
 				
 			</table>

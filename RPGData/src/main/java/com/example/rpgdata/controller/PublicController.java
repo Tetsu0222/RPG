@@ -181,6 +181,21 @@ public class PublicController {
     }
     
     
+	//魔法や特技の一覧画面からプレイアブルキャラクターの詳細画面へ推移（戻るボタン対応）
+    @PostMapping("/ally/{id}")
+    public ModelAndView allyById2( @PathVariable( name = "id" ) int id , 
+    								ModelAndView mv ) {
+    	
+        mv.setViewName( "allycreate" );
+        Ally ally = allyRepository.findById( id ).orElseThrow();
+        
+        mv.addObject( "allyForm" , ally );
+        session.setAttribute( "mode" , "update" );
+        
+        return mv;
+    }
+    
+    
     //更新に対応
     @PostMapping("/ally/update")
     public String update( @ModelAttribute @Validated AllyForm allyForm ,
@@ -340,6 +355,7 @@ public class PublicController {
 	public String cancel( Model model ) {
 		
 		session.setAttribute( "announcement" , "normal" );
+		session.setAttribute( "mode" , "normal" );
 		
 		return "redirect:/edit/ally";
 	}
