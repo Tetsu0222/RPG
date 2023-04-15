@@ -33,12 +33,7 @@
 							<a th:text="${magic.id}"></a>
 						</td>
 						<td>
-							<div th:unless="${magic.id == 26}">
-								<a th:href="@{/magic/__${magic.id}__}" th:text="${magic.name}"></a>
-							</div>
-							<div th:if="${magic.id == 26}">
-								<a th:text="${magic.name}"></a>
-							</div>
+							<a th:text="${magic.name}"></a>
 						</td>
 						<td>
 							<a th:text="${magic.mp}"></a>
@@ -72,7 +67,10 @@
 						</td>
 					</tr>
 					
-					<button type="submit" th:formaction="@{/ally/cancel}">戻る</button>
+					<div th:unless="${session.announcement == 'magicskill'}">
+						<button type="submit" th:formaction="@{/ally/cancel}">戻る</button>
+					</div>
+
 				</form>
 				
 			</table>
@@ -82,6 +80,12 @@
 					<option th:each="a : ${magicAllList}" th:value="${a.id}" th:text="${a.name}" th:selected="${a.id} == *{addId}"></option>
 				</select>
 				<button type="submit" th:formaction="@{/ally/magic/add}">使用可能な魔法に追加</button>
+			</form>
+			
+			<form th:action="@{/}" method="get">
+				<div th:if="${session.announcement == 'magicskill'}">
+					<button type="submit" th:formaction="@{/ally/create}">戻る</button>
+				</div>
 			</form>
 			
 		</div>

@@ -153,8 +153,9 @@ public class PublicController {
 		//エラーなし
 		if( !result.hasErrors() ) {
 			Ally ally = allyForm.toEntity();
-			allyRepository.saveAndFlush( ally );
-			session.setAttribute( "announcement" , "success" );
+			ally = allyRepository.saveAndFlush( ally );
+			session.setAttribute( "ally" , ally );
+			session.setAttribute( "announcement" , "magicskill" );
 			
 			return "redirect:/ally/create";
 			
@@ -229,6 +230,33 @@ public class PublicController {
 		
     }
     
+    
+    //新規作成→魔法登録に対応
+    @PostMapping("/ally/magic")
+    public ModelAndView magic2( ModelAndView mv ) {
+    	
+        mv.setViewName( "magic" );
+        
+    	//セッションからプレイアブルキャラクターの情報を取得
+    	Ally ally = (Ally)session.getAttribute( "ally" );
+		
+        //キャラクターの使用可能な魔法を一覧で格納するリストを生成
+        List<Magic> magicList = MagicList.create( ally , magicRepository );
+        
+		//ダミー魔法を除いた全魔法リストを生成
+		List<Magic> magicAllList = MagicList.create( magicRepository );
+		
+		//全魔法リストから追加可能な魔法だけを抽出
+		List<Magic> magicAddPossibleList = MagicList.create( magicList , magicAllList );
+		
+        session.setAttribute( "magicmode" , "reading" );
+        session.setAttribute( "ally" , ally );
+        mv.addObject( "magicList" , magicList );
+        mv.addObject( "magicAllList" , magicAddPossibleList );
+        
+		return mv;
+		
+    }
     
     
     //キャラクターの使用可能な魔法を追加
@@ -312,6 +340,16 @@ public class PublicController {
 	public String cancel( Model model ) {
 		
 		session.setAttribute( "announcement" , "normal" );
+		
+		return "redirect:/edit/ally";
+	}
+	
+	
+	//新規作成→登録完了に対応
+	@PostMapping( "/ally/complete" )
+	public String complete( Model model ) {
+		
+		session.invalidate();
 		
 		return "redirect:/edit/ally";
 	}

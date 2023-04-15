@@ -31,7 +31,6 @@ public class AllyForm {
 	@Min(value = 1 )
 	private Integer spe;
 	
-	@NotBlank
 	private String magic;
 	
 	@NotBlank
