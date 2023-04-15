@@ -2,7 +2,10 @@ package com.example.rpgdata.controller;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
@@ -16,6 +19,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.example.rpgdata.dao.AllyDaoImp;
@@ -253,6 +257,40 @@ public class PublicController {
 		return mv;
 		
     }
+    
+    
+    
+    //キャラクターの使用可能な魔法を追加
+    @PostMapping("/ally/magic/add")
+    public String magicAdd( @RequestParam( name = "magicAddId" ) String magicAddId ,
+    						Model model ) {
+    	
+    	Ally ally = (Ally)session.getAttribute( "ally" );
+    	
+    	System.out.println( magicAddId );
+    	
+    	String magic = ally.getMagic();
+    	
+        //使用可能な魔法がなければ、選択された魔法をそのまま追加
+		if( magic == null || magic.equals("") ) {
+			magic = magicAddId;
+		
+		//使用可能な魔法に、選択された魔法を追加
+		}else{
+			String[] magicSource = magic.split( "," );
+			Set<String> sourceSet = new TreeSet<>();
+			Collections.addAll( sourceSet , magicSource );
+			
+			sourceSet.add( magicAddId );
+			magic = sourceSet.stream().collect( Collectors.joining( "," ));
+		}
+		
+		ally.setMagic( magic );
+		allyRepository.saveAndFlush( ally );
+		
+    	return "redirect:/ally/magic/" + ally.getId();
+    }
+    
     
     
 	//キャラクターの使用可能な魔法を削除
