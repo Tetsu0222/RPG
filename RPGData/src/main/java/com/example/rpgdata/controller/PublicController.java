@@ -49,7 +49,9 @@ public class PublicController {
 	@GetMapping( "/" )
 	public ModelAndView Index( ModelAndView mv ) {
 		
+		session.invalidate();
 		mv.setViewName( "index" );
+		
 		return mv;
 	}
 	

@@ -23,12 +23,47 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class MagicController {
 
-	private final MagicRepository 			magicRepository;
-	private final AllyRepository  			allyRepository;
-	private final HttpSession				session;
+	private final MagicRepository magicRepository;
+	private final AllyRepository  allyRepository;
+	private final HttpSession	  session;
 	
 	
-    //プレイアブルキャラクターの使用可能な魔法一覧に対応
+    //プレイアブルキャラクターの魔法一覧に対応
+    @GetMapping("/edit/magic")
+    public ModelAndView magicEdit( ModelAndView mv ) {
+    	
+        mv.setViewName( "magic" );
+        
+		//ダミー魔法を除いた全魔法リストを生成
+		List<Magic> magicAllList = MagicList.create( magicRepository );
+		
+		System.out.println( magicAllList );
+		
+
+        session.setAttribute( "magicmode" , "edit" );
+        mv.addObject( "magicAllList" , magicAllList );
+        
+		return mv;
+		
+    }
+    
+    
+	//魔法の名前押下に対応→更新画面へ遷移
+    @GetMapping("/magic/{id}")
+    public ModelAndView allyById( @PathVariable( name = "id" ) int id , 
+    								ModelAndView mv ) {
+    	
+        mv.setViewName( "magiccreate" );
+        Magic magic = magicRepository.findById( id ).orElseThrow();
+        
+        mv.addObject( "magicForm" , magic );
+        session.setAttribute( "mode" , "update" );
+        
+        return mv;
+    }
+	
+	
+    //プレイアブルキャラクターを選択→使用可能な魔法一覧に対応
     @GetMapping("/ally/magic/{id}")
     public ModelAndView magic( @PathVariable( name = "id" ) int id , 
     							ModelAndView mv ) {

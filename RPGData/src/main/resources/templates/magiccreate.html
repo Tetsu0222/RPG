@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+
+<html xmlns:th="http://www.thymeleaf.org">
+	
+	<head>
+		<meta charset="UTF-8">
+		<title>Insert title here</title>
+	</head>
+	
+	<body>
+		<div th:if="${session.announcement == 'success'}">
+			<h3>
+				登録完了!
+			</h3>
+		</div>
+		<div>
+			<table border="1">
+				<tr>
+					<th>項目</th>
+					<th>数値</th>
+				</tr>
+					
+				<form th:action="@{/}" method="post" th:object="${magicForm}">
+						
+					<!-- id部分は空欄 -->
+					<tr>
+						<td>
+							<a>id</a>
+						</td>
+						<td>
+							<input type="hidden" th:text="${id}" name="id" th:value="*{id}">
+						</td>
+					</tr>
+						
+					<tr>
+						<td>
+							<a>名前</a>
+						</td>
+						<td>
+							<input type="text" size="50" name="name" th:value="*{name}">
+							<div th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
+						</td>
+					</tr>
+						
+					<tr>
+						<td>
+							<a>消費MP</a>
+						</td>
+						<td>
+							<input type="text" size="5" name="mp" th:value="*{mp}">
+							<div th:if="${#fields.hasErrors('mp')}" th:errors="*{mp}"></div>
+						</td>
+					</tr>
+						
+					<tr>
+						<td>
+							<a>魔法のカテゴリー</a>
+						</td>
+						<td>
+							<select name="category">
+								<option value="targetally" th:field="*{category}">味方への魔法(蘇生以外)</option>
+								<option value="targetenemy" th:field="*{category}">敵への魔法</option>
+								<option value="resuscitationmagic" th:field="*{category}">蘇生魔法</option>
+							</select>
+							<div th:if="${#fields.hasErrors('category')}" th:errors="*{category}"></div>
+						</td>
+					</tr>
+						
+					<tr>
+						<td>
+							<a>威力</a>
+						</td>
+						<td>
+							<input type="text" size="5" name="point"  th:value="*{point}">
+							<div th:if="${#fields.hasErrors('point')}" th:errors="*{point}"></div>
+						</td>
+					</tr>
+						
+					<tr>
+						<td>
+							<a>補正値</a>
+						</td>
+						<td>
+							<input type="text" size="5" name="percentage"  th:value="*{percentage}">
+							<div th:if="${#fields.hasErrors('percentage')}" th:errors="*{percentage}"></div>
+						</td>
+					</tr>
+						
+					<tr>
+						<td>
+							<a>効果範囲(味方への魔法でグループは選択しない）</a>
+						</td>
+						<td>
+							<select name="range">
+								<option value="single" th:field="*{range}">単体</option>
+								<option value="group" th:field="*{range}">グループ</option>
+								<option value="whole" th:field="*{range}">全体</option>
+
+							</select>
+							<div th:if="${#fields.hasErrors('range')}" th:errors="*{range}"></div>
+						</td>
+					</tr>
+					
+					<tr>
+						<td>
+							<a>効果説明</a>
+						</td>
+						<td>
+							<input type="text" size="50" name="text"  th:value="*{text}">
+							<div th:if="${#fields.hasErrors('text')}" th:errors="*{text}"></div>
+						</td>
+					</tr>					
+						
+					<tr>
+						<td>
+							<a>バフ・デバフの種類</a>
+						</td>
+						<td>
+							<select name="buffcategory">
+								<option value="no" th:field="*{buffcategory}">なし</option>
+								<option value="DEF" th:field="*{buffcategory}">防御力</option>
+							</select>
+							<div th:if="${#fields.hasErrors('buffcategory')}" th:errors="*{buffcategory}"></div>
+						</td>
+					</tr>					
+						
+					<tr>
+						<td>
+							<a>発動回数</a>
+						</td>
+						<td>
+							<input type="text" size="5" name="frequency"  th:value="*{frequency}">
+							<div th:if="${#fields.hasErrors('frequency')}" th:errors="*{frequency}"></div>
+						</td>
+					</tr>
+						
+						<div th:if="${session.mode == 'create'}">
+							<button type="submit" th:formaction="@{/}">登録</button>
+						</div>
+						<div th:if="${session.mode == 'update'}">
+							<button type="submit" th:formaction="@{/}">更新</button>
+						</div>
+						
+						<button type="submit" th:formaction="@{/}">戻る</button>
+						
+					</form>
+					
+				</table>
+				
+			</div>
+	</body>
+
+</html>
