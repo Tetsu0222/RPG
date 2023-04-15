@@ -82,10 +82,15 @@
 			</table>
 			
 			<form th:action="@{/}" method="post">
-				<select name="magicAddId">
-					<option th:each="a : ${magicAllList}" th:value="${a.id}" th:text="${a.name}" th:selected="${a.id} == *{addId}"></option>
-				</select>
-				<button type="submit" th:formaction="@{/ally/magic/add}">使用可能な魔法に追加</button>
+				<div th:unless="${magicAllList.size() == 0}">
+					<select name="magicAddId">
+						<option th:each="a : ${magicAllList}" th:value="${a.id}" th:text="${a.name}" th:selected="${a.id} == *{addId}"></option>
+					</select>
+					<button type="submit" th:formaction="@{/ally/magic/add}">使用可能な魔法に追加</button>
+				</div>
+				<div th:if="${magicAllList.size() == 0}">
+					<a>すべての魔法が使用できます。</a>
+				</div>
 			</form>
 			
 			<form th:action="@{/}" method="get">

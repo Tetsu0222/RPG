@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+
+<html xmlns:th="http://www.thymeleaf.org">
+	
+	<head>
+		<meta charset="UTF-8">
+		<title>Insert title here</title>
+	</head>
+
+	<body>
+		<!-- 使用可能な特技一覧を表示 -->
+		<div th:if="${session.skillmode == 'reading'}">
+			
+			<table border="1">
+				<tr>
+					<th>id</th>
+					<th>名前</th>
+					<th>消費MP</th>
+					<th>カテゴリー</th>
+					<th>威力</th>
+					<th>補正値</th>
+					<th>範囲</th>
+					<th>説明文</th>
+					<th>バフ効果</th>
+					<th>発動回数</th>
+					<th></th>
+				</tr>
+				
+				<!-- 使用可能な特技一覧 -->
+				<form th:action="@{/}" method="post">
+					<tr th:each="skill:${skillList}">
+						<td>
+							<a th:text="${skill.id}"></a>
+						</td>
+						<td>
+							<a th:text="${skill.name}"></a>
+						</td>
+						<td>
+							<a th:text="${skill.mp}"></a>
+						</td>
+						<td>
+							<a th:text="${skill.category}"></a>
+						</td>
+						<td>
+							<a th:text="${skill.point}"></a>
+						</td>
+						<td>
+							<a th:text="${skill.percentage}"></a>
+						</td>
+						<td>
+							<a th:text="${skill.range}"></a>
+						</td>
+						<td>
+							<a th:text="${skill.text}"></a>
+						</td>
+						<td>
+							<a th:text="${skill.buffcategory}"></a>
+						</td>
+						<td>
+							<a th:text="${skill.frequency}"></a>
+						</td>
+						<td>
+							<a th:text="${skill.target}"></a>
+						</td>
+						<td>
+							<a th:text="${skill.maxfrequency}"></a>
+						</td>
+
+						<td>
+							<div th:unless="${skill.id == 2}">
+								<button type="submit" th:formaction="@{/ally/skill/delete/__${skill.id}__}">使用不可にする</button>
+							</div>
+						</td>
+					</tr>
+					
+					<div th:unless="${session.announcement == 'magicskill'}">
+						<div th:unless="${session.mode == 'update'}">
+							<button type="submit" th:formaction="@{/ally/cancel}">戻る</button>
+						</div>
+					</div>
+					
+					<div th:if="${session.mode == 'update'}">
+						<button type="submit" th:formaction="@{/ally/__${session.ally.id}__}">戻る</button>
+					</div>
+					
+				</form>
+				
+			</table>
+			
+			
+		</div>
+	</body>
+	
+</html>

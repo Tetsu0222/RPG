@@ -30,6 +30,7 @@ import com.example.rpgdata.repository.MonsterPatternRepository;
 import com.example.rpgdata.repository.MonsterRepository;
 import com.example.rpgdata.repository.SkillRepository;
 import com.example.rpgdata.support.MagicList;
+import com.example.rpgdata.support.SkillList;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityManager;
@@ -315,6 +316,35 @@ public class PublicController {
 		
 		return "redirect:/ally/magic/" + ally.getId();
 	}
+	
+	
+    //特技一覧に対応
+    @GetMapping("/ally/skill/{id}")
+    public ModelAndView skill( @PathVariable( name = "id" ) int id , 
+    							ModelAndView mv ) {
+    	
+        mv.setViewName( "skill" );
+        
+        //選択されたキャラクターの情報を取得
+        Ally ally = allyRepository.findById( id ).orElseThrow();
+		
+        //キャラクターの使用可能な魔法を一覧で格納するリストを生成
+        List<Skill> skillList = SkillList.create( ally , skillRepository );
+        
+		//ダミー魔法を除いた全魔法リストを生成
+        List<Skill> skillAllList = SkillList.create( skillRepository );
+		
+		//全魔法リストから追加可能な魔法だけを抽出
+        List<Skill> skillAddPossibleList = SkillList.create( skillList , skillAllList );
+		
+        session.setAttribute( "skillmode" , "reading" );
+        session.setAttribute( "ally" , ally );
+        mv.addObject( "skillList" , skillList );
+        mv.addObject( "skillAllList" , skillAddPossibleList );
+        
+		return mv;
+		
+    }
 	
 	
 	
