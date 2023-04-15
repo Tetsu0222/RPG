@@ -3,6 +3,7 @@ package com.example.rpgdata.controller;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -211,12 +212,19 @@ public class PublicController {
         //選択されたキャラクターの情報を取得
         Ally ally = allyRepository.findById( id ).orElseThrow();
         
+        //キャラクターの魔法id一覧（無加工データ）を取得
+        String magic = ally.getMagic();
+        
+        //使用可能な魔法がなければ、ダミー魔法を生成
+		if( magic == null || magic.equals("") ) {
+			magic = "26";
+		}
+		
+		System.out.println( magic );
+		
         //キャラクターの使用可能な魔法を一覧で格納するリストを生成
         List<Magic> magicList = new ArrayList<>();
         
-        //キャラクターの魔法id一覧（無加工データ）を取得
-		String magic = ally.getMagic();
-		
 		//魔法一覧をid配列へ変換
 		String[] magicSource = magic.split( "," );
 		
@@ -230,11 +238,33 @@ public class PublicController {
 					.forEach( s -> magicList.add( s.orElseThrow() ));
         
         session.setAttribute( "magicmode" , "reading" );
+        session.setAttribute( "ally" , ally );
         mv.addObject( "magicList" , magicList );
         
 		return mv;
 		
     }
+    
+    
+	//キャラクターの使用可能な魔法を削除
+	@PostMapping( "/ally/magic/delete/{id}" )
+	public String allyMagicDelete( @PathVariable( name = "id" ) String magicId ,
+							  		Model model ) {
+		
+		Ally ally = (Ally)session.getAttribute( "ally" );
+		
+		String magic = ally.getMagic();
+		String[] magicSource = magic.split( "," );
+		List<String> sourceList = Arrays.asList( magicSource );
+		sourceList = sourceList.stream().filter( s -> !s.equals( magicId )).toList();
+		magic = sourceList.stream().collect( Collectors.joining( "," ));
+		
+		ally.setMagic( magic );
+		allyRepository.saveAndFlush( ally );
+		
+		return "redirect:/ally/magic/" + ally.getId();
+	}
+	
 	
 	
 	//味方側のキャラクター検索に対応

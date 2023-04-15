@@ -61,7 +61,9 @@
 						</td>
 
 						<td>
-							<button type="submit" th:formaction="@{/ally/magic/delete/__${magic.id}__}">削除(未実装)</button>
+							<div th:unless="${magic.id == 26}">
+								<button type="submit" th:formaction="@{/ally/magic/delete/__${magic.id}__}">使用不可にする</button>
+							</div>
 						</td>
 					</tr>
 					
