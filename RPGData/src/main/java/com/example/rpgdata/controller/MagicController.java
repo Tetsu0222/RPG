@@ -64,7 +64,43 @@ public class MagicController {
     }
     
     
-    //魔法の名前押下に対応→更新画面へ遷移
+    
+	//魔法の新規登録のボタンに対応
+	@GetMapping( "/magic/create" )
+	public ModelAndView magicCreate( ModelAndView mv ) {
+		
+		mv.setViewName( "magiccreate" );
+		mv.addObject( "magicForm" , new MagicForm() );
+		session.setAttribute( "mode" , "magiccreate" );
+		
+		return mv;
+		
+	}
+	
+	
+	//魔法の新規登録のボタンに対応
+	@PostMapping( "/magic/create" )
+	public String magicCreateDo( @ModelAttribute @Validated MagicForm magicForm ,
+									BindingResult result ,
+									Model model ) {
+		
+		//エラーなし
+		if( !result.hasErrors() ) {
+			Magic magic = magicForm.toEntity();
+			magicRepository.saveAndFlush( magic );
+			session.setAttribute( "announcement" , "success" );
+			
+			return "redirect:/magic/create";
+			
+		//エラーあり	
+		}else{
+			return "magiccreate";
+		}
+		
+	}
+    
+    
+    //魔法の更新に対応
     @PostMapping("/magic/update")
     public String updateMagic( @ModelAttribute @Validated MagicForm magicForm ,
 								BindingResult result ,
