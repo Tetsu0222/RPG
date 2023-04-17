@@ -27,7 +27,7 @@ public class MagicList {
 		}
 		
         //キャラクターの使用可能な魔法を一覧で格納するリストを生成
-        List<Magic> magicList = new ArrayList<>();
+        List<Magic> magicSourceList = new ArrayList<>();
         
 		//魔法一覧をid配列へ変換
 		String[] magicSource = magic.split( "," );
@@ -35,11 +35,19 @@ public class MagicList {
 		//配列をリストへ変換
 		List<String> sourceList = Arrays.asList( magicSource );
 		
+		//元の魔法そのものの削除などによる例外対策用のダミーオブジェクト
+		Magic dummyMagic = magicRepository.findById( 26 ).orElseThrow();
+				
 		//idリストから魔法を検索していき、使用可能な魔法一覧リストへ格納していく。
 		sourceList.stream()
 					.map( s -> Integer.parseInt( s ) )
 					.map( s ->  magicRepository.findById( s ) )
-					.forEach( s -> magicList.add( s.orElseThrow() ));
+					.forEach( s -> magicSourceList.add( s.orElse( dummyMagic ) ));	//魔法そのものが削除されている場合は、ダミー魔法で置換
+		
+		//ダミー魔法を除いたリストを生成
+		 List<Magic> magicList = magicSourceList.stream()
+												 .filter( s -> s.getId() != 26 )
+												 .toList();
 		
 		return magicList;
 	}
@@ -49,8 +57,8 @@ public class MagicList {
 	public static List<Magic> create( MagicRepository magicRepository ) {
 		
 		List<Magic> magicAllList = magicRepository.findAll().stream()
-				.filter( s -> s.getId() != 26 )
-				.toList();
+															.filter( s -> s.getId() != 26 )
+															.toList();
 		
 		return magicAllList;
 	}
@@ -60,8 +68,8 @@ public class MagicList {
 	public static List<Magic> create( List<Magic> magicList , List<Magic> magicAllList ) {
 		
 		List<Magic> magicAddPossibleList = magicAllList.stream()
-				.filter( s -> !magicList.contains( s ))
-				.toList();
+														.filter( s -> !magicList.contains( s ))
+														.toList();
 		
 		if( magicAddPossibleList.size() == 0 ) {
 			//追加可能な魔法がない時の処理
