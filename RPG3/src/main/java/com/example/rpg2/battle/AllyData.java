@@ -80,29 +80,32 @@ public class AllyData {
 		this.currentDEF = ally.getDef();
 		this.currentSPE = ally.getSpe();
 		
-		//使用可能な魔法の設定
-		this.magic = ally.getMagic();
 		
-		//魔法がなければ、使用不可のダミー魔法を生成
-		if( magic == null || magic.equals("") ) {
-			magic = "26";
-		}
+		//使用可能な魔法の設定
+		this.magic = ally.getMagic() == null ? "26" : ally.getMagic();
+		
+		//元の魔法そのものの削除などによる例外対策用のダミーオブジェクト
+		Magic dummyMagic = magicRepository.findById( 26 ).orElseThrow();
 		
 		String[] magicSource = magic.split( "," );
 		List<String> sourceList = Arrays.asList( magicSource );
 		sourceList.stream()
 		.map( s -> Integer.parseInt( s ) )
 		.map( s ->  magicRepository.findById( s ) )
-		.forEach( s -> magicList.add( s.orElseThrow() ));
+		.forEach( s -> magicList.add( s.orElse( dummyMagic ) ));
 		
 		//使用可能な特技の設定
-		this.skill = ally.getSkill();
+		this.skill = ally.getSkill() == null ? "2" : ally.getSkill();
+		
+		//元のスキルそのものの削除などによる例外対策用のダミーオブジェクト
+		Skill dummySkill = skillRepository.findById( 2 ).orElseThrow();
+		
 		String[] skillSource = skill.split( "," );
 		List<String> sourceSkillList = Arrays.asList( skillSource );
 		sourceSkillList.stream()
 		.map( s -> Integer.parseInt( s ) )
 		.map( s ->  skillRepository.findById( s ) )
-		.forEach( s -> skillList.add( s.orElseThrow() ));
+		.forEach( s -> skillList.add( s.orElse( dummySkill ) ));
 		
 		//生存設定
 		this.survival = 1;

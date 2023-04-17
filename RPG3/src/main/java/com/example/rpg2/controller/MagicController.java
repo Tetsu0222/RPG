@@ -43,6 +43,8 @@ public class MagicController {
 		mv.addObject( "key" , myKeys );
 		session.setAttribute( "mode" , "magic" );
 		
+		System.out.println( magicList.get(0).getName() );
+		
 		return mv;
 		
 	}
