@@ -57,7 +57,7 @@ public class MagicController {
         Magic magic = magicRepository.findById( id ).orElseThrow();
         
         mv.addObject( "magicForm" , magic );
-        session.setAttribute( "mode" , "update" );
+        session.setAttribute( "mode" , "magicupdate" );
         
         return mv;
     }

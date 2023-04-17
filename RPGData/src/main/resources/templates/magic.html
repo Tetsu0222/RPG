@@ -73,8 +73,12 @@
 						</div>
 					</div>
 					
+					<div th:if="${session.mode == 'magicupdate'}">
+						<button type="submit" th:formaction="@{/edit/magic}" >戻る</button>
+					</div>
+					
 					<div th:if="${session.mode == 'update'}">
-						<button type="submit" th:formaction="@{/ally/__${session.ally.id}__}">戻る</button>
+						<button type="submit" th:formaction="@{/ally/__${session.ally.id}__}" >戻る</button>
 					</div>
 					
 				</form>
@@ -120,7 +124,7 @@
 				</tr>
 				
 				<!-- 魔法一覧 -->
-				<form th:action="@{/}" method="post">
+				<form th:action="@{/}" method="post" >
 					<tr th:each="magic:${magicAllList}">
 						<td>
 							<a th:text="${magic.id}"></a>
@@ -152,7 +156,6 @@
 						<td>
 							<a th:text="${magic.frequency}"></a>
 						</td>
-
 						<td>
 							<div th:unless="${magic.id == 26}">
 								<button type="submit" th:formaction="@{/}">削除(使用不可）</button>
