@@ -220,4 +220,13 @@ public class MagicController {
 	}
 	
 	
+	//魔法そのものの削除に対応
+	@PostMapping( "/magic/delete/{id}" )
+	public String magicDelete( @PathVariable( name = "id" ) int id ,
+								Model model ) {
+		
+		magicRepository.deleteById( id );
+		
+		return "redirect:/edit/magic";
+	}
 }

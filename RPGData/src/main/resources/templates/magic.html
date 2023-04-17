@@ -163,7 +163,7 @@
 						</td>
 						<td>
 							<div th:unless="${magic.id == 26}">
-								<button type="submit" th:formaction="@{/}">削除(使用不可）</button>
+								<button type="submit" th:formaction="@{/magic/delete/__${magic.id}__}">削除(使用不可）</button>
 							</div>
 						</td>
 					</tr>
@@ -174,7 +174,7 @@
 			
 			<form th:action="@{/}" method="get">
 				<div>
-					<button type="submit" th:formaction="@{/}">戻る</button>
+					<button type="submit" th:formaction="@{/}">TOPへ戻る</button>
 				</div>
 			</form>
 			
