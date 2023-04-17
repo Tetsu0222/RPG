@@ -194,7 +194,7 @@ public class BattleSupportAttack {
 		
 		//攻撃処理と結果の格納
 		monsterData = taregetEnemyAction.action( monsterData );
-		monsterDataMap.put( target , monsterData );
+		this.monsterDataMap.put( target , monsterData );
 		
 		//ダメージがあれば表示に追加
 		if( taregetEnemyAction.getDamageMessage() != null ) {
@@ -210,9 +210,9 @@ public class BattleSupportAttack {
 		if( monsterData.getCurrentHp() == 0 ) {
 			
 			//敵リストから対象を削除
-			targetSetEnemy.remove( target );
+			this.targetSetEnemy.remove( target );
 			
-			//敵が全滅していなければ、別対象へ通常攻撃でターゲットを変更しておく。
+			//敵が全滅していなければ、別対象へターゲットを変更しておく。
         	if( targetSetEnemy.size() != 0 ) {
         		
         		//ターゲット座標を取得
@@ -262,7 +262,7 @@ public class BattleSupportAttack {
 			monsterData = taregetEnemyAction.action( monsterData );
 			
 			//処理結果を格納
-			monsterDataMap.put( monsterData.getEnemyId() , monsterData );
+			this.monsterDataMap.put( monsterData.getEnemyId() , monsterData );
 			
 			//ダメージがあれば表示に追加
 			if( taregetEnemyAction.getDamageMessage() != null ) {
@@ -278,7 +278,7 @@ public class BattleSupportAttack {
 			if( monsterData.getCurrentHp() == 0 ) {
 				
 				//敵リストから対象を削除
-				targetSetEnemy.remove( monsterData.getEnemyId() );
+				this.targetSetEnemy.remove( monsterData.getEnemyId() );
 				
 				//グループ内の残存勢力をチェック
 				targetList = new ArrayList<>( monsterDataMap.values() );
@@ -288,7 +288,7 @@ public class BattleSupportAttack {
 				
 				//グループが全滅していれば、リストから対象者を削除
 				if( count == 0 ) {
-					enemyNameList = enemyNameList.stream()
+					this.enemyNameList = enemyNameList.stream()
 							.filter( s -> !s.equals( mainTarget ))
 							.toList();
 					
@@ -347,7 +347,13 @@ public class BattleSupportAttack {
 						.collect( Collectors.toList() );
 		
 		//残存勢力のみに置換
-		deathList.stream().forEach( s -> targetSetEnemy.remove( s ) );
+		deathList.stream().forEach( s -> this.targetSetEnemy.remove( s ) );
+		
+		//グループ攻撃用のリストを再生成
+		this.enemyNameList = targetSetEnemy.stream()
+											.map( id -> monsterDataMap.get( id ) )
+											.map( monsterData -> monsterData.getName() )
+											.toList();
 		
 	}
 

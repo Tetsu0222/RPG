@@ -71,12 +71,12 @@
 							<td>
 								<div th:unless="${entry.value.survival == 0}">
 									<button type="submit" th:formaction="@{/magic/__${entry.key}__}" th:text="魔法"></button>
-								</divth:unless="${entry.value.survival == 0}">
+								</div>
 							</td>
 							<td>
 								<div th:unless="${entry.value.survival == 0}">
 									<button type="submit" th:formaction="@{/skill/__${entry.key}__}" th:text="特技"></button>
-								</divth:unless="${entry.value.survival == 0}">
+								</div>
 							</td>
 							<td>
 								<div th:unless="${entry.value.survival == 0}">
@@ -165,7 +165,12 @@
 					</tr>
 					<tr th:each="ma:${magicList}">
 						<td>
-							<a th:href="@{/magic/add/__${ma.id}__}" th:text="${ma.name}"></a>
+							<div th:unless="${ma.id == 26}">
+								<a th:href="@{/magic/add/__${ma.id}__}" th:text="${ma.name}"></a>
+							<div>
+							<div th:if="${ma.id == 26}">
+								<a th:text="${ma.name}"></a>
+							</div>
 						</td>
 						<td>
 							<a th:text="${ma.mp}"></a>
@@ -218,7 +223,12 @@
 					</tr>
 					<tr th:each="sk:${skillList}">
 						<td>
-							<a th:href="@{/skill/add/__${sk.id}__}" th:text="${sk.name}"></a>
+							<div th:unless="${sk.id == 2}">
+								<a th:href="@{/skill/add/__${sk.id}__}" th:text="${sk.name}"></a>
+							</div>
+							<div th:if="${sk.id == 2}">
+								<a th:text="${sk.name}"></a>
+							</div>
 						</td>
 						<td>
 							<a th:text="${sk.mp}"></a>

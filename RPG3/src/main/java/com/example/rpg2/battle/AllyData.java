@@ -82,6 +82,12 @@ public class AllyData {
 		
 		//使用可能な魔法の設定
 		this.magic = ally.getMagic();
+		
+		//魔法がなければ、使用不可のダミー魔法を生成
+		if( magic == null || magic.equals("") ) {
+			magic = "26";
+		}
+		
 		String[] magicSource = magic.split( "," );
 		List<String> sourceList = Arrays.asList( magicSource );
 		sourceList.stream()

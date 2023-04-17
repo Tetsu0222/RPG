@@ -229,7 +229,7 @@ public class Battle {
 			if( movementPattern.equals( "attack" )) {
 				
 				//サポートクラスとデータを同期
-				this.battleSupportAttack = new BattleSupportAttack  ( this );
+				this.battleSupportAttack = new BattleSupportAttack( this );
 				
 				//通常攻撃の処理実行
 				battleSupportAttack.normalAttack( target , key , magic , skill , allyData );
@@ -253,7 +253,7 @@ public class Battle {
 			}else if( movementPattern.equals( "targetenemy" )) {
 				
 				//サポートクラスとデータを同期
-				this.battleSupportAttack = new BattleSupportAttack  ( this );
+				this.battleSupportAttack = new BattleSupportAttack( this );
 				
 				//攻撃魔法か特技を発動、MPが足りていたかどうかの結果が返る。
 				isMpEmpty = battleSupportAttack.magicOrSkillAttack( allyData , magic , skill , target , key );
