@@ -4,7 +4,10 @@ import java.util.List;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -12,6 +15,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.example.rpgdata.entity.Ally;
 import com.example.rpgdata.entity.Magic;
+import com.example.rpgdata.form.MagicForm;
 import com.example.rpgdata.repository.AllyRepository;
 import com.example.rpgdata.repository.MagicRepository;
 import com.example.rpgdata.support.MagicList;
@@ -37,9 +41,6 @@ public class MagicController {
 		//ダミー魔法を除いた全魔法リストを生成
 		List<Magic> magicAllList = MagicList.create( magicRepository );
 		
-		System.out.println( magicAllList );
-		
-
         session.setAttribute( "magicmode" , "edit" );
         mv.addObject( "magicAllList" , magicAllList );
         
@@ -60,6 +61,27 @@ public class MagicController {
         session.setAttribute( "mode" , "magicupdate" );
         
         return mv;
+    }
+    
+    
+    //魔法の名前押下に対応→更新画面へ遷移
+    @PostMapping("/magic/update")
+    public String updateMagic( @ModelAttribute @Validated MagicForm magicForm ,
+								BindingResult result ,
+								Model model ) {
+		//エラーなし
+		if( !result.hasErrors() ) {
+			Magic magic = magicForm.toEntity();
+			magicRepository.saveAndFlush( magic );
+			session.setAttribute( "announcement" , "success" );
+			
+			return "redirect:/magic/" + magicForm.getId() ;
+			
+		//エラーあり	
+		}else{
+			return "magiccreate";
+		}
+    	
     }
 	
 	
