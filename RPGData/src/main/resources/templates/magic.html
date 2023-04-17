@@ -107,6 +107,11 @@
 			
 		<!-- 魔法自体の編集画面を表示 -->
 		<div th:if="${session.magicmode == 'edit'}">
+			<form th:action="@{/}" method="get" >
+				<div>
+					<button type="submit" th:formaction="@{/magic/create}">新規登録</button>
+				</div>
+			</form>
 			
 			<table border="1">
 				<tr>

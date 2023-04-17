@@ -30,6 +30,7 @@
 			
 			<form th:action="@{/}" method="get">
 				<button type="submit" th:formaction="@{/ally/create}">新規登録</button>
+				<button type="submit" th:formaction="@{/}">TOPへ戻る</button>
 			</form>
 			
 			<table border="1">
@@ -80,7 +81,21 @@
 						<a th:href="@{/ally/skill/__${ally.id}__}" >特技一覧</a>
 					</td>
 					<td>
-						<a th:text="${ally.resistance}"></a>
+						<div th:if="${ally.resistance == 0 }">
+							<a>耐性なし</a>
+						</div>
+						<div th:if="${ally.resistance == 1 }">
+							<a>弱耐性</a>
+						</div>
+						<div th:if="${ally.resistance == 2 }">
+							<a>中耐性</a>
+						</div>						
+						<div th:if="${ally.resistance == 3 }">
+							<a>強耐性</a>
+						</div>
+						<div th:if="${ally.resistance == 4 }">
+							<a>状態異常無効</a>
+						</div>		
 					</td>
 					<td>
 						<a th:text="${ally.turnstartskill}"></a>

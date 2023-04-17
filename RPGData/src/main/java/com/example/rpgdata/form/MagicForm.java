@@ -45,7 +45,7 @@ public class MagicForm {
     	magic.setId( id );
     	magic.setName( name );
     	magic.setMp( mp );
-    	magic.setCategory( buffcategory );
+    	magic.setCategory( category );
     	magic.setPoint (point );
     	magic.setPercentage( percentage );
     	magic.setRange( range );

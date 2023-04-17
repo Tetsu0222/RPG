@@ -40,7 +40,7 @@ public class MagicController {
         
 		//ダミー魔法を除いた全魔法リストを生成
 		List<Magic> magicAllList = MagicList.create( magicRepository );
-		
+		session.setAttribute( "announcement" , "normal" );
         session.setAttribute( "magicmode" , "edit" );
         mv.addObject( "magicAllList" , magicAllList );
         
