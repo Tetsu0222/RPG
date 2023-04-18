@@ -27,6 +27,8 @@ public class PatternController {
 	private final HttpSession session;
 	private final MonsterRepository monsterRepository;
 	
+	
+	
 	//エネミーキャラクターの行動パターンの一覧画面に対応
 	@GetMapping( "/edit/pattern" )
 	public ModelAndView enemy( ModelAndView mv ) {
@@ -39,6 +41,34 @@ public class PatternController {
 		
 		return mv;
 	}
+	
+	
+    //エネミーキャラクターの新規作成→行動パターン登録に対応
+    @PostMapping("/enemy/pattern")
+    public ModelAndView pattern2( ModelAndView mv ) {
+    	
+        mv.setViewName( "patternedit" );
+        
+    	//セッションからエネミーキャラクターの情報を取得
+        Monster monster = (Monster)session.getAttribute( "monster" );
+		
+        //キャラクターの行動パターンの一覧を格納するリストを生成
+        List<MonsterPattern> monsterPatternList = MonsterPatternList.create( monster , monsterPatternRepository );
+        
+        //全行動パターンの抽出
+        List<MonsterPattern> monsterPatternAllList = MonsterPatternList.create( monsterPatternRepository );
+        
+		//全行動パターンのリストから追加可能な行動パターンだけを抽出
+		List<MonsterPattern> monsterPatternAddPossibleList = MonsterPatternList.create( monsterPatternList , monsterPatternAllList );
+		
+        session.setAttribute( "patternmode" , "reading" );
+        session.setAttribute( "monster" , monster );
+        mv.addObject( "monsterPatternList" , monsterPatternList );
+        mv.addObject( "monsterPatternAddPossibleList" , monsterPatternAddPossibleList );
+        
+		return mv;
+		
+    }
 	
 	
     //エネミーキャラクターを選択→行動パターンの一覧に対応

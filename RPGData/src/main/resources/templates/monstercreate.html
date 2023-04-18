@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+
+<html xmlns:th="http://www.thymeleaf.org">
+	
+	<head>
+		<meta charset="UTF-8">
+		<title>Insert title here</title>
+	</head>
+
+	<body>
+		<div th:unless="${session.announcement == 'monster'}">
+			<div th:if="${session.announcement == 'success'}">
+				<h3>
+					登録完了!
+				</h3>
+			</div>
+	
+			<div>
+				<table border="1">
+					<tr>
+						<th>項目</th>
+						<th>数値</th>
+					</tr>
+					
+					<form th:action="@{/}" method="post" th:object="${monsterForm}">
+						
+						<!-- id部分は空欄 -->
+						<tr>
+							<td>
+								<a>id</a>
+							</td>
+							<td>
+								<input type="hidden" th:text="${id}" name="id" th:value="*{id}">
+							</td>
+						</tr>
+						
+						<tr>
+							<td>
+								<a>名前</a>
+							</td>
+							<td>
+								<input type="text" size="50" name="name" th:value="*{name}">
+								<div th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
+							</td>
+						</tr>
+						
+						<tr>
+							<td>
+								<a>HP</a>
+							</td>
+							<td>
+								<input type="text" size="5" name="hp" th:value="*{hp}">
+								<div th:if="${#fields.hasErrors('hp')}" th:errors="*{hp}"></div>
+							</td>
+						</tr>
+						
+						<tr>
+							<td>
+								<a>MP</a>
+							</td>
+							<td>
+								<input type="text" size="5" name="mp" th:value="*{mp}">
+								<div th:if="${#fields.hasErrors('mp')}" th:errors="*{mp}"></div>
+							</td>
+						</tr>
+						
+						<tr>
+							<td>
+								<a>攻撃力</a>
+							</td>
+							<td>
+								<input type="text" size="5" name="atk"  th:value="*{atk}">
+								<div th:if="${#fields.hasErrors('atk')}" th:errors="*{atk}"></div>
+							</td>
+						</tr>
+						
+						<tr>
+							<td>
+								<a>守備力</a>
+							</td>
+							<td>
+								<input type="text" size="5" name="def"  th:value="*{def}">
+								<div th:if="${#fields.hasErrors('def')}" th:errors="*{def}"></div>
+							</td>
+						</tr>
+						
+						<tr>
+							<td>
+								<a>素早さ</a>
+							</td>
+							<td>
+								<input type="text" size="5" name="spe"  th:value="*{spe}">
+								<div th:if="${#fields.hasErrors('spe')}" th:errors="*{spe}"></div>
+							</td>
+						</tr>
+						
+						<div th:if="${session.mode == 'update'}">
+							<tr>
+								<td>
+									<a th:href="@{/enemy/pattern/__${id}__}" >行動パターン</a>
+								</td>
+							</tr>
+						</div>
+						<tr>
+						
+						<!-- 要修正 -->
+						</tr>
+							<td>
+								<a>行動回数</a>
+							</td>
+							<td>
+								<input type="text" size="5" name="actions"  th:value="*{actions}">
+							</td>
+						<tr>
+							
+							<td>
+								<a>状態異常耐性</a>
+							</td>
+							<td>
+								<select name="resistance">
+									<option value="0" th:field="*{resistance}">なし</option>
+									<option value="1" th:field="*{resistance}">弱耐性</option>
+									<option value="2" th:field="*{resistance}">中耐性</option>
+									<option value="3" th:field="*{resistance}">強耐性</option>
+									<option value="4" th:field="*{resistance}">状態異常無効</option>
+								</select>
+								<div th:if="${#fields.hasErrors('resistance')}" th:errors="*{resistance}"></div>
+							</td>
+						</tr>					
+						
+						<div th:if="${session.mode == 'create'}">
+							<button type="submit" th:formaction="@{/enemy/create}">登録</button>
+						</div>
+						<div th:if="${session.mode == 'update'}">
+							<button type="submit" th:formaction="@{/enemy/update}">更新(未実装）</button>
+						</div>
+						
+						<button type="submit" th:formaction="@{/enemy/cancel}">戻る</button>
+						
+					</form>
+					
+				</table>
+				
+			</div>
+		</div>
+		
+		<div th:if="${session.announcement == 'monster'}">
+			<form th:action="@{/}" method="post">
+				<button type="submit" th:formaction="@{/enemy/pattern}">行動パターンの設定</button>
+				<button type="submit" th:formaction="@{/enemy/complete}">登録完了</button>
+			</form>
+		</div>
+	</body>
+
+</html>

@@ -81,8 +81,11 @@
 			</form>
 			
 			<form th:action="@{/}" method="get">
-				<div>
+				<div th:unless="${session.announcement == 'monster'}">
 					<button type="submit" th:formaction="@{/edit/enemy}">戻る</button>
+				</div>
+				<div th:if="${session.announcement == 'monster'}">
+					<button type="submit" th:formaction="@{/edit/enemy}">登録</button>
 				</div>
 			</form>
 			
@@ -153,9 +156,7 @@
 			</table>
 			
 			<form th:action="@{/}" method="get">
-				<div>
-					<button type="submit" th:formaction="@{/}">TOPへ戻る</button>
-				</div>
+				<button type="submit" th:formaction="@{/}">TOPへ戻る</button>
 			</form>
 			
 		</div>
