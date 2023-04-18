@@ -95,7 +95,6 @@
 								<option value="single" th:field="*{range}">単体</option>
 								<option value="group" th:field="*{range}">グループ</option>
 								<option value="whole" th:field="*{range}">全体</option>
-
 							</select>
 							<div th:if="${#fields.hasErrors('range')}" th:errors="*{range}"></div>
 						</td>

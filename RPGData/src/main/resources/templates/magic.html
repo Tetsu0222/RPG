@@ -7,6 +7,47 @@
 	</head>
 	
 	<body>
+		<div>
+			<form th:action="@{/}" method="post" th:object="${session.magicQuery}">
+				<table border="1">
+					<tr>
+						<th>名前</th>
+						<th>魔法種別</th>
+						<th>効果範囲</th>
+						<th>バフ効果</th>
+						<th></th>
+					</tr>
+					<tr>
+						<td>
+							<input type="text"  size="50" name="name" th:value="*{name}">
+						</td>
+						<td>
+							<select name="category">
+								<option value="targetally" >味方への魔法(蘇生以外)</option>
+								<option value="targetenemy" >敵への魔法</option>
+								<option value="resuscitationmagic" >蘇生魔法</option>
+							</select>
+						</td>
+						<td>
+							<select name="range">
+								<option value="single">単体</option>
+								<option value="group" >グループ</option>
+								<option value="whole" >全体</option>
+							</select>
+						</td>
+						<td>
+							<select name="buffcategory">
+								<option value="no" >なし</option>
+								<option value="DEF">防御力</option>
+							</select>
+						</td>
+						<td>
+							<button type="submit" th:formaction="@{/magic/query}">検索(未実装）</button>
+						</td>
+					</tr>
+				</table>
+			</form>
+		</div>
 		
 		<!-- プレイアブルキャラクターの使用可能な魔法の編集  -->
 		<div th:if="${session.magicmode == 'reading'}">
@@ -163,7 +204,7 @@
 						</td>
 						<td>
 							<div th:unless="${magic.id == 26}">
-								<button type="submit" th:formaction="@{/magic/delete/__${magic.id}__}">削除(使用不可）</button>
+								<button type="submit" th:formaction="@{/magic/delete/__${magic.id}__}">削除</button>
 							</div>
 						</td>
 					</tr>

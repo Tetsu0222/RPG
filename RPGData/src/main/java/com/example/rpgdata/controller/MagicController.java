@@ -13,13 +13,18 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.example.rpgdata.dao.MagicDaoImp;
 import com.example.rpgdata.entity.Ally;
 import com.example.rpgdata.entity.Magic;
 import com.example.rpgdata.form.MagicForm;
+import com.example.rpgdata.query.MagicQuery;
 import com.example.rpgdata.repository.AllyRepository;
 import com.example.rpgdata.repository.MagicRepository;
 import com.example.rpgdata.support.MagicList;
 
+import jakarta.annotation.PostConstruct;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
@@ -31,6 +36,16 @@ public class MagicController {
 	private final AllyRepository  allyRepository;
 	private final HttpSession	  session;
 	
+	@PersistenceContext
+	private EntityManager entityManager;
+	private MagicDaoImp magicDaoImp;
+	
+	//タイミングをズラして初期化
+	@PostConstruct
+	public void init() {
+		magicDaoImp = new MagicDaoImp( entityManager );
+	}
+	
 	
     //プレイアブルキャラクターの魔法一覧に対応
     @GetMapping("/edit/magic")
@@ -40,8 +55,10 @@ public class MagicController {
         
 		//ダミー魔法を除いた全魔法リストを生成
 		List<Magic> magicAllList = MagicList.create( magicRepository );
+		
 		session.setAttribute( "announcement" , "normal" );
         session.setAttribute( "magicmode" , "edit" );
+        session.setAttribute( "magicQuery" , new MagicQuery() );
         mv.addObject( "magicAllList" , magicAllList );
         
 		return mv;
@@ -142,6 +159,7 @@ public class MagicController {
 		
         session.setAttribute( "magicmode" , "reading" );
         session.setAttribute( "ally" , ally );
+        session.setAttribute( "magicQuery" , new MagicQuery() );
         mv.addObject( "magicList" , magicList );
         mv.addObject( "magicAllList" , magicAddPossibleList );
         
@@ -217,6 +235,23 @@ public class MagicController {
 		allyRepository.saveAndFlush( ally );
 		
 		return "redirect:/ally/magic/" + ally.getId();
+	}
+	
+	
+	//魔法検索に対応
+	@PostMapping( "/magic/query" )
+	public ModelAndView allyQuery( @ModelAttribute MagicQuery magicQuery , 
+									ModelAndView mv ) {
+		
+		mv.setViewName( "magic" );
+		
+        List<Magic> magicList = magicDaoImp.findByCriteria( magicQuery );
+        
+		session.setAttribute( "magicQuery" , magicQuery );
+		mv.addObject( "magicList" , magicList );
+		mv.addObject( "magicAllList" , magicList );
+		
+		return mv;
 	}
 	
 	
