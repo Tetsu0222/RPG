@@ -12,6 +12,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.example.rpgdata.entity.Monster;
 import com.example.rpgdata.entity.MonsterPattern;
+import com.example.rpgdata.form.PatternForm;
 import com.example.rpgdata.repository.MonsterPatternRepository;
 import com.example.rpgdata.repository.MonsterRepository;
 import com.example.rpgdata.support.MonsterPatternList;
@@ -140,6 +141,19 @@ public class PatternController {
 		monsterRepository.saveAndFlush( monster );
 		
 		return "redirect:/enemy/pattern/" + monster.getId();
+	}
+	
+	
+	//行動パターンの新規登録のボタンに対応
+	@GetMapping( "/pattern/create" )
+	public ModelAndView patternCreate( ModelAndView mv ) {
+		
+		mv.setViewName( "patterncreate" );
+		mv.addObject( "patternForm" , new PatternForm() );
+		session.setAttribute( "mode" , "patterncreate" );
+		
+		return mv;
+		
 	}
     
 }

@@ -8,6 +8,8 @@ import lombok.Data;
 
 @Data
 public class SkillForm {
+	
+	
     private Integer id;
     
     @NotBlank

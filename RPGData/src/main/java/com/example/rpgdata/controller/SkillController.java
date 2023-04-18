@@ -201,7 +201,7 @@ public class SkillController {
     }
 	
     
-    //魔法の更新に対応
+    //特技の更新に対応
     @PostMapping("/skill/update")
     public String updateSkill( @ModelAttribute @Validated SkillForm skillForm ,
 								BindingResult result ,
@@ -222,7 +222,7 @@ public class SkillController {
     }
     
     
-	//魔法そのものの削除に対応
+	//特技そのものの削除に対応
 	@PostMapping( "/skill/delete/{id}" )
 	public String skillDelete( @PathVariable( name = "id" ) int id ,
 								Model model ) {
