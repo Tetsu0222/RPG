@@ -186,4 +186,50 @@ public class SkillController {
 	}
 	
 	
+	//特技の名前押下に対応→更新画面へ遷移
+    @GetMapping("/skill/{id}")
+    public ModelAndView skillById( @PathVariable( name = "id" ) int id , 
+    								ModelAndView mv ) {
+    	
+        mv.setViewName( "skillcreate" );
+        Skill skill = skillRepository.findById( id ).orElseThrow();
+        
+        mv.addObject( "skillForm" , skill );
+        session.setAttribute( "mode" , "skillupdate" );
+        
+        return mv;
+    }
+	
+    
+    //魔法の更新に対応
+    @PostMapping("/skill/update")
+    public String updateSkill( @ModelAttribute @Validated SkillForm skillForm ,
+								BindingResult result ,
+								Model model ) {
+		//エラーなし
+		if( !result.hasErrors() ) {
+			Skill skill = skillForm.toEntity();
+			skillRepository.saveAndFlush( skill );
+			session.setAttribute( "announcement" , "success" );
+			
+			return "redirect:/skill/" + skillForm.getId() ;
+			
+		//エラーあり	
+		}else{
+			return "skillcreate";
+		}
+    	
+    }
+    
+    
+	//魔法そのものの削除に対応
+	@PostMapping( "/skill/delete/{id}" )
+	public String skillDelete( @PathVariable( name = "id" ) int id ,
+								Model model ) {
+		
+		skillRepository.deleteById( id );
+		
+		return "redirect:/edit/skill";
+	}
+	
 }
