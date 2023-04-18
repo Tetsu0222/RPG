@@ -49,7 +49,8 @@ public class EnemyAction {
 	public AllyData attackSkillSingle( Map<Integer,AllyData> partyMap , List<Integer> targetList ) {
 		
 		//対象をランダムに指定
-		this.targetId = EnemyTarget.enemyTarget( targetList );
+		this.targetId = EnemyTarget.enemyTarget( targetList , targetList.size() );
+		
 		AllyData allyData = partyMap.get( targetId );
 		
 		//悪性ステータス異常
@@ -113,6 +114,7 @@ public class EnemyAction {
 			plusDamage = ( random.nextInt( monsterData.getCurrentATK() + 1 ) / 10 ) - ( random.nextInt( monsterData.getCurrentATK() + 1 ) / 10 );
 			//(攻撃力-防御力/2) + 乱数 = ダメージ
 			this.damage = ( monsterData.getCurrentATK() - ( allyData.getCurrentDEF() / 2 + 1 )) + plusDamage;
+			
 		}else{
 			plusDamage = ( random.nextInt( monsterPattern.getPoint() + 1 ) / 10 ) - ( random.nextInt( monsterPattern.getPoint() + 1 ) / 10 );
 			//行動に設定された威力 + 乱数 = ダメージ

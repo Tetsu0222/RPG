@@ -307,7 +307,7 @@ public class Battle {
     		this.resultEnemy();
     		
     		//サポートクラスとデータを同期
-    		this.battleSupportStatus = new BattleSupportStatus  ( this );
+    		this.battleSupportStatus = new BattleSupportStatus( this );
 			
     		//行動終了後の状態異常を処理
     		battleSupportStatus.badStatusAfter( monsterDataMap.get( key ) , key );

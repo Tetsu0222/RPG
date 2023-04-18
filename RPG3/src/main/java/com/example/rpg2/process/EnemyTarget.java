@@ -7,28 +7,26 @@ public class EnemyTarget {
 	
 	
 	//先頭の方が狙われやすい。
-	public static Integer enemyTarget( List<Integer> targetList ) {
+	public static Integer enemyTarget( List<Integer> targetList , int size ) {
 		
 		Random random = new Random();
 		int targetiD = 0;
-		
-		int size = targetList.size();
 		
 		if( size == 4 ) {
 			
 			int target = random.nextInt( 10 );
 			
 			if( target < 4 ) {
-				targetiD = 0;
+				targetiD = targetList.get( 0 );
 				
 			}else if( target < 7 ){
-				targetiD = 1;
+				targetiD = targetList.get( 1 );
 				
 			}else if( target < 9 ){
-				targetiD = 2;
+				targetiD = targetList.get( 2 );
 				
 			}else if( target == 9 ){
-				targetiD = 3;
+				targetiD = targetList.get( 3 );
 			}
 			
 		}else if( size == 3 ) {
@@ -36,13 +34,13 @@ public class EnemyTarget {
 			int target = random.nextInt( 10 );
 			
 			if( target < 5 ) {
-				targetiD = 0;
+				targetiD = targetList.get( 0 );
 				
 			}else if( target < 9 ){
-				targetiD = 1;
+				targetiD = targetList.get( 1 );
 					
 			}else if( target == 9 ){
-				targetiD = 2;
+				targetiD = targetList.get( 2 );
 			}
 			
 		}else if( size == 2 ) {
@@ -50,14 +48,14 @@ public class EnemyTarget {
 			int target = random.nextInt( 2 );
 			
 			if( target == 0 ) {
-				targetiD = 0;
+				targetiD = targetList.get( 0 );
 				
 			}else{
-				targetiD = 1;
+				targetiD = targetList.get( 1 );
 			}
 			
 		}else{
-			targetiD = 0;
+			targetiD = targetList.get( 0 );
 		}
 		
 		return targetiD;
