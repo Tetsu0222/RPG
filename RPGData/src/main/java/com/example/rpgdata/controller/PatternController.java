@@ -75,7 +75,7 @@ public class PatternController {
     public String patternAdd( @RequestParam( name = "patternAddId" ) String patternAddId ,
     							Model model ) {
     	
-    	//セッションからプレイアブルキャラクターの情報を取得
+    	//セッションからエネミーキャラクターの情報を取得
     	Monster monster = (Monster)session.getAttribute( "monster" );
     	
     	//行動パターンの追加処理
@@ -90,5 +90,26 @@ public class PatternController {
     	return "redirect:/enemy/pattern/" + monster.getId();
     	
     }
+    
+    
+	//エネミーキャラクターの行動パターンを削除
+	@PostMapping( "/enemy/pattern/delete/{id}" )
+	public String enemyPatternDelete( @PathVariable( name = "id" ) String patternId ,
+							  		Model model ) {
+		
+		//セッションからエネミーキャラクターの情報を取得
+		Monster monster = (Monster)session.getAttribute( "monster" );
+		
+		//行動パターンの削除を実行
+		String pattern = MonsterPatternList.delete( monster , patternId );
+		
+    	//追加された行動パターンを設定
+    	monster.setPattern( pattern );
+		
+		//保存
+		monsterRepository.saveAndFlush( monster );
+		
+		return "redirect:/enemy/pattern/" + monster.getId();
+	}
     
 }

@@ -19,7 +19,7 @@ public class MonsterPatternList {
 	public static List<MonsterPattern> create( Monster Monster , MonsterPatternRepository monsterPatternRepository ) {
 		
         //エネミーキャラクターの行動パターンのid一覧（無加工データ）を取得
-        String pattern = Monster.getPattern() == null || Monster.getPattern() == "" ? "3" : Monster.getPattern();
+        String pattern = Monster.getPattern() == null || Monster.getPattern().equals("") ? "3" : Monster.getPattern();
         
         //エネミーキャラクターの行動パターンを一覧で格納するリストを生成
         List<MonsterPattern> patternSourceList = new ArrayList<>();
@@ -93,4 +93,27 @@ public class MonsterPatternList {
 		
 		return pattern;
 	}
+	
+	
+	//エネミーキャラクターの行動パターンの削除に対応
+	public static String delete( Monster monster , String patternId ) {
+		
+		//エネミーキャラクターの現在の行動パターンを取得
+		String pattern = monster.getPattern();
+		
+		//行動パターンを配列に変換
+		String[] patternSource = pattern.split( "," );
+		
+		//配列をリストへ変換
+		List<String> sourceList = Arrays.asList( patternSource );
+		
+		//リストから削除指定された行動パターンを除く処理
+		sourceList = sourceList.stream().filter( s -> !s.equals( patternId )).toList();
+		
+		//リストから行動パターンへ再変換
+		pattern = sourceList.stream().collect( Collectors.joining( "," ));
+		
+		return pattern;
+	}
+	
 }
