@@ -55,7 +55,7 @@ public class PatternController {
         List<MonsterPattern> monsterPatternList = MonsterPatternList.create( monster , monsterPatternRepository );
         
         //全行動パターンの抽出
-        List<MonsterPattern> monsterPatternAllList = monsterPatternRepository.findAll();
+        List<MonsterPattern> monsterPatternAllList = MonsterPatternList.create( monsterPatternRepository );
         
 		//全行動パターンのリストから追加可能な行動パターンだけを抽出
 		List<MonsterPattern> monsterPatternAddPossibleList = MonsterPatternList.create( monsterPatternList , monsterPatternAllList );

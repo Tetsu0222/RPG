@@ -8,6 +8,11 @@
 	</head>
 	
 	<body>
+		
+			<form th:action="@{/}" method="get">
+				<button type="submit" th:formaction="@{/ally/create}">新規登録</button>
+			</form>
+			
 			<table border="1">
 				<tr>
 					<th>id</th>
@@ -76,6 +81,12 @@
 					</tr>
 				</form>	
 			</table>
+			
+			<form th:action="@{/}" method="get">
+				<div>
+					<button type="submit" th:formaction="@{/}">TOPへ戻る</button>
+				</div>
+			</form>
 	</body>
 
 </html>

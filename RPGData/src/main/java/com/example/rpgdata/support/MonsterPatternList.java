@@ -47,6 +47,16 @@ public class MonsterPatternList {
 	}
 	
 	
+	//すべての行動パターンからダミーを除く。
+	public static List<MonsterPattern> create( MonsterPatternRepository monsterPatternRepository ) {
+		List<MonsterPattern> monsterPatternAllList = monsterPatternRepository.findAll().stream()
+													.filter( s -> s.getId() != 3 )
+													.toList();
+		
+		return monsterPatternAllList;
+	}
+	
+	
 	//すべての行動パターンと設定されている行動パターンを突合、重複していない行動パターンだけを抽出する。
 	public static List<MonsterPattern> create( List<MonsterPattern> monsterPatternList , List<MonsterPattern> monsterPatternAllListt ) {
 		

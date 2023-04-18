@@ -240,7 +240,7 @@ public class MagicController {
 	
 	//魔法検索に対応
 	@PostMapping( "/magic/query" )
-	public ModelAndView allyQuery( @ModelAttribute MagicQuery magicQuery , 
+	public ModelAndView magicQuery( @ModelAttribute MagicQuery magicQuery , 
 									ModelAndView mv ) {
 		
 		mv.setViewName( "magic" );
@@ -254,6 +254,37 @@ public class MagicController {
 		session.setAttribute( "magicQuery" , magicQuery );
 		mv.addObject( "magicList" , magicList );
 		mv.addObject( "magicAllList" , magicList );
+		
+		return mv;
+	}
+	
+	
+	//プレイアブルキャラクターの魔法検索に対応
+	@PostMapping( "/ally/magic/query" )
+	public ModelAndView allyMagicQuery( @ModelAttribute MagicQuery magicQuery , 
+										ModelAndView mv ) {
+		
+		mv.setViewName( "magic" );
+		
+		//セッションからプレイアブルキャラクターの情報を取得
+		Ally ally = (Ally)session.getAttribute( "ally" );
+		
+		//検索条件に合致する魔法リストを生成
+        List<Magic> magicList = magicDaoImp.findByCriteria( magicQuery );
+        
+        //プレイアブルキャラクターの使用可能な魔法を取得
+        List<Magic> allyMagicList = MagicList.create( ally , magicRepository );
+        
+        //魔法リストから例外対策のダミー魔法を除外
+        List<Magic> magicListNoDummy = MagicList.create( magicList );
+        
+        List<Magic> magicQueryList = allyMagicList.stream()
+        		.filter( s -> magicListNoDummy.contains( s ))
+        		.toList();
+        
+		session.setAttribute( "magicQuery" , magicQuery );
+		mv.addObject( "magicList" , magicQueryList );
+		mv.addObject( "magicAllList" , magicListNoDummy );
 		
 		return mv;
 	}

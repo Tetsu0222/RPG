@@ -45,7 +45,12 @@
 							</select>
 						</td>
 						<td>
-							<button type="submit" th:formaction="@{/magic/query}">検索(未実装）</button>
+							<div th:if="${session.magicmode == 'reading'}">
+								<button type="submit" th:formaction="@{/ally/magic/query}">検索</button>
+							</div>
+							<div th:if="${session.magicmode == 'edit'}">
+								<button type="submit" th:formaction="@{/magic/query}">検索</button>
+							</div>
 						</td>
 					</tr>
 				</table>
