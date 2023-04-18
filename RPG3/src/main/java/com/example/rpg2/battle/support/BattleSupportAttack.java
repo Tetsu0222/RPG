@@ -352,7 +352,8 @@ public class BattleSupportAttack {
 		//グループ攻撃用のリストを再生成
 		this.enemyNameList = targetSetEnemy.stream()
 											.map( id -> monsterDataMap.get( id ) )
-											.map( monsterData -> monsterData.getName() )
+											.map( monsterData -> monsterData.getOriginalName() )
+											.distinct()
 											.toList();
 		
 	}
