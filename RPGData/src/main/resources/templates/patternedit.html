@@ -8,6 +8,156 @@
 	</head>
 	
 	<body>
-	
+		
+		<!-- エネミーキャラクターの行動パターンの編集  -->
+		<div th:if="${session.patternmode == 'reading'}">
+			
+			<table border="1">
+				<tr>
+					<th>id</th>
+					<th>名前</th>
+					<th>MP</th>
+					<th>分類</th>
+					<th>威力</th>
+					<th>補正値</th>
+					<th>範囲</th>
+					<th>説明文</th>
+					<th>バフ・デバフ</th>
+					<th>属性</th>
+					<th></th>
+				</tr>
+				<!-- 行動パターンの一覧 -->
+				<form th:action="@{/}" method="post">
+					<tr th:each="pattern:${monsterPatternList}">
+						<td>
+							<a th:text="${pattern.id}"></a>
+						</td>
+						<td>
+							<a th:text="${pattern.name}"></a>
+						</td>
+						<td>
+							<a th:text="${pattern.mp}"></a>
+						</td>
+						<td>
+							<a th:text="${pattern.category}"></a>
+						</td>
+						<td>
+							<a th:text="${pattern.point}"></a>
+						</td>
+						<td>
+							<a th:text="${pattern.percentage}"></a>
+						</td>
+						<td>
+							<a th:text="${pattern.range}"></a>
+						</td>
+						<td>
+							<a th:text="${pattern.text}"></a>
+						</td>
+						<td>
+							<a th:text="${pattern.buffcategory}"></a>
+						</td>
+						<td>
+							<a th:text="${pattern.attribute}"></a>
+						</td>
+						<td>
+							<button type="submit" th:formaction="@{/enemy/pattern/delete/__${pattern.id}__}">使用不可にする(未実装）</button>
+						</td>
+					</tr>
+				</form>
+			</table>
+			
+			<form th:action="@{/}" method="post">
+				<div th:unless="${monsterPatternAddPossibleList.size() == 0}">
+					<select name="patternAddId">
+						<option th:each="a : ${monsterPatternAddPossibleList}" th:value="${a.id}" th:text="${a.name}" th:selected="${a.id} == *{addId}"></option>
+					</select>
+					<button type="submit" th:formaction="@{/enemy/pattern/add}">行動パターンに追加</button>
+				</div>
+				<div th:if="${monsterPatternAddPossibleList.size() == 0}">
+					<a>すべての魔法が使用できます。</a>
+				</div>
+			</form>
+			
+			<form th:action="@{/}" method="get">
+				<div>
+					<button type="submit" th:formaction="@{/edit/enemy}">戻る</button>
+				</div>
+			</form>
+			
+		</div>
+		
+		
+		<!-- 行動パターン自体の編集画面を表示 -->
+		<div th:if="${session.patternmode == 'edit'}">
+			<form th:action="@{/}" method="get" >
+				<div>
+					<button type="submit" th:formaction="@{/pattern/create}">新規登録(未実装)</button>
+				</div>
+			</form>
+			
+			<table border="1">
+				<tr>
+					<th>id</th>
+					<th>名前</th>
+					<th>MP</th>
+					<th>分類</th>
+					<th>威力</th>
+					<th>補正値</th>
+					<th>範囲</th>
+					<th>説明文</th>
+					<th>バフ・デバフ</th>
+					<th>属性</th>
+					<th></th>
+				</tr>
+				<form th:action="@{/}" method="post" >
+					<tr th:each="pattern:${monsterPatternList}">
+						<td>
+							<a th:text="${pattern.id}"></a>
+						</td>
+						<td>
+							<a th:text="${pattern.name}"></a>
+						</td>
+						<td>
+							<a th:text="${pattern.mp}"></a>
+						</td>
+						<td>
+							<a th:text="${pattern.category}"></a>
+						</td>
+						<td>
+							<a th:text="${pattern.point}"></a>
+						</td>
+						<td>
+							<a th:text="${pattern.percentage}"></a>
+						</td>
+						<td>
+						<a th:text="${pattern.range}"></a>
+						</td>
+						<td>
+							<a th:text="${pattern.text}"></a>
+						</td>
+						<td>
+							<a th:text="${pattern.buffcategory}"></a>
+						</td>
+						<td>
+							<a th:text="${pattern.attribute}"></a>
+						</td>
+						<td>
+							<div th:unless="${pattern.id == 3}">
+							<button type="submit" th:formaction="@{/pattern/delete/__${pattern.id}__}">削除する</button>
+							</div>
+						</td>
+					</tr>
+				</form>
+			</table>
+			
+			<form th:action="@{/}" method="get">
+				<div>
+					<button type="submit" th:formaction="@{/}">TOPへ戻る</button>
+				</div>
+			</form>
+			
+		</div>
+		
+
 	</body>
 </html>

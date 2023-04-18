@@ -95,7 +95,7 @@ public class MagicController {
 	}
 	
 	
-	//魔法の新規登録のボタンに対応
+	//魔法の新規登録
 	@PostMapping( "/magic/create" )
 	public String magicCreateDo( @ModelAttribute @Validated MagicForm magicForm ,
 									BindingResult result ,
