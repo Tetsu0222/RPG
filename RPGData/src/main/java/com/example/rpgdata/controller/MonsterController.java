@@ -8,6 +8,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -76,6 +77,17 @@ public class MonsterController {
 		}else{
 			return "monstercreate";
 		}
+	}
+	
+	
+	//エネミーキャラクター削除に対応
+	@PostMapping( "/enemy/delete/{id}" )
+	public String enemyDelete( @PathVariable( name = "id" ) int id ,
+							  Model model ) {
+		
+		monsterRepository.deleteById( id );
+		
+		return "redirect:/edit/enemy";
 	}
 	
 	
