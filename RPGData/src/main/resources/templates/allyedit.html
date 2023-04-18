@@ -52,61 +52,61 @@
 				
 				<!-- 既存の一覧 -->
 				<form th:action="@{/}" method="post">
-				<tr th:each="ally:${allyList}">
-					<td>
-						<a th:text="${ally.id}"></a>
-					</td>
-					<td>
-						<a th:href="@{/ally/__${ally.id}__}" th:text="${ally.name}"></a>
-					</td>
-					<td>
-						<a th:text="${ally.hp}"></a>
-					</td>
-					<td>
-						<a th:text="${ally.mp}"></a>
-					</td>
-					<td>
-						<a th:text="${ally.atk}"></a>
-					</td>
-					<td>
-						<a th:text="${ally.def}"></a>
-					</td>
-					<td>
-						<a th:text="${ally.spe}"></a>
-					</td>
-					<td>
-						<a th:href="@{/ally/magic/__${ally.id}__}" >魔法一覧</a>
-					</td>
-					<td>
-						<a th:href="@{/ally/skill/__${ally.id}__}" >特技一覧</a>
-					</td>
-					<td>
-						<div th:if="${ally.resistance == 0 }">
-							<a>耐性なし</a>
-						</div>
-						<div th:if="${ally.resistance == 1 }">
-							<a>弱耐性</a>
-						</div>
-						<div th:if="${ally.resistance == 2 }">
-							<a>中耐性</a>
-						</div>						
-						<div th:if="${ally.resistance == 3 }">
-							<a>強耐性</a>
-						</div>
-						<div th:if="${ally.resistance == 4 }">
-							<a>状態異常無効</a>
-						</div>		
-					</td>
-					<td>
-						<a th:text="${ally.turnstartskill}"></a>
-					</td>
-					<td>
-						<a th:text="${ally.turnendskill}"></a>
-					</td>
-					<td>
-						<button type="submit" th:formaction="@{/ally/delete/__${ally.id}__}">削除</button>
-					</td>
-				</tr>
+					<tr th:each="ally:${allyList}">
+						<td>
+							<a th:text="${ally.id}"></a>
+						</td>
+						<td>
+							<a th:href="@{/ally/__${ally.id}__}" th:text="${ally.name}"></a>
+						</td>
+						<td>
+							<a th:text="${ally.hp}"></a>
+						</td>
+						<td>
+							<a th:text="${ally.mp}"></a>
+						</td>
+						<td>
+							<a th:text="${ally.atk}"></a>
+						</td>
+						<td>
+							<a th:text="${ally.def}"></a>
+						</td>
+						<td>
+							<a th:text="${ally.spe}"></a>
+						</td>
+						<td>
+							<a th:href="@{/ally/magic/__${ally.id}__}" >魔法一覧</a>
+						</td>
+						<td>
+							<a th:href="@{/ally/skill/__${ally.id}__}" >特技一覧</a>
+						</td>
+						<td>
+							<div th:if="${ally.resistance == 0 }">
+								<a>耐性なし</a>
+							</div>
+							<div th:if="${ally.resistance == 1 }">
+								<a>弱耐性</a>
+							</div>
+							<div th:if="${ally.resistance == 2 }">
+								<a>中耐性</a>
+							</div>						
+							<div th:if="${ally.resistance == 3 }">
+								<a>強耐性</a>
+							</div>
+							<div th:if="${ally.resistance == 4 }">
+								<a>状態異常無効</a>
+							</div>		
+						</td>
+						<td>
+							<a th:text="${ally.turnstartskill}"></a>
+						</td>
+						<td>
+							<a th:text="${ally.turnendskill}"></a>
+						</td>
+						<td>
+							<button type="submit" th:formaction="@{/ally/delete/__${ally.id}__}">削除</button>
+						</td>
+					</tr>
 				</form>
 				
 			</table>

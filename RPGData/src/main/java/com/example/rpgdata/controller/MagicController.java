@@ -245,7 +245,11 @@ public class MagicController {
 		
 		mv.setViewName( "magic" );
 		
+		//検索条件に合致する魔法リストを生成
         List<Magic> magicList = magicDaoImp.findByCriteria( magicQuery );
+        
+        //魔法リストから例外対策のダミー魔法を除外
+        magicList = MagicList.create( magicList );
         
 		session.setAttribute( "magicQuery" , magicQuery );
 		mv.addObject( "magicList" , magicList );

@@ -64,6 +64,17 @@ public class MagicList {
 	}
 	
 	
+	//ダミー魔法を除いたすべての魔法のリストを生成する。(検索に対応）
+	public static List<Magic> create( List<Magic> magicList ) {
+		
+		magicList = magicList.stream()
+				.filter( s -> s.getId() != 26 )
+				.toList();
+		
+		return magicList;
+	}
+	
+	
 	//すべての魔法リストと使用可能な魔法リストで重複している魔法を除外する（追加可能な魔法リストを生成）
 	public static List<Magic> create( List<Magic> magicList , List<Magic> magicAllList ) {
 		
@@ -74,7 +85,6 @@ public class MagicList {
 		if( magicAddPossibleList.size() == 0 ) {
 			//追加可能な魔法がない時の処理
 		}
-		
 		
 		return magicAddPossibleList;
 	}

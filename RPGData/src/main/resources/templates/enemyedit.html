@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+
+<html xmlns:th="http://www.thymeleaf.org">
+	
+	<head>
+		<meta charset="UTF-8">
+		<title>Insert title here</title>
+	</head>
+	
+	<body>
+			<table border="1">
+				<tr>
+					<th>id</th>
+					<th>名前</th>
+					<th>HP</th>
+					<th>MP</th>
+					<th>攻撃力</th>
+					<th>防御力</th>
+					<th>素早さ</th>
+					<th>行動パターン</th>
+					<th>行動回数</th>
+					<th>耐性力</th>
+					<th></th>
+				</tr>
+				
+				<!-- 既存の一覧 -->
+				<form th:action="@{/}" method="post">
+					<tr th:each="enemy:${monsterList}">
+						<td>
+							<a th:text="${enemy.id}"></a>
+						</td>
+						<td>
+							<a th:href="@{/enemy/__${enemy.id}__}" th:text="${enemy.name}"></a>
+						</td>
+						<td>
+							<a th:text="${enemy.hp}"></a>
+						</td>
+						<td>
+							<a th:text="${enemy.mp}"></a>
+						</td>
+						<td>
+							<a th:text="${enemy.atk}"></a>
+						</td>
+						<td>
+							<a th:text="${enemy.def}"></a>
+						</td>
+						<td>
+							<a th:text="${enemy.spe}"></a>
+						</td>
+						<td>
+							<a th:href="@{/enemy/pattern/__${enemy.id}__}" >行動一覧</a>
+						</td>
+						<td>
+							<a th:text="${enemy.actions}"></a>
+						</td>
+						<td>
+							<div th:if="${enemy.resistance == 0 }">
+								<a>耐性なし</a>
+							</div>
+							<div th:if="${enemy.resistance == 1 }">
+								<a>弱耐性</a>
+							</div>
+							<div th:if="${enemy.resistance == 2 }">
+								<a>中耐性</a>
+							</div>						
+							<div th:if="${enemy.resistance == 3 }">
+								<a>強耐性</a>
+							</div>
+							<div th:if="${enemy.resistance == 4 }">
+								<a>状態異常無効</a>
+							</div>		
+						</td>
+						<td>
+							<button type="submit" th:formaction="@{/enemy/delete/__${enemy.id}__}">削除</button>
+						</td>
+					</tr>
+				</form>	
+			</table>
+	</body>
+
+</html>
