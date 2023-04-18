@@ -162,4 +162,14 @@ public class MonsterController {
 		return "redirect:/edit/enemy";
 	}
 	
+	
+	//新規作成→登録完了に対応
+	@GetMapping( "/enemy/complete" )
+	public String complete2( Model model ) {
+		
+		session.invalidate();
+		
+		return "redirect:/edit/enemy";
+	}
+	
 }

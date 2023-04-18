@@ -4,7 +4,10 @@ import java.util.List;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -24,9 +27,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SkillController {
 
-	private final AllyRepository  			allyRepository;
-	private final SkillRepository			skillRepository;
-	private final HttpSession				session;
+	private final AllyRepository allyRepository;
+	private final SkillRepository skillRepository;
+	private final HttpSession session;
 	
 	
 	
@@ -159,4 +162,28 @@ public class SkillController {
 		return mv;
 		
 	}
+	
+	
+	//特技の新規登録
+	@PostMapping( "/skill/create" )
+	public String skillCreateDo( @ModelAttribute @Validated SkillForm skillForm ,
+									BindingResult result ,
+									Model model ) {
+		
+		//エラーなし
+		if( !result.hasErrors() ) {
+			Skill skill = skillForm.toEntity();
+			skillRepository.saveAndFlush( skill );
+			session.setAttribute( "announcement" , "success" );
+			
+			return "redirect:/skill/create";
+			
+		//エラーあり	
+		}else{
+			return "skillcreate";
+		}
+		
+	}
+	
+	
 }

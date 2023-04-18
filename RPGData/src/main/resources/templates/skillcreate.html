@@ -8,7 +8,170 @@
 	</head>
 	
 	<body>
-	
+		<div th:if="${session.announcement == 'success'}">
+			<h3>
+				登録完了!
+			</h3>
+		</div>
+		<div>
+			<table border="1">
+				<tr>
+					<th>項目</th>
+					<th>数値</th>
+				</tr>
+					
+				<form th:action="@{/}" method="post" th:object="${skillForm}">
+						
+					<!-- id部分は空欄 -->
+					<tr>
+						<td>
+							<a>id</a>
+						</td>
+						<td>
+							<input type="hidden" th:text="${id}" name="id" th:value="*{id}">
+						</td>
+					</tr>
+						
+					<tr>
+						<td>
+							<a>名前</a>
+						</td>
+						<td>
+							<input type="text" size="50" name="name" th:value="*{name}">
+							<div th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
+						</td>
+					</tr>
+						
+					<tr>
+						<td>
+							<a>消費MP</a>
+						</td>
+						<td>
+							<input type="text" size="5" name="mp" th:value="*{mp}">
+							<div th:if="${#fields.hasErrors('mp')}" th:errors="*{mp}"></div>
+						</td>
+					</tr>
+						
+					<tr>
+						<td>
+							<a>特技のカテゴリー</a>
+						</td>
+						<td>
+							<select name="category">
+								<option value="targetally" th:field="*{category}">味方への特技(蘇生以外)</option>
+								<option value="targetenemy" th:field="*{category}">敵への特技</option>
+								<option value="resuscitationskill" th:field="*{category}">蘇生特技</option>
+							</select>
+							<div th:if="${#fields.hasErrors('category')}" th:errors="*{category}"></div>
+						</td>
+					</tr>
+						
+					<tr>
+						<td>
+							<a>威力</a>
+						</td>
+						<td>
+							<input type="text" size="5" name="point"  th:value="*{point}">
+							<div th:if="${#fields.hasErrors('point')}" th:errors="*{point}"></div>
+						</td>
+					</tr>
+						
+					<tr>
+						<td>
+							<a>補正値</a>
+						</td>
+						<td>
+							<input type="text" size="5" name="percentage"  th:value="*{percentage}">
+							<div th:if="${#fields.hasErrors('percentage')}" th:errors="*{percentage}"></div>
+						</td>
+					</tr>
+						
+					<tr>
+						<td>
+							<a>効果範囲(味方への特技でグループは選択しない）</a>
+						</td>
+						<td>
+							<select name="range">
+								<option value="single" th:field="*{range}">単体</option>
+								<option value="group" th:field="*{range}">グループ</option>
+								<option value="whole" th:field="*{range}">全体</option>
+							</select>
+							<div th:if="${#fields.hasErrors('range')}" th:errors="*{range}"></div>
+						</td>
+					</tr>
+					
+					<tr>
+						<td>
+							<a>効果説明</a>
+						</td>
+						<td>
+							<input type="text" size="50" name="text"  th:value="*{text}">
+							<div th:if="${#fields.hasErrors('text')}" th:errors="*{text}"></div>
+						</td>
+					</tr>					
+						
+					<tr>
+						<td>
+							<a>バフ・デバフの種類</a>
+						</td>
+						<td>
+							<select name="buffcategory">
+								<option value="no" th:field="*{buffcategory}">なし</option>
+								<option value="DEF" th:field="*{buffcategory}">防御力</option>
+							</select>
+							<div th:if="${#fields.hasErrors('buffcategory')}" th:errors="*{buffcategory}"></div>
+						</td>
+					</tr>					
+						
+					<tr>
+						<td>
+							<a>発動回数</a>
+						</td>
+						<td>
+							<input type="text" size="5" name="frequency"  th:value="*{frequency}">
+							<div th:if="${#fields.hasErrors('frequency')}" th:errors="*{frequency}"></div>
+						</td>
+					</tr>
+					
+					<tr>
+						<td>
+							<a>対象選択方式</a>
+						</td>
+						<td>
+							<select name="target">
+								<option value="choice" th:field="*{target}">選択</option>
+								<option value="random" th:field="*{target}">ランダム</option>
+							</select>
+							<div th:if="${#fields.hasErrors('target')}" th:errors="*{target}"></div>
+						</td>
+					</tr>
+					
+					<tr>
+						<td>
+							<a>発動回数</a>
+						</td>
+						<td>
+							<input type="text" size="5" name="maxfrequency"  th:value="*{maxfrequency}">
+						</td>
+					</tr>
+						
+						<div th:if="${session.mode == 'skillcreate'}">
+							<button type="submit" th:formaction="@{/skill/create}">登録</button>
+						</div>
+						<div th:if="${session.mode == 'skillupdate'}">
+							<button type="submit" th:formaction="@{/skill/update}">更新</button>
+						</div>
+						
+						
+					</form>
+					
+				</table>
+				
+				<form>
+					<button type="submit" th:formaction="@{/edit/skill}">戻る</button>
+				</form>
+				
+			</div>
 	</body>
 	
 </html>
