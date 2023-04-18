@@ -118,6 +118,13 @@
 							<select name="buffcategory">
 								<option value="no" th:field="*{buffcategory}">なし</option>
 								<option value="DEF" th:field="*{buffcategory}">防御力</option>
+								<option value="burn" th:field="*{buffcategory}">火傷</option>
+								<option value="poison" th:field="*{buffcategory}">毒</option>
+								<option value="paralysis" th:field="*{buffcategory}">麻痺</option>
+								<option value="sleep" th:field="*{buffcategory}">睡眠</option>
+								<option value="swoon" th:field="*{buffcategory}">気絶</option>
+								<option value="confusion" th:field="*{buffcategory}">混乱</option>
+								<option value="wave" th:field="*{buffcategory}">いてつく波動</option>
 							</select>
 							<div th:if="${#fields.hasErrors('buffcategory')}" th:errors="*{buffcategory}"></div>
 						</td>
@@ -128,16 +135,22 @@
 							<a>属性</a>
 						</td>
 						<td>
-							<input type="text" size="50" name="attribute"  th:value="*{attribute}">
+							<select name="attribute">
+								<option value="no" th:field="*{attribute}">なし</option>
+								<option value="breath" th:field="*{attribute}">息系統</option>
+								<option value="fire" th:field="*{attribute}">炎系統</option>
+								<option value="flash" th:field="*{attribute}">閃光系統</option>
+								<option value="thunder" th:field="*{attribute}">雷系統</option>
+							</select>
 							<div th:if="${#fields.hasErrors('attribute')}" th:errors="*{attribute}"></div>
 						</td>
 					</tr>					
 						
 						
-					<div th:if="${session.mode == 'skillcreate'}">
+					<div th:if="${session.mode == 'patterncreate'}">
 						<button type="submit" th:formaction="@{/pattern/create}">登録</button>
 					</div>
-					<div th:if="${session.mode == 'skillupdate'}">
+					<div th:if="${session.mode == 'patternupdate'}">
 						<button type="submit" th:formaction="@{/pattern/update}">更新-未</button>
 					</div>
 							

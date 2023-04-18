@@ -4,7 +4,10 @@ import java.util.List;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -153,6 +156,28 @@ public class PatternController {
 		session.setAttribute( "mode" , "patterncreate" );
 		
 		return mv;
+		
+	}
+	
+	
+	//行動パターンの新規登録
+	@PostMapping( "/pattern/create" )
+	public String patternCreateDo( @ModelAttribute @Validated PatternForm patternForm ,
+									BindingResult result ,
+									Model model ) {
+		
+		//エラーなし
+		if( !result.hasErrors() ) {
+			MonsterPattern monsterPattern = patternForm.toEntity();
+			monsterPatternRepository.saveAndFlush( monsterPattern );
+			session.setAttribute( "announcement" , "success" );
+			
+			return "redirect:/pattern/create";
+			
+		//エラーあり	
+		}else{
+			return "patterncreate";
+		}
 		
 	}
     
