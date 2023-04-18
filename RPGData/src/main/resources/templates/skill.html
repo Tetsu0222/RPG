@@ -106,6 +106,91 @@
 					<button type="submit" th:formaction="@{/ally/create}">戻る</button>
 				</div>
 			</form>
+		</div>
+			
+			
+		<!-- 特技自体の編集画面を表示 -->
+		<div th:if="${session.skillmode == 'edit'}">
+			<form th:action="@{/}" method="get" >
+				<div>
+					<button type="submit" th:formaction="@{/skill/create}">新規登録</button>
+				</div>
+			</form>
+			
+			<table border="1">
+				<tr>
+					<th>id</th>
+					<th>名前</th>
+					<th>消費MP</th>
+					<th>カテゴリー</th>
+					<th>威力</th>
+					<th>補正値</th>
+					<th>範囲</th>
+					<th>説明文</th>
+					<th>バフ効果</th>
+					<th>発動回数</th>
+					<th>対象選択</th>
+					<th>最大発動回数</th>
+					<th></th>
+				</tr>
+				
+				<!-- 特技一覧 -->
+				<form th:action="@{/}" method="post" >
+					<tr th:each="skill:${skillAllList}">
+						<td>
+							<a th:text="${skill.id}"></a>
+						</td>
+						<td>
+							<a th:href="@{/skill/__${skill.id}__}"  th:text="${skill.name}"></a>
+						</td>
+						<td>
+							<a th:text="${skill.mp}"></a>
+						</td>
+						<td>
+							<a th:text="${skill.category}"></a>
+						</td>
+						<td>
+							<a th:text="${skill.point}"></a>
+						</td>
+						<td>
+							<a th:text="${skill.percentage}"></a>
+						</td>
+						<td>
+							<a th:text="${skill.range}"></a>
+						</td>
+						<td>
+							<a th:text="${skill.text}"></a>
+						</td>
+						<td>
+							<a th:text="${skill.buffcategory}"></a>
+						</td>
+						<td>
+							<a th:text="${skill.frequency}"></a>
+						</td>
+						<td>
+							<a th:text="${skill.target}"></a>
+						</td>
+						<td>
+							<a th:text="${skill.maxfrequency}"></a>
+						</td>
+						<td>
+							<div th:unless="${skill.id == 2}">
+								<button type="submit" th:formaction="@{/skill/delete/__${skill.id}__}">削除</button>
+							</div>
+						</td>
+					</tr>
+					
+				</form>
+				
+			</table>
+			
+			<form th:action="@{/}" method="get">
+				<div>
+					<button type="submit" th:formaction="@{/}">TOPへ戻る</button>
+				</div>
+			</form>
+			
+		</div>
 			
 			
 		</div>

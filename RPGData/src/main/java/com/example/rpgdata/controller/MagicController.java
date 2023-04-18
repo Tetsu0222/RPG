@@ -49,7 +49,7 @@ public class MagicController {
 	
 	
 	
-    //プレイアブルキャラクターの魔法一覧に対応
+    //魔法一覧に対応
     @GetMapping("/edit/magic")
     public ModelAndView magicEdit( ModelAndView mv ) {
     	

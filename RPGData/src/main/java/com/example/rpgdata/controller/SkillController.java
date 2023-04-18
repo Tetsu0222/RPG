@@ -12,6 +12,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.example.rpgdata.entity.Ally;
 import com.example.rpgdata.entity.Skill;
+import com.example.rpgdata.form.SkillForm;
 import com.example.rpgdata.repository.AllyRepository;
 import com.example.rpgdata.repository.SkillRepository;
 import com.example.rpgdata.support.SkillList;
@@ -26,6 +27,26 @@ public class SkillController {
 	private final AllyRepository  			allyRepository;
 	private final SkillRepository			skillRepository;
 	private final HttpSession				session;
+	
+	
+	
+	
+    //特技の一覧に対応
+    @GetMapping("/edit/skill")
+    public ModelAndView skillEdit( ModelAndView mv ) {
+    	
+        mv.setViewName( "skill" );
+        
+		//ダミー魔法を除いた全魔法リストを生成
+		List<Skill> skillAllList = SkillList.create( skillRepository );
+		
+		session.setAttribute( "announcement" , "normal" );
+        session.setAttribute( "skillmode" , "edit" );
+        mv.addObject( "skillAllList" , skillAllList );
+        
+		return mv;
+		
+    }
 	
 	
     //プレイアブルキャラクターの使用可能な特技一覧に対応
@@ -124,5 +145,18 @@ public class SkillController {
 		allyRepository.saveAndFlush( ally );
 		
 		return "redirect:/ally/skill/" + ally.getId();
+	}
+	
+	
+	//特技の新規登録のボタンに対応
+	@GetMapping( "/skill/create" )
+	public ModelAndView skillCreate( ModelAndView mv ) {
+		
+		mv.setViewName( "skillcreate" );
+		mv.addObject( "skillForm" , new SkillForm() );
+		session.setAttribute( "mode" , "skillcreate" );
+		
+		return mv;
+		
 	}
 }
