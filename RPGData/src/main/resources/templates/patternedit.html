@@ -76,16 +76,21 @@
 					<button type="submit" th:formaction="@{/enemy/pattern/add}">行動パターンに追加</button>
 				</div>
 				<div th:if="${monsterPatternAddPossibleList.size() == 0}">
-					<a>すべての魔法が使用できます。</a>
+					<a>すべての行動パターンを使用します。</a>
 				</div>
 			</form>
 			
 			<form th:action="@{/}" method="get">
 				<div th:unless="${session.announcement == 'monster'}">
-					<button type="submit" th:formaction="@{/edit/enemy}">戻る</button>
+					<div th:unless="${session.mode == 'update'}">
+						<button type="submit" th:formaction="@{/edit/enemy}">戻る</button>
+					</div>
 				</div>
 				<div th:if="${session.announcement == 'monster'}">
-					<button type="submit" th:formaction="@{/edit/enemy}">登録</button>
+					<button type="submit" th:formaction="@{/enemy/complete}">登録</button>
+				</div>
+				<div th:if="${session.mode == 'update'}">
+					<button type="submit" th:formaction="@{/enemy/__${session.monster.id}__}">戻る</button>
 				</div>
 			</form>
 			

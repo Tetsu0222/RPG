@@ -80,6 +80,42 @@ public class MonsterController {
 	}
 	
 	
+	//エネミーキャラクターの名前押下に対応→更新画面へ遷移
+    @GetMapping("/enemy/{id}")
+    public ModelAndView enemyById( @PathVariable( name = "id" ) int id , 
+    								ModelAndView mv ) {
+    	
+        mv.setViewName( "monstercreate" );
+        Monster monster = monsterRepository.findById( id ).orElseThrow();
+        
+        mv.addObject( "monsterForm" , monster );
+        session.setAttribute( "mode" , "update" );
+        
+        return mv;
+    }
+    
+    
+    //更新に対応
+    @PostMapping( "/enemy/update" )
+    public String update( @ModelAttribute @Validated MonsterForm monsterForm ,
+    						BindingResult result ,
+    						Model model ) {
+    	
+		//エラーなし
+		if( !result.hasErrors() ) {
+			Monster monster = monsterForm.toEntity();
+			monsterRepository.saveAndFlush( monster );
+			session.setAttribute( "announcement" , "success" );
+			
+			return "redirect:/enemy/" + monsterForm.getId() ;
+			
+		//エラーあり	
+		}else{
+			return "monstercreate";
+		}
+    }
+	
+	
 	//エネミーキャラクター削除に対応
 	@PostMapping( "/enemy/delete/{id}" )
 	public String enemyDelete( @PathVariable( name = "id" ) int id ,
@@ -98,7 +134,32 @@ public class MonsterController {
 		session.setAttribute( "announcement" , "normal" );
 		session.setAttribute( "mode" , "normal" );
 		
-		return "redirect:/edit/ally";
+		return "redirect:/edit/enemy";
+	}
+	
+	
+	//行動パターンの一覧画面からエネミーキャラクターの詳細画面へ推移（戻るボタン対応）
+    @PostMapping("/enemy/{id}")
+    public ModelAndView enemyById2( @PathVariable( name = "id" ) int id , 
+    								ModelAndView mv ) {
+    	
+        mv.setViewName( "monstercreate" );
+        Monster monster = monsterRepository.findById( id ).orElseThrow();
+        
+        mv.addObject( "monsterForm" , monster );
+        session.setAttribute( "mode" , "update" );
+        
+        return mv;
+    }
+    
+    
+	//新規作成→登録完了に対応
+	@PostMapping( "/enemy/complete" )
+	public String complete( Model model ) {
+		
+		session.invalidate();
+		
+		return "redirect:/edit/enemy";
 	}
 	
 }

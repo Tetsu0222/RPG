@@ -40,6 +40,7 @@ public class MonsterForm {
 	public Monster toEntity() {
 		
 		Monster monster = new Monster();
+		monster.setId( id );
 		monster.setName( name );
 		monster.setHp( hp );
 		monster.setMp( mp );
