@@ -218,4 +218,15 @@ public class PatternController {
     }
     
     
+	//行動パターンそのものの削除に対応
+	@PostMapping( "/pattern/delete/{id}" )
+	public String magicDelete( @PathVariable( name = "id" ) int id ,
+								Model model ) {
+		
+		monsterPatternRepository.deleteById( id );
+		
+		return "redirect:/edit/pattern";
+	}
+    
+    
 }
