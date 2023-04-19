@@ -180,5 +180,42 @@ public class PatternController {
 		}
 		
 	}
+	
+	
+	//行動パターンの名前を押下に対応→更新画面へ遷移
+    @GetMapping("/pattern/{id}")
+    public ModelAndView patternById( @PathVariable( name = "id" ) int id , 
+    									ModelAndView mv ) {
+    	
+        mv.setViewName( "patterncreate" );
+        MonsterPattern monsterPattern = monsterPatternRepository.findById( id ).orElseThrow();
+        
+        mv.addObject( "patternForm" , monsterPattern );
+        session.setAttribute( "mode" , "patternupdate" );
+        
+        return mv;
+    }
+    
+    
+    //行動パターンの更新に対応
+    @PostMapping("/pattern/update")
+    public String updatePattern( @ModelAttribute @Validated PatternForm patternForm ,
+								BindingResult result ,
+								Model model ) {
+		//エラーなし
+		if( !result.hasErrors() ) {
+			MonsterPattern monsterPattern = patternForm.toEntity();
+			monsterPatternRepository.saveAndFlush( monsterPattern );
+			session.setAttribute( "announcement" , "success" );
+			
+			return "redirect:/pattern/" + patternForm.getId() ;
+			
+		//エラーあり	
+		}else{
+			return "patterncreate";
+		}
+    	
+    }
+    
     
 }

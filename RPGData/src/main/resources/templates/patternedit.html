@@ -125,7 +125,7 @@
 							<a th:text="${pattern.id}"></a>
 						</td>
 						<td>
-							<a th:text="${pattern.name}"></a>
+							<a th:href="@{/pattern/__${pattern.id}__}" th:text="${pattern.name}"></a>
 						</td>
 						<td>
 							<a th:text="${pattern.mp}"></a>
