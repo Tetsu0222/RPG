@@ -2,6 +2,9 @@ package com.example.rpgdata.controller;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -51,20 +54,67 @@ public class MagicController {
 	
     //魔法一覧に対応
     @GetMapping("/edit/magic")
-    public ModelAndView magicEdit( ModelAndView mv ) {
+    public ModelAndView magicEdit( ModelAndView mv ,
+    		@PageableDefault( page = 0 , size = 10 , sort = "id" ) Pageable pageable) {
     	
         mv.setViewName( "magic" );
         
+        MagicQuery magicQuery = (MagicQuery)session.getAttribute( "magicQuery" );
+        
+		//セッションに情報がなければ新規生成
+        if( magicQuery == null ) {
+        	magicQuery = new MagicQuery();
+            session.setAttribute( "magicQuery" , magicQuery );
+        }
+        
+        //前回までのページ設定をセッションから取得
+        Pageable prevPageable = (Pageable)session.getAttribute( "prevPageable" );
+        
+        //セッションに情報がなければ新規生成
+        if( prevPageable == null ) {
+        	prevPageable = pageable;
+        	session.setAttribute( "prevPageable" , prevPageable );
+        }
+        
+        Page<Magic> pageList = magicDaoImp.findByCriteria( magicQuery , prevPageable );
+        
 		//ダミー魔法を除いた全魔法リストを生成
-		List<Magic> magicAllList = MagicList.create( magicRepository );
+		List<Magic> magicAllList = MagicList.create( pageList.getContent() );
 		
 		session.setAttribute( "announcement" , "normal" );
         session.setAttribute( "magicmode" , "edit" );
-        session.setAttribute( "magicQuery" , new MagicQuery() );
+        
         mv.addObject( "magicAllList" , magicAllList );
+        mv.addObject( "magicPage", pageList );
         
 		return mv;
 		
+    }
+    
+    
+	//ページリンクの押下に対応
+    @GetMapping("/magic/query")
+    public ModelAndView queryMagic( @PageableDefault( page = 0 , size = 10 , sort = "id" ) Pageable pageable ,
+                                   	ModelAndView mv) {
+    	
+    	mv.setViewName( "magic" );
+    	
+        //現在のページ位置を保存
+        session.setAttribute( "prevPageable" , pageable );
+        
+        //sessionに保存されている条件で検索
+        MagicQuery magicQuery = (MagicQuery)session.getAttribute( "magicQuery" );
+        Page<Magic> pageList = magicDaoImp.findByCriteria( magicQuery , pageable );
+        
+		//ダミー魔法を除いた全魔法リストを生成
+		List<Magic> magicAllList = MagicList.create( pageList.getContent() );
+        
+        session.setAttribute( "magicQuery" , magicQuery );
+        
+		mv.addObject( "magicAllList" , magicAllList );
+		mv.addObject( "magicPage", pageList );
+
+        return mv;
     }
     
     
@@ -243,19 +293,22 @@ public class MagicController {
 	//魔法検索に対応
 	@PostMapping( "/magic/query" )
 	public ModelAndView magicQuery( @ModelAttribute MagicQuery magicQuery , 
+									@PageableDefault( page = 0 , size = 10 , sort = "id" ) Pageable pageable ,
 									ModelAndView mv ) {
 		
 		mv.setViewName( "magic" );
 		
 		//検索条件に合致する魔法リストを生成
-        List<Magic> magicList = magicDaoImp.findByCriteria( magicQuery );
+		Page<Magic> pageList = magicDaoImp.findByCriteria( magicQuery , pageable );
         
         //魔法リストから例外対策のダミー魔法を除外
-        magicList = MagicList.create( magicList );
+		List<Magic> magicAllList = MagicList.create( pageList.getContent() );
         
 		session.setAttribute( "magicQuery" , magicQuery );
-		mv.addObject( "magicList" , magicList );
-		mv.addObject( "magicAllList" , magicList );
+		session.setAttribute( "prevPageable" , pageable );
+		
+		mv.addObject( "magicAllList" , magicAllList );
+		mv.addObject( "magicPage", pageList );
 		
 		return mv;
 	}

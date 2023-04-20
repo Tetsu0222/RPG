@@ -1,10 +1,11 @@
 package com.example.rpgdata.dao;
 
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import com.example.rpgdata.entity.Magic;
 import com.example.rpgdata.query.MagicQuery;
 
 public interface MagicDao {
-	List<Magic> findByCriteria( MagicQuery magicQuery );
+	Page<Magic> findByCriteria( MagicQuery magicQuery ,  Pageable pageable);
 }

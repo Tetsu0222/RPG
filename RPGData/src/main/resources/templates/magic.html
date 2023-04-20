@@ -221,13 +221,45 @@
 				</form>
 				
 			</table>
+		</div>
 			
+		<!-- ページの設定 -->
+		<div>
+			<table>
+				<tr>
+					<th>
+						<a th:text="|${magicPage.getNumber() + 1} / ${magicPage.getTotalPages()} ページを表示中|"></a>
+					</th>
+					<th></th>
+					<th></th>
+				</tr>
+				<tr>
+					<td>
+						<div th:if="${magicPage.isFirst()}">
+							<a>←前</a>
+						</div>
+						<div>
+							<a th:unless="${magicPage.isFirst()}" th:href="@{/magic/query(page = ${magicPage.getNumber() - 1})}">←前</a>
+						</div>
+					</td>
+					<td>
+						<div th:if="${magicPage.isLast()}">
+							<a>次→</a>
+						</div>
+						<div>
+							<a th:unless="${magicPage.isLast()}" th:href="@{/magic/query(page = (${magicPage.getNumber()+ 1}))}">次→</a>
+						</div>
+					</td>
+				</tr>
+			</table>
+		</div>
+			
+		<div>
 			<form th:action="@{/}" method="get">
 				<div>
 					<button type="submit" th:formaction="@{/}">TOPへ戻る</button>
 				</div>
 			</form>
-			
 		</div>
 			
 		
