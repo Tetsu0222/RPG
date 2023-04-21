@@ -126,7 +126,7 @@
 								</select>
 								<div th:if="${#fields.hasErrors('resistance')}" th:errors="*{resistance}"></div>
 							</td>
-						</tr>					
+						</tr>				
 						
 						<div th:if="${session.mode == 'create'}">
 							<button type="submit" th:formaction="@{/enemy/create}">登録</button>
@@ -135,10 +135,33 @@
 						<div th:if="${session.mode == 'update'}">
 							<button type="submit" th:formaction="@{/enemy/update}">更新</button>
 						</div>
-						
-					</form>
+					</table>
+				</form>
 					
-				</table>
+				
+					<form th:action="@{/enemy/photo/upload}" enctype="multipart/form-data" method="post">
+						<table>
+							<tr>
+								<th>ファイル名</th>
+								<th>メモ</th>
+							</tr>
+									
+							<tr>
+								<td>
+									<input type="file" name="file_contents" required>
+								</td>
+				
+								<td>
+									<input type="text" name="note" size="40">
+								</td>
+							</tr>
+						</table>
+						
+						<button type="submit">登録</button>
+						<input type="hidden" name="enemy_id" th:value="${monsterForm.id}">
+					</form>	
+				
+				
 				
 				<form th:action="@{/}" method="post" >
 					<button type="submit" th:formaction="@{/enemy/cancel}">戻る</button>

@@ -87,6 +87,7 @@ public class MagicDaoImp implements MagicDao{
 	}
 	
 	
+	//ページネーションに非対応用
 	public List<Magic> findByCriteria( MagicQuery magicQuery ) {
 		
 		//おまじない

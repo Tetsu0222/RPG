@@ -10,11 +10,15 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.example.rpgdata.entity.Monster;
 import com.example.rpgdata.form.MonsterForm;
+import com.example.rpgdata.repository.AttachedFileRepository;
 import com.example.rpgdata.repository.MonsterRepository;
+import com.example.rpgdata.support.SaveAttachedFile;
 
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +29,7 @@ public class MonsterController {
 	
 	private final MonsterRepository monsterRepository;
 	private final HttpSession session;
-	
+	private final AttachedFileRepository attachedFileRepository;
 	
 	
 	//エネミーキャラクターの一覧画面に対応
@@ -171,5 +175,25 @@ public class MonsterController {
 		
 		return "redirect:/edit/enemy";
 	}
+	
+	
+	//エネミーキャラクターの画像をアップロード（工事中）
+	@PostMapping("/enemy/photo/upload")
+	public String uploadAttachedFile( @RequestParam( "enemy_id" ) int enemyId,
+										@RequestParam( "note" ) String note,
+										@RequestParam( "file_contents" ) MultipartFile fileContents ) {
+		
+		//ファイルが空かチェック
+		if( fileContents.isEmpty() ) {
+			//no
+			
+		}else{
+			SaveAttachedFile saveAttachedFile = new SaveAttachedFile();
+			saveAttachedFile.saveAttachedFile( enemyId , note , fileContents , attachedFileRepository );
+		}
+		
+		
+		return "redirect:/edit/enemy";
+    }
 	
 }

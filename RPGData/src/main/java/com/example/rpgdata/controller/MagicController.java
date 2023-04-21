@@ -189,7 +189,38 @@ public class MagicController {
     	
     }
 	
+    
+    //プレイアブルキャラクターの使用可能な特技一覧に対応
+    @GetMapping("/ally/magic/{id}")
+    public ModelAndView magic( @PathVariable( name = "id" ) int id , 
+    							ModelAndView mv ) {
+    	
+        mv.setViewName( "magic" );
+        
+        //選択されたキャラクターの情報を取得
+        Ally ally = allyRepository.findById( id ).orElseThrow();
+		
+        //キャラクターの使用可能な魔法を一覧で格納するリストを生成
+        List<Magic> magicList = MagicList.create( ally , magicRepository );
+        
+		//ダミー魔法を除いた全魔法リストを生成
+        List<Magic> magicAllList = MagicList.create( magicRepository );
+		
+		//全魔法リストから追加可能な魔法だけを抽出
+        List<Magic> magicAddPossibleList = MagicList.create( magicList , magicAllList );
+		
+        session.setAttribute( "magicmode" , "reading" );
+        session.setAttribute( "ally" , ally );
+        session.setAttribute( "magicQuery" , new MagicQuery() );
+        mv.addObject( "magicList" , magicList );
+        mv.addObject( "magicAllList" , magicAddPossibleList );
+        
+		return mv;
+		
+    }
+    
 	
+    /* バグ発生中のため、ページネーション未実装
     //プレイアブルキャラクターを選択→使用可能な魔法一覧に対応
     @GetMapping("/ally/magic/{id}")
     public ModelAndView magic( @PathVariable( name = "id" ) int id , 
@@ -247,8 +278,9 @@ public class MagicController {
 		return mv;
 		
     }
+    */
     
-    
+    //バグ発生のためリンク削除 修正予定
 	//プレイアブルキャラクターの使用可能な魔法のページリンクの押下に対応
     @GetMapping("/magic/ally/query")
     public ModelAndView queryAllyMagic( @PageableDefault( page = 0 , size = 10 , sort = "id" ) Pageable pageable ,
