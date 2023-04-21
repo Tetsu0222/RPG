@@ -55,7 +55,7 @@ public class MagicController {
     //魔法一覧に対応
     @GetMapping("/edit/magic")
     public ModelAndView magicEdit( ModelAndView mv ,
-    		@PageableDefault( page = 0 , size = 10 , sort = "id" ) Pageable pageable) {
+    		@PageableDefault( page = 0 , size = 10 , sort = "id" ) Pageable pageable ) {
     	
         mv.setViewName( "magic" );
         
@@ -193,16 +193,43 @@ public class MagicController {
     //プレイアブルキャラクターを選択→使用可能な魔法一覧に対応
     @GetMapping("/ally/magic/{id}")
     public ModelAndView magic( @PathVariable( name = "id" ) int id , 
+    							@PageableDefault( page = 0 , size = 10 , sort = "id" ) Pageable pageable ,
     							ModelAndView mv ) {
     	
         mv.setViewName( "magic" );
+        
+        MagicQuery magicQuery = (MagicQuery)session.getAttribute( "magicQuery" );
+        
+		//セッションに情報がなければ新規生成
+        if( magicQuery == null ) {
+        	magicQuery = new MagicQuery();
+            session.setAttribute( "magicQuery" , magicQuery );
+        }
+        
+        //前回までのページ設定をセッションから取得
+        Pageable prevPageable = (Pageable)session.getAttribute( "prevPageable" );
+        
+        //セッションに情報がなければ新規生成
+        if( prevPageable == null ) {
+        	prevPageable = pageable;
+        	session.setAttribute( "prevPageable" , prevPageable );
+        }
         
         //選択されたキャラクターの情報を取得
         Ally ally = allyRepository.findById( id ).orElseThrow();
 		
         //キャラクターの使用可能な魔法を一覧で格納するリストを生成
-        List<Magic> magicList = MagicList.create( ally , magicRepository );
+        List<Magic> allyMagicList = MagicList.create( ally , magicRepository );
+        Page<Magic> pageList = magicDaoImp.findByCriteria( magicQuery , prevPageable );
+
+		//ダミー魔法を除いた全魔法リストを生成
+		List<Magic> magicSourceList = MagicList.create( pageList.getContent() );
         
+		//プレイアブルキャラクターの使用可能な魔法だけに限定
+		List<Magic> magicList = magicSourceList.stream()
+				.filter( magic -> allyMagicList.contains( magic ) )
+				.toList();
+				
 		//ダミー魔法を除いた全魔法リストを生成
 		List<Magic> magicAllList = MagicList.create( magicRepository );
 		
@@ -211,12 +238,58 @@ public class MagicController {
 		
         session.setAttribute( "magicmode" , "reading" );
         session.setAttribute( "ally" , ally );
-        session.setAttribute( "magicQuery" , new MagicQuery() );
+        session.setAttribute( "magicQuery" , magicQuery );
+        
         mv.addObject( "magicList" , magicList );
         mv.addObject( "magicAllList" , magicAddPossibleList );
+        mv.addObject( "magicPage", pageList );
         
 		return mv;
 		
+    }
+    
+    
+	//プレイアブルキャラクターの使用可能な魔法のページリンクの押下に対応
+    @GetMapping("/magic/ally/query")
+    public ModelAndView queryAllyMagic( @PageableDefault( page = 0 , size = 10 , sort = "id" ) Pageable pageable ,
+                                   		ModelAndView mv) {
+    	
+    	mv.setViewName( "magic" );
+    	
+        //現在のページ位置を保存
+        session.setAttribute( "prevPageable" , pageable );
+        
+        //sessionに保存されている条件で検索
+    	Ally ally = (Ally)session.getAttribute( "ally" );
+        MagicQuery magicQuery = (MagicQuery)session.getAttribute( "magicQuery" );
+        
+        //キャラクターの使用可能な魔法を一覧で格納するリストを生成
+        List<Magic> allyMagicList = MagicList.create( ally , magicRepository );
+        Page<Magic> pageList = magicDaoImp.findByCriteria( magicQuery , pageable );
+        
+		//ダミー魔法を除いた全魔法リストを生成
+		List<Magic> magicSourceList = MagicList.create( pageList.getContent() );
+        
+		//プレイアブルキャラクターの使用可能な魔法だけに限定
+		List<Magic> magicList = magicSourceList.stream()
+				.filter( magic -> allyMagicList.contains( magic ) )
+				.toList();
+        
+		//ダミー魔法を除いた全魔法リストを生成
+		List<Magic> magicAllList = MagicList.create( magicRepository );
+		
+		//全魔法リストから追加可能な魔法だけを抽出
+		List<Magic> magicAddPossibleList = MagicList.create( magicList , magicAllList );
+		
+		session.setAttribute( "magicmode" , "reading" );
+        session.setAttribute( "magicQuery" , magicQuery );
+        session.setAttribute( "ally" , ally );
+        
+        mv.addObject( "magicList" , magicList );
+        mv.addObject( "magicAllList" , magicAddPossibleList );
+		mv.addObject( "magicPage", pageList );
+
+        return mv;
     }
     
     
