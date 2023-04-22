@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.example.rpgdata.entity.AttachedFile;
 import com.example.rpgdata.entity.Monster;
 import com.example.rpgdata.form.MonsterForm;
 import com.example.rpgdata.repository.AttachedFileRepository;
@@ -92,7 +93,10 @@ public class MonsterController {
         mv.setViewName( "monstercreate" );
         Monster monster = monsterRepository.findById( id ).orElseThrow();
         
-        mv.addObject( "monsterForm" , monster );
+        //画像データを抽出
+        List<AttachedFile> attachedFiles = attachedFileRepository.findByEnemyIdOrderById( id );
+        
+        mv.addObject( "monsterForm" , new MonsterForm( monster , attachedFiles ) );
         session.setAttribute( "mode" , "update" );
         
         return mv;
@@ -177,10 +181,10 @@ public class MonsterController {
 	}
 	
 	
-	//エネミーキャラクターの画像をアップロード（工事中）
+	//エネミーキャラクターの画像をアップロード
 	@PostMapping("/enemy/photo/upload")
-	public String uploadAttachedFile( @RequestParam( "enemy_id" ) int enemyId,
-										@RequestParam( "note" ) String note,
+	public String uploadAttachedFile( @RequestParam( "enemy_id" ) int enemyId ,
+										@RequestParam( "note" ) String note ,
 										@RequestParam( "file_contents" ) MultipartFile fileContents ) {
 		
 		//ファイルが空かチェック
@@ -193,7 +197,21 @@ public class MonsterController {
 		}
 		
 		
-		return "redirect:/edit/enemy";
+		return "redirect:/enemy/" + enemyId ;
     }
 	
+	
+	//エネミーキャラクターの画像の削除に対応
+	@GetMapping( "/enemy/photo/delete" )
+	public String deleteAttachedFile( @RequestParam( name = "af_id" ) int afId ,
+									  @RequestParam( name = "enemy_id" ) int enemyId ) {
+		
+		//実データの削除
+		SaveAttachedFile.deleteAttachedFile( afId , attachedFileRepository );
+		
+		//テーブルからの削除
+		attachedFileRepository.deleteById( afId );
+		
+		return "redirect:/enemy/" + enemyId ;
+	}
 }

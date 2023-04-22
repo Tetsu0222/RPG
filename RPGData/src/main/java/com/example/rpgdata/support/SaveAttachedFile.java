@@ -70,4 +70,51 @@ public class SaveAttachedFile {
     }
 	
 	
+	//ファイルの拡張子からコンテントタイプを判定するメソッド
+	public static String ext2contentType( String ext ) {
+		
+		String contentType;
+			if( ext == null ) {
+				
+				return "";
+			}
+		
+		//拡張子に応じて返すコンテントタイプをスイッチ
+		switch( ext.toLowerCase() ) {
+			
+			case "gif":
+				contentType = "image/gif";
+				break;
+			
+			//以下はどちらも同じ対応
+			case "jpg":
+			case "jpeg":
+				contentType = "image/jpeg";
+				break;
+				
+			case "png":
+				contentType = "image/png";
+				break;
+				
+			case "pdf":
+				contentType = "application/pdf";
+				break;
+				
+			//上記以外
+			default:
+				contentType = "";
+				break;
+		}
+		
+		return contentType;
+	}
+	
+	//ファイルの削除
+    public static void deleteAttachedFile( int afId , AttachedFileRepository attachedFileRepository ) {
+
+    	AttachedFile af = attachedFileRepository.findById( afId ).orElseThrow();
+    	File file = new File( makeAttahcedFilePath( "C:/temp/uploadFiles" , af ));
+    	file.delete();
+    	
+    }
 }
