@@ -179,7 +179,7 @@
 						<tr th:each="af:*{monsterForm.attachedFileList}">
 							<td th:text="${af.id}"></td>
 							<td th:if="${af.openInNewTab}">
-								<a th:href="@{/enemy/photo/download/__${af.id}__}" target="_blank" rel="noopener noreferrer">ダウンロード（未実装）</a>
+								<a th:href="@{/enemy/photo/download/__${af.id}__}" target="_blank" rel="noopener noreferrer">表示</a>
 							</td>
 							<td th:unless="${af.openInNewTab}">
 								<a th:href="@{/enemy/photo/download/__${af.id}__}" th:text="${af.fileName}"></a>

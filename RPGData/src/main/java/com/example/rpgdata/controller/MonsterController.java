@@ -19,8 +19,10 @@ import com.example.rpgdata.entity.Monster;
 import com.example.rpgdata.form.MonsterForm;
 import com.example.rpgdata.repository.AttachedFileRepository;
 import com.example.rpgdata.repository.MonsterRepository;
+import com.example.rpgdata.support.DownloadAttachedFile;
 import com.example.rpgdata.support.SaveAttachedFile;
 
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
@@ -214,4 +216,15 @@ public class MonsterController {
 		
 		return "redirect:/enemy/" + enemyId ;
 	}
+	
+	
+    //エネミーキャラクターの画像データのダウンロードに対応
+    @GetMapping( "/enemy/photo/download/{afId}" )
+    public void downloadAttachedFile(@PathVariable( name = "afId" ) int afId ,
+                                       HttpServletResponse response) {
+
+    	DownloadAttachedFile downloadAttachedFile = new DownloadAttachedFile();
+    	downloadAttachedFile.downloadAttachedFile( afId , response , attachedFileRepository );
+    }
+	
 }
