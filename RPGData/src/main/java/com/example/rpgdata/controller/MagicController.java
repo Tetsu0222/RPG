@@ -190,7 +190,7 @@ public class MagicController {
     }
 	
     
-    //プレイアブルキャラクターの使用可能な特技一覧に対応
+    //プレイアブルキャラクターの使用可能な魔法一覧に対応
     @GetMapping("/ally/magic/{id}")
     public ModelAndView magic( @PathVariable( name = "id" ) int id , 
     							ModelAndView mv ) {
@@ -345,6 +345,7 @@ public class MagicController {
 		
         session.setAttribute( "magicmode" , "reading" );
         session.setAttribute( "ally" , ally );
+        session.setAttribute( "magicQuery" , new MagicQuery() );
         mv.addObject( "magicList" , magicList );
         mv.addObject( "magicAllList" , magicAddPossibleList );
         
