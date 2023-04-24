@@ -109,12 +109,5 @@ public class SaveAttachedFile {
 		return contentType;
 	}
 	
-	//ファイルの削除
-    public static void deleteAttachedFile( int afId , AttachedFileRepository attachedFileRepository ) {
 
-    	AttachedFile af = attachedFileRepository.findById( afId ).orElseThrow();
-    	File file = new File( makeAttahcedFilePath( "C:/temp/uploadFiles" , af ));
-    	file.delete();
-    	
-    }
 }

@@ -19,6 +19,7 @@ import com.example.rpgdata.entity.Monster;
 import com.example.rpgdata.form.MonsterForm;
 import com.example.rpgdata.repository.AttachedFileRepository;
 import com.example.rpgdata.repository.MonsterRepository;
+import com.example.rpgdata.support.DeleteAttachedFile;
 import com.example.rpgdata.support.DownloadAttachedFile;
 import com.example.rpgdata.support.SaveAttachedFile;
 
@@ -121,6 +122,7 @@ public class MonsterController {
 			
 		//エラーあり	
 		}else{
+			
 			return "monstercreate";
 		}
     }
@@ -132,6 +134,7 @@ public class MonsterController {
 							  Model model ) {
 		
 		monsterRepository.deleteById( id );
+		DeleteAttachedFile.deleteEnemyAndAttachedFiles( id , attachedFileRepository );
 		
 		return "redirect:/edit/enemy";
 	}
@@ -191,7 +194,6 @@ public class MonsterController {
 		
 		//ファイルが空かチェック
 		if( fileContents.isEmpty() ) {
-			//no
 			
 		}else{
 			SaveAttachedFile saveAttachedFile = new SaveAttachedFile();
@@ -209,7 +211,7 @@ public class MonsterController {
 									  @RequestParam( name = "enemy_id" ) int enemyId ) {
 		
 		//実データの削除
-		SaveAttachedFile.deleteAttachedFile( afId , attachedFileRepository );
+		DeleteAttachedFile.deleteAttachedFile( afId , attachedFileRepository );
 		
 		//テーブルからの削除
 		attachedFileRepository.deleteById( afId );
