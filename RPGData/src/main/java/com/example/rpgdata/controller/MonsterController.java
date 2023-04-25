@@ -133,7 +133,10 @@ public class MonsterController {
 	public String enemyDelete( @PathVariable( name = "id" ) int id ,
 							  Model model ) {
 		
+		//エネミーキャラクターそのものの削除
 		monsterRepository.deleteById( id );
+		
+		//エネミーキャラクターと関連している画像の削除
 		DeleteAttachedFile.deleteEnemyAndAttachedFiles( id , attachedFileRepository );
 		
 		return "redirect:/edit/enemy";
@@ -210,11 +213,8 @@ public class MonsterController {
 	public String deleteAttachedFile( @RequestParam( name = "af_id" ) int afId ,
 									  @RequestParam( name = "enemy_id" ) int enemyId ) {
 		
-		//実データの削除
+		//実データとテーブルからファイルを削除
 		DeleteAttachedFile.deleteAttachedFile( afId , attachedFileRepository );
-		
-		//テーブルからの削除
-		attachedFileRepository.deleteById( afId );
 		
 		return "redirect:/enemy/" + enemyId ;
 	}
