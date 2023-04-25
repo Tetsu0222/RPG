@@ -140,6 +140,7 @@ public class AllyData {
 	}
 	
 
+	//hashCode()とequals()は独自定義
 	public int hashCode() {
 		
 		return allyId.hashCode();
