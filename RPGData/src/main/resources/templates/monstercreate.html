@@ -139,9 +139,10 @@
 				</table>
 				
 				<!-- 画像データのアップロード -->
-				<div>
+				<div th:unless="${session.mode == 'create'}">
 					<h3>画像データの登録</h3>
 					<form th:action="@{/enemy/photo/upload}" enctype="multipart/form-data" method="post">
+						
 						<table border="1">
 							<tr>
 								<th>ファイル名</th>
@@ -153,7 +154,6 @@
 								<td>
 									<input type="file" name="file_contents" required>
 								</td>
-				
 								<td>
 									<input type="text" name="note" size="40">
 								</td>
@@ -164,11 +164,10 @@
 							</tr>
 						</table>
 						
-
 					</form>	
 				</div>
 				
-				<div>
+				<div th:unless="${session.mode == 'create'}">
 					<table border="1">
 						<tr>
 							<th>id</th>
@@ -192,17 +191,19 @@
 					</table>
 				</div>
 				
-			<div>
-				<form th:action="@{/}" method="post" >
-					<button type="submit" th:formaction="@{/enemy/cancel}">戻る</button>
-				</form>
-			</div>
+				<div>
+					<form th:action="@{/}" method="post" >
+						<button type="submit" th:formaction="@{/enemy/cancel}">戻る</button>
+					</form>
+				</div>
 			
+			</div>
 		</div>
 		
 		<div th:if="${session.announcement == 'monster'}">
 			<form th:action="@{/}" method="post">
 				<button type="submit" th:formaction="@{/enemy/pattern}">行動パターンの設定</button>
+				<button type="submit" th:formaction="@{/enemy/file}">画像ファイルの選択</button>
 				<button type="submit" th:formaction="@{/enemy/complete}">登録完了</button>
 			</form>
 		</div>

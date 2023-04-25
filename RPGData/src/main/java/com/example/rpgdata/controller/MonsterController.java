@@ -106,6 +106,24 @@ public class MonsterController {
     }
     
     
+	//エネミーキャラクターの新規作成→画像データの登録に対応
+    @PostMapping("/enemy/file")
+    public ModelAndView enemyCreate2( ModelAndView mv ) {
+    	
+        mv.setViewName( "monstercreate" );
+        Monster monster = (Monster)session.getAttribute( "monster" );
+        
+        //画像データを抽出
+        List<AttachedFile> attachedFiles = attachedFileRepository.findByEnemyIdOrderById( monster.getId() );
+        
+        mv.addObject( "monsterForm" , new MonsterForm( monster , attachedFiles ) );
+        session.setAttribute( "mode" , "update" );
+        session.setAttribute( "announcement" , "normal" );
+        
+        return mv;
+    }
+    
+    
     //更新に対応
     @PostMapping( "/enemy/update" )
     public String update( @ModelAttribute @Validated MonsterForm monsterForm ,
