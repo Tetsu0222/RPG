@@ -5,6 +5,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.springframework.stereotype.Service;
+
 import com.example.rpg2.battle.AllyData;
 import com.example.rpg2.battle.MonsterData;
 import com.example.rpg2.repository.AllyRepository;
@@ -13,20 +15,31 @@ import com.example.rpg2.repository.MonsterPatternRepository;
 import com.example.rpg2.repository.MonsterRepository;
 import com.example.rpg2.repository.SkillRepository;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+@Service
+@RequiredArgsConstructor
 public class CreateCharacterSet {
 	
-	public static List<String> nameList = new ArrayList<>();
-	public static List<String> nameListEnemy = new ArrayList<>();
-	public static String abc[] = { "A" , "B" , "C" , "D" };
+	@Getter
+	public List<String> nameList = new ArrayList<>();
+	
+	@Getter
+	public List<String> nameListEnemy = new ArrayList<>();
+	
+	
+	public String abc[] = { "A" , "B" , "C" , "D" };
+	
+	private final MagicRepository magicRepository;
+	private final AllyRepository allyRepository;
+	private final MonsterRepository monsterRepository;
+	private final MonsterPatternRepository monsterPatternRepository;
+	private final SkillRepository skillRepository;
 	
 	
 	//プレイアブルキャラクターを生成、名前の加工を行うメソッド
-	public static Set<AllyData> createPartySet( 
-			List<Integer> repositoryIdList , 
-			AllyRepository allyRepository , 
-			MagicRepository magicRepository , 
-			SkillRepository skillRepository ){
-	
+	public Set<AllyData> createPartySet( List<Integer> repositoryIdList ){
 		
 		//名前区別用のコレクション
 		Set<String> duplicationNameSet = new HashSet<>();
@@ -88,9 +101,7 @@ public class CreateCharacterSet {
 	
 	
 	//エネミーキャラクターの生成と名前の加工を行うメソッド
-	public static Set<MonsterData> createEnemySet( List<Integer> repositoryEnemyIdList ,
-			MonsterRepository monsterRepository ,
-			MonsterPatternRepository monsterPatternRepository ){
+	public Set<MonsterData> createEnemySet( List<Integer> repositoryEnemyIdList ){
 		
 		
 		//名前区別用のコレクション
@@ -151,7 +162,7 @@ public class CreateCharacterSet {
 	
 	
 	//フィールドを初期化するメソッド
-	public static void initialize() {
+	public void initialize() {
 		nameList = new ArrayList<>();
 		nameListEnemy = new ArrayList<>();
 	}

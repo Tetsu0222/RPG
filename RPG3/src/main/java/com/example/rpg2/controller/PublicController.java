@@ -22,10 +22,7 @@ import com.example.rpg2.entity.Ally;
 import com.example.rpg2.entity.Monster;
 import com.example.rpg2.process.CreateCharacterSet;
 import com.example.rpg2.repository.AllyRepository;
-import com.example.rpg2.repository.MagicRepository;
-import com.example.rpg2.repository.MonsterPatternRepository;
 import com.example.rpg2.repository.MonsterRepository;
-import com.example.rpg2.repository.SkillRepository;
 
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -34,12 +31,10 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class PublicController {
 	
-	private final MagicRepository magicRepository;
+	private final CreateCharacterSet createCharacterSet;
 	private final AllyRepository allyRepository;
 	private final MonsterRepository monsterRepository;
-	private final MonsterPatternRepository monsterPatternRepository;
 	private final HttpSession session;
-	private final SkillRepository skillRepository;
 	
 	//行動する側の情報を管理
 	private Integer myKeys;
@@ -65,7 +60,7 @@ public class PublicController {
 		mv.addObject( "monsterList" , monsterList );
 		
 		session.invalidate();
-		CreateCharacterSet.initialize();
+		createCharacterSet.initialize();
 		
 		return mv;
 	}
@@ -91,8 +86,7 @@ public class PublicController {
 				.collect( Collectors.toList() );
 		
 		//生成プレイアブルキャラクターを格納するセットを生成
-		Set<AllyData> partySet = CreateCharacterSet.createPartySet( repositoryIdList ,
-				allyRepository , magicRepository , skillRepository );
+		Set<AllyData> partySet = createCharacterSet.createPartySet( repositoryIdList );
 		
 		//選択に応じたエネミーキャラクターのIdを格納
 		List<Integer> repositoryEnemyIdList = Stream.of( mid1 , mid2 , mid3 , mid4 )
@@ -100,12 +94,11 @@ public class PublicController {
 				.collect( Collectors.toList() );
 		
 		//生成したエネミーキャラクターを格納するセットを生成
-		Set<MonsterData> monsterDataSet = CreateCharacterSet.createEnemySet( repositoryEnemyIdList ,
-				monsterRepository , monsterPatternRepository );
+		Set<MonsterData> monsterDataSet = createCharacterSet.createEnemySet( repositoryEnemyIdList );
 		
 		//グループ攻撃用の重複要素を整理したリスト生成（順番を維持したいためリストにて生成）
-		allyNameList  = CreateCharacterSet.nameList.stream().distinct().toList();
-		enemyNameList = CreateCharacterSet.nameListEnemy.stream().distinct().toList();
+		allyNameList  = createCharacterSet.getNameList().stream().distinct().toList();
+		enemyNameList = createCharacterSet.getNameListEnemy().stream().distinct().toList();
 	
 		//戦闘処理用のオブジェクトを生成
 		Battle battle = new Battle( partySet , monsterDataSet , allyNameList , enemyNameList );
