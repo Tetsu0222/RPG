@@ -1,6 +1,5 @@
 package com.example.rpg2.controller;
 
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
@@ -21,6 +20,7 @@ import com.example.rpg2.battle.MonsterData;
 import com.example.rpg2.entity.Ally;
 import com.example.rpg2.entity.Monster;
 import com.example.rpg2.process.CreateCharacterSet;
+import com.example.rpg2.process.TurnQueue;
 import com.example.rpg2.repository.AllyRepository;
 import com.example.rpg2.repository.MonsterRepository;
 
@@ -38,12 +38,11 @@ public class PublicController {
 	
 	//行動する側の情報を管理
 	private Integer myKeys;
-	private Queue<Integer> turnqueue = new ArrayDeque<>();
+	private Queue<Integer> turnqueue;
 	private List<String> allyNameList = new ArrayList<>();
 	private List<String> enemyNameList = new ArrayList<>();
 	
 	private int turnCount = 1;
-	private int actionObj;
 	
 	
 	//TOP画面に対応
@@ -169,11 +168,13 @@ public class PublicController {
 		
 		//各キャラクターの行動順を規定
 		battle.turn();
+		
+		//各キャラクターの座標を素早さが高い順（降順）でソートしたリストを取得
 		List<Entry<Integer, Integer>> turnList = battle.getTurnList();
-		for( Entry<Integer, Integer> entry : turnList) {
-			Integer key = entry.getKey();
-			turnqueue.add( key );
-		}
+		
+		//素早さで順でソートされたリストから、各キャラクターの座標だけ抽出してキューへ格納
+		//このキューを用いて具体的な戦闘処理を実施する。
+		this.turnqueue = TurnQueue.getTurnQueue( turnList );
 		
 		//ターンの最初に発動する効果を処理
 		battle.startSkill();
@@ -197,15 +198,44 @@ public class PublicController {
 		battle.getMesageList().clear();
 		
 		//素早さ順に行動
+		this.turnAction( battle );
+		
+		return mv;
+	}
+	
+	
+	//ターン終了
+	@GetMapping( "/end" )
+	public ModelAndView end( ModelAndView mv ) {
+		
+		//いつもの処理
+		mv.setViewName( "battle" );
+		Battle battle = (Battle)session.getAttribute( "battle" );
+		
+		session.invalidate();
+		session.setAttribute( "battle" , battle );
+		session.setAttribute( "mode" , "log" );
+		
+		return mv;
+	}
+	
+	
+	
+	//------------------------------------------------------
+	//素早さ順で行動処理を実行させるメソッド
+	//別クラスへ委譲させたい。
+	//------------------------------------------------------
+	public void turnAction( Battle battle ) {
+		
 		if( turnqueue.peek() != null ) {
 			
-			this.actionObj = turnqueue.poll();
+			Integer actionObj = turnqueue.poll();
 			
 			//ターン終了判定
-			if( this.isPossible( battle )){
+			if( this.isPossible( battle , actionObj )){
 				
 				//判定結果trueであれば行動実行
-				battle.startBattle( this.actionObj );
+				battle.startBattle( actionObj );
 				
 				//戦闘終了判定
 				if( battle.getTargetSetAlly().size() == 0 ) {
@@ -251,49 +281,31 @@ public class PublicController {
 			session.setAttribute( "battle" , battle );
 			session.setAttribute( "mode"   , "end"  );
 		}
-		
-		return mv;
 	}
 	
-	
-	//ターン終了
-	@GetMapping( "/end" )
-	public ModelAndView end( ModelAndView mv ) {
-		
-		//いつもの処理
-		mv.setViewName( "battle" );
-		Battle battle = (Battle)session.getAttribute( "battle" );
-		
-		session.invalidate();
-		session.setAttribute( "battle" , battle );
-		session.setAttribute( "mode" , "log" );
-		
-		return mv;
-	}
 	
 	
 	
 	//-----------------------------------------------------
-	//ターン継続判定を行うメソッド、別クラスへ委譲させる予定
-	//------------------------------------------------------
-	
-	//ターンを続行するか判定するメソッド、falseを返すとターン終了させる。
-	public boolean isPossible( Battle battle ) {
+	//ターン継続判定を行うメソッド、別クラスへ委譲させたい。
+	//再帰的に処理し、falseを返すとターン終了させる。
+	//-----------------------------------------------------
+	public boolean isPossible( Battle battle , Integer actionObj ) {
 		
 		boolean possible = false;
 		
 		//味方側の生存チェック
-		if( battle.getPartyMap().get( this.actionObj ) != null ){
+		if( battle.getPartyMap().get( actionObj ) != null ){
 			
 			//生存しているかどうかで処理を分岐
-			if( battle.getPartyMap().get( this.actionObj ).getSurvival() == 0 ) {
+			if( battle.getPartyMap().get( actionObj ).getSurvival() == 0 ) {
 				
 				//行動対象者が死亡している場合は、該当インデックスを次の行動対象者で上書き
 				if( turnqueue.peek() != null ) {
-					this.actionObj = turnqueue.poll();
+					actionObj = turnqueue.poll();
 					
 					//次の行動対象者も生存チェックを実行
-					if( this.isPossible( battle )) {
+					if( this.isPossible( battle , actionObj )) {
 						possible = true;
 					
 					//自メソッドを繰り返し、結果的に値がなくなっていればターン終了判定(false)を返す。
@@ -318,10 +330,10 @@ public class PublicController {
 					
 				//行動対象者が死亡している場合は、該当インデックスを次の行動対象者で上書き
 				if( turnqueue.peek() != null ) {
-					this.actionObj = turnqueue.poll();
+					actionObj = turnqueue.poll();
 						
 					//次の行動対象者も生存チェックを実行
-					if( this.isPossible( battle )) {
+					if( this.isPossible( battle , actionObj )) {
 						possible = true;
 						
 					//自メソッドを繰り返し、結果的に値がなくなっていればターン終了判定(false)を返す。
