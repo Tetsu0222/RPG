@@ -224,59 +224,79 @@ public class Battle {
     		if( allyData.getStatusSet().contains( new Confusion() )) {
     			movementPattern = "confusion";
     		}
+    		
+    		
+    		//プレイアブルキャラクターの行動
+    		switch( movementPattern ) {
     			
-    		//通常攻撃の処理
-			if( movementPattern.equals( "attack" )) {
+    			//通常攻撃の処理
+	    		case "attack":
+	    			
+					//サポートクラスとデータを同期
+					this.battleSupportAttack = new BattleSupportAttack( this );
+					
+					//通常攻撃の処理実行
+					battleSupportAttack.normalAttack( target , key , magic , skill , allyData );
+	
+					//サポートクラスから処理結果を取得
+					this.result();
+					
+					break;
 				
-				//サポートクラスとデータを同期
-				this.battleSupportAttack = new BattleSupportAttack( this );
-				
-				//通常攻撃の処理実行
-				battleSupportAttack.normalAttack( target , key , magic , skill , allyData );
-
-				//サポートクラスから処理結果を取得
-				this.result();
-				
-			//回復・補助魔法の処理
-			}else if( movementPattern.equals( "targetally" ) || movementPattern.equals( "resuscitationmagic" ) || movementPattern.equals( "resuscitationskill" ) ) {
-				
-				//サポートクラスとデータを同期
-				this.battleSupportRecovery = new BattleSupportRecovery( this );
-				
-				//回復・補助・蘇生の魔法か特技の処理、MPが足りていたかどうかの結果が返る。
-				isMpEmpty = battleSupportRecovery.magicOrSkillRecovery( allyData , magic , skill , target , key );
-				
-				//処理結果を格納
-				this.resultRecovery();
-				
-			//攻撃・妨害の処理
-			}else if( movementPattern.equals( "targetenemy" )) {
-				
-				//サポートクラスとデータを同期
-				this.battleSupportAttack = new BattleSupportAttack( this );
-				
-				//攻撃魔法か特技を発動、MPが足りていたかどうかの結果が返る。
-				isMpEmpty = battleSupportAttack.magicOrSkillAttack( allyData , magic , skill , target , key );
-				
-				//処理結果をサポートクラスから取得
-				this.result();
-				
-			//防御選択時の行動
-			}else if( movementPattern.equals( "defense" )) {
-				this.mesageList.add( allyData.getName() + "は防御している" );
-				
-			//混乱中の行動
-			}else if( movementPattern.equals( "confusion" )) {
-				
-				//サポートクラスとデータを同期
-				this.battleSupportStatus = new BattleSupportStatus( this );
-				
-				//混乱の行動を処理
-				battleSupportStatus.confusion( allyData );
-				
-				//処理結果をサポートクラスから取得
-				this.resultStatus();
-			}
+					
+				//回復・補助魔法や特技の処理
+	    		case "targetally" :
+	    		case "resuscitationmagic":
+	    		case "resuscitationskill":
+	    			
+					//サポートクラスとデータを同期
+					this.battleSupportRecovery = new BattleSupportRecovery( this );
+					
+					//回復・補助・蘇生の魔法か特技の処理、MPが足りていたかどうかの結果が返る。
+					isMpEmpty = battleSupportRecovery.magicOrSkillRecovery( allyData , magic , skill , target , key );
+					
+					//処理結果を格納
+					this.resultRecovery();
+					
+					break;
+					
+					
+				//攻撃・妨害魔法や特技の処理
+	    		case "targetenemy" :
+	    			
+					//サポートクラスとデータを同期
+					this.battleSupportAttack = new BattleSupportAttack( this );
+					
+					//攻撃魔法か特技を発動、MPが足りていたかどうかの結果が返る。
+					isMpEmpty = battleSupportAttack.magicOrSkillAttack( allyData , magic , skill , target , key );
+					
+					//処理結果をサポートクラスから取得
+					this.result();
+					
+					break;
+					
+					
+				//防御中
+	    		case "defense" :
+	    			this.mesageList.add( allyData.getName() + "は防御している" );
+	    			
+	    			break;
+	    		
+	    			
+	    		//混乱中
+	    		case "confusion":
+	    			
+					//サポートクラスとデータを同期
+					this.battleSupportStatus = new BattleSupportStatus( this );
+					
+					//混乱の行動を処理
+					battleSupportStatus.confusion( allyData );
+					
+					//処理結果をサポートクラスから取得
+					this.resultStatus();
+					
+					break;
+    		}
 			
 			//MP消費処理
 			if( !isMpEmpty ) {
