@@ -45,6 +45,7 @@ public class SortingRecoveryAction {
 			if( magic.getCategory().equals( "resuscitationmagic" )) {
 				targetAllyAction = new ResuscitationMagic( allyData , magic );
 				isResuscitation = true;
+				
 			}else{
 				//回復治癒魔法の生成
 				targetAllyAction = new RecoveryMagic( allyData , magic );

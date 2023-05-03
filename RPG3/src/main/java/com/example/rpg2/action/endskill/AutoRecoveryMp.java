@@ -16,13 +16,12 @@ public class AutoRecoveryMp implements EndSkill{
 		
 		//自動回復がダメージとならないように分岐
 		if( recovery < 0 ) {
-			//処理しない。
+			return allyData;
+		}
 			
 		//回復処理
-		}else{
-			MP += recovery;
-			allyData.setEndSkillMessage( allyData.getName() +  "は魔力が回復した!!" );
-		}
+		MP += recovery;
+		allyData.setEndSkillMessage( allyData.getName() +  "は魔力が回復した!!" );
 		
 		//最大値を超えないように修正
 		if( allyData.getMaxMP() < MP ) {

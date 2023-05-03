@@ -16,13 +16,12 @@ public class AutoRecovery implements EndSkill{
 		
 		//自動回復がダメージとならないように分岐
 		if( recovery < 0 ) {
-			//処理しない。
-			
-		//回復処理
-		}else{
-			HP += recovery;
-			allyData.setEndSkillMessage( allyData.getName() +  "はキズが回復した!!" );
+			return allyData;
 		}
+		
+		//回復処理
+		HP += recovery;
+		allyData.setEndSkillMessage( allyData.getName() +  "はキズが回復した!!" );
 		
 		//最大値を超えないように修正
 		if( allyData.getMaxHP() < HP ) {

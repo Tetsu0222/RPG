@@ -6,11 +6,13 @@ public class SortingEndSkill {
 		
 		EndSkill endSkill = null;
 		
-		if( endSkillName.equals( "HP" )) {
-			endSkill = new AutoRecovery();
-			
-		}else if( endSkillName.equals( "MP" )) {
-			endSkill = new AutoRecoveryMp();
+		switch( endSkillName ) {
+		
+			case "HP":
+				endSkill = new AutoRecovery();
+				
+			case "MP":
+				endSkill = new AutoRecoveryMp();
 		}
 		
 		return endSkill;

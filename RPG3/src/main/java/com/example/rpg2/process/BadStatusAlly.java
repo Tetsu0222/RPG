@@ -115,6 +115,7 @@ public class BadStatusAlly {
 			return false;
 		}
 		
+		//状態異常判定において、付与失敗
 		if( x == 0 ){
 			this.buffMessage = allyData.getName() + "は状態異常にならない";
 			return false;
