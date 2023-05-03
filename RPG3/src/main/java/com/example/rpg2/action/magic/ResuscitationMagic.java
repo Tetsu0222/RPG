@@ -45,30 +45,30 @@ public class ResuscitationMagic implements TargetAllyAction{
 			receptionAllyData.setCurrentHp( HP );
 			receptionAllyData.resuscitation();
 			this.recoveryMessage = receptionAllyData.getName() + "は完全に生き返った!!";
+			
+			return receptionAllyData;
+		}
 		
-		//確率蘇生魔法
-		}else{
-
-			//蘇生判定処理
-			Random random = new Random();
-			int judgement = random.nextInt( 3 );
+		//蘇生判定処理
+		Random random = new Random();
+		int judgement = random.nextInt( 3 );
 			
-			//蘇生成功
-			if( judgement > 0 ) {
-				int HP = receptionAllyData.getMaxHP() / 2;
-				receptionAllyData.setCurrentHp( HP );
+		//蘇生成功
+		if( judgement > 0 ) {
+			int HP = receptionAllyData.getMaxHP() / 2;
+			receptionAllyData.setCurrentHp( HP );
 				
-				//その他の蘇生処理はキャラクターデータのオブジェクト内で実行
-				receptionAllyData.resuscitation();
-				this.recoveryMessage = receptionAllyData.getName() + "は生き返った!!";
+			//その他の蘇生処理はキャラクターデータのオブジェクト内で実行
+			receptionAllyData.resuscitation();
+			this.recoveryMessage = receptionAllyData.getName() + "は生き返った!!";
 			
-			//蘇生失敗
-			}else{
-				this.recoveryMessage = receptionAllyData.getName() + "は生き返らなかった･･･";
-			}
+		//蘇生失敗
+		}else{
+			this.recoveryMessage = receptionAllyData.getName() + "は生き返らなかった･･･";
 		}
 		
 		return receptionAllyData;
-	}
-
+		
+	}	
 }
+

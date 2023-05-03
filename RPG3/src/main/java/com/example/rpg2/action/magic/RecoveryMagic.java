@@ -41,8 +41,17 @@ public class RecoveryMagic implements TargetAllyAction {
 	
 	
 	
-	//味方への回復魔法
+	//味方への回復と補助魔法の分岐と処理（回復と補助の複合かも判定）
 	public AllyData action( AllyData receptionAllyData ) {
+		
+		
+		//治療・バフ効果の処理
+		if( !magic.getBuffcategory().equals( "no" )) {
+			
+			BuffMagic buffMagic = new BuffMagic( receptionAllyData , magic );
+			receptionAllyData = buffMagic.action( receptionAllyData );
+			this.resultMessage = buffMagic.getResultMessage();
+		}
 		
 		//回復効果の処理
 		if( magic.getPoint() != 0 || magic.getPercentage() == 1 ) {
@@ -59,6 +68,7 @@ public class RecoveryMagic implements TargetAllyAction {
 				if( receptionAllyData.getMaxHP() < HP ) {
 					HP = receptionAllyData.getMaxHP();
 				}
+				
 				receptionAllyData.setCurrentHp( HP );
 				this.recoveryMessage = receptionAllyData.getName() + "は" + recovery + "のHPを回復した!";
 			
@@ -68,14 +78,6 @@ public class RecoveryMagic implements TargetAllyAction {
 				receptionAllyData.setCurrentHp( HP );
 				this.recoveryMessage = receptionAllyData.getName() + "は全快した!";
 			}
-		}
-		
-		//治療・バフ効果の処理
-		if( !magic.getBuffcategory().equals( "no" )) {
-			
-			BuffMagic buffMagic = new BuffMagic( receptionAllyData , magic );
-			receptionAllyData = buffMagic.action( receptionAllyData );
-			this.resultMessage = buffMagic.getResultMessage();
 		}
 		
 		return receptionAllyData;

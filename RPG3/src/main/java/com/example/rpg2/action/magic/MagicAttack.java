@@ -43,13 +43,13 @@ public class MagicAttack implements TaregetEnemyAction{
 		return !check;
 	}
 	
-	//攻撃魔法
+	//攻撃魔法+妨害魔法かそれぞれ単体の分岐と処理
 	@Override
 	public MonsterData action( MonsterData monsterData  ) {
 		
 		Random random = new Random();
 		
-		//妨害魔法の処理
+		//妨害要素の有無の判定
 		if( !magic.getBuffcategory().equals( "no" )) {
 			
 			//妨害魔法を生成
@@ -61,7 +61,7 @@ public class MagicAttack implements TaregetEnemyAction{
 			
 		}
 		
-		//攻撃魔法の処理
+		//ダメージ判定の要否を判定
 		if( magic.getPoint() != 0 ) {
 			
 			//魔法威力 + 乱数 = ダメージ
@@ -74,6 +74,7 @@ public class MagicAttack implements TaregetEnemyAction{
 				
 			if( damage < 0 ) {
 				damage = 0;
+				return monsterData;
 			}
 				
 			Integer HP = monsterData.getCurrentHp() - damage;
@@ -83,11 +84,12 @@ public class MagicAttack implements TaregetEnemyAction{
 			if( HP <= 0 ) {
 				monsterData = Funeral.execution( monsterData );
 				this.resultMessage = monsterData.getName() + "を倒した!!";
+				return monsterData;
+			}
 			
 			//対象が生存している場合の処理
-			}else{
-				monsterData.setCurrentHp( HP );
-			}
+			monsterData.setCurrentHp( HP );
+			
 		}
 		
 		return monsterData;
