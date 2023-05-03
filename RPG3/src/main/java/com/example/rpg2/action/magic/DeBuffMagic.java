@@ -45,39 +45,50 @@ public class DeBuffMagic implements TaregetEnemyAction{
 	@Override
 	public MonsterData action( MonsterData monsterData ) {
 		
-		//防御妨害魔法の処理
-		if( magic.getBuffcategory().equals( "DEF" )) {
-			
-			double def = monsterData.getCurrentDEF();
-			
-			//下限チェック
-			if( def < 1 ) {
-				this.resultMessage = monsterData.getName() + "の守備力は、これ以上は下がらなかった･･･";
-			
-			//下限未達
-			}else{
-				double buffPoint = magic.getPercentage() + 1.2 ;
+		double buffPoint = 0.0;
+		
+		switch( magic.getBuffcategory() ) {
+		
+			//守備力のデバフ
+			case "DEF" :
+				
+				double def = monsterData.getCurrentDEF();
+				
+				//下限チェック
+				if( def < 1 ) {
+					this.resultMessage = monsterData.getName() + "の守備力は、これ以上は下がらなかった･･･";
+					break;
+				}
+				
+				buffPoint = magic.getPercentage() + 1.2 ;
 				def = def / buffPoint;
 				
 				//補正値が上限を上回らないように再分岐
 				if( def < 1 ) {
 					def = 0 ;
 				}
+				
+				//キャラクターへ反映
 				monsterData.setCurrentDEF( (int) def );
+				
+				//メッセージを設定
 				this.resultMessage = monsterData.getName() + "の守備力が下がった!!";
-			}
+				
+				break;
 			
-		}else if( magic.getBuffcategory().equals( "ATK" )) {
-			
-			double atk = monsterData.getCurrentATK();
-			
-			//下限チェック
-			if( atk < 1 ) {
-				this.resultMessage = monsterData.getName() + "の攻撃力は、これ以上は下がらなかった･･･";
-			
-			//下限未達
-			}else{
-				double buffPoint = magic.getPercentage() + 1.2 ;
+				
+			//攻撃力のデバフ
+			case "ATK":
+				
+				double atk = monsterData.getCurrentATK();
+				
+				//下限チェック
+				if( atk < 1 ) {
+					this.resultMessage = monsterData.getName() + "の攻撃力は、これ以上は下がらなかった･･･";
+					break;
+				}
+				
+				buffPoint = magic.getPercentage() + 1.2 ;
 				atk = atk / buffPoint;
 				
 				//補正値が上限を上回らないように再分岐
@@ -85,15 +96,27 @@ public class DeBuffMagic implements TaregetEnemyAction{
 					atk = 0 ;
 				}
 				
+				//キャラクターへ反映
 				monsterData.setCurrentDEF( (int) atk );
+				
+				//メッセージを設定
 				this.resultMessage = monsterData.getName() + "の攻撃力が下がった!!";
-			}
-			
-		//状態異常の処理	
-		}else{
-			BadStatusEnemy badStatusEnemy = new BadStatusEnemy();
-			monsterData = badStatusEnemy.bad( monsterData , magic );
-			this.resultMessage = badStatusEnemy.getResultMessage();
+				
+				break;
+				
+				
+			//デバフではなく状態異常
+			default :
+				
+				//悪性状態異常の処理を委譲
+				BadStatusEnemy badStatusEnemy = new BadStatusEnemy();
+				
+				//キャラクターへ反映
+				monsterData = badStatusEnemy.bad( monsterData , magic );
+				
+				//メッセージを設定
+				this.resultMessage = badStatusEnemy.getResultMessage();
+					
 		}
 		
 		return monsterData;
