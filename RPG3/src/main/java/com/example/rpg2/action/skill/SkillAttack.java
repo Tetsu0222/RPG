@@ -74,11 +74,14 @@ public class SkillAttack implements TaregetEnemyAction{
 			if( IsDefense.isDefense( monsterData )){
 				this.damage = damage / 2;
 			}
-				
+			
+			//ダメージがなければ処理中断
 			if( damage < 0 ) {
 				damage = 0;
+				return monsterData;
 			}
-				
+			
+			
 			Integer HP = monsterData.getCurrentHp() - damage;
 			this.damageMessage = monsterData.getName() + "に" + damage + "のダメージを与えた!!";
 			
@@ -121,8 +124,10 @@ public class SkillAttack implements TaregetEnemyAction{
 				this.damage = damage / 2;
 			}
 			
+			//ダメージがなければ処理中断
 			if( damage < 0 ) {
 				damage = 0;
+				return monsterData;
 			}
 			
 			Integer HP = monsterData.getCurrentHp() - damage;

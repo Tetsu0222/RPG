@@ -21,8 +21,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SkillController {
 	
-	private final HttpSession				session;
-	private final SkillRepository			skillRepository;
+	private final HttpSession session;
+	private final SkillRepository skillRepository;
 
 	//行動する側の情報を管理
 	private Integer myKeys;
@@ -190,6 +190,7 @@ public class SkillController {
 			if( skill.getRange().equals( "single" ) ) {
 				session.setAttribute( "mode" , "targetDeathAllySkill" );
 			}
+			
 			battle.selectionAllySkill( myKeys , skill );
 			session.setAttribute( "mode" , "log" );
 		}

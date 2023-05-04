@@ -161,44 +161,82 @@ public class MagicController {
 		Battle battle = (Battle)session.getAttribute( "battle" );
 		magic = magicRepository.findById( id ).get();
 		
-		//単体魔法かつ攻撃魔法と妨害魔法以外→対象選択の範囲を味方に指定
-		if( magic.getRange().equals( "single" ) && magic.getCategory().equals( "targetally" ) ) {
-				session.setAttribute( "mode" , "targetAllyMagic" );
-
-		//単体魔法かつ攻撃・妨害魔法→対象選択の範囲を敵に指定
-		}else if( magic.getRange().equals( "single" ) && magic.getCategory().equals( "targetenemy" ) ) {
-			session.setAttribute( "mode" , "targetMonsterMagic" );
+		
+		//単体が対象の魔法を選択
+		if( magic.getRange().equals( "single" ) ) {
 			
-		//グループ攻撃の魔法
-		}else if( magic.getRange().equals( "group" ) && magic.getCategory().equals( "targetenemy" ) ) {
-			session.setAttribute( "mode" , "targetGroupNameMonsterMagic" );
-		
-		//味方全体への魔法
-		}else if( !magic.getRange().equals( "single" ) && magic.getCategory().equals( "targetally" ) ) {
-			battle.selectionAllyMagic( myKeys , magic );
-			session.setAttribute( "mode" , "log" );
-		
-		//敵全体への魔法
-		}else if( !magic.getRange().equals( "single" ) && magic.getCategory().equals( "targetenemy" ) ){
-			battle.selectionMonsterMagic( myKeys , magic );
-			session.setAttribute( "mode" , "log" );
-		
-		//蘇生魔法
-		}else{
+			switch( magic.getCategory() ) {
 			
-			if( magic.getRange().equals( "single" )) {
-				session.setAttribute( "mode" , "targetDeathAllyMagic" );
+				//味方が対象の魔法
+				case "targetally":
+					session.setAttribute( "mode" , "targetAllyMagic" );
+					break;
 				
-			}else{
-				battle.selectionAllyMagic( myKeys , magic );
-				session.setAttribute( "mode" , "log" );
+				//敵が対象の魔法
+				case "targetenemy":
+					session.setAttribute( "mode" , "targetMonsterMagic" );
+					break;
+				
+				//蘇生魔法
+				case "resuscitationmagic":
+					session.setAttribute( "mode" , "targetDeathAllyMagic" );
+					break;
 			}
+			
+			//選択した内容をオブジェクトに保存
+			session.setAttribute( "battle" , battle );
+			
+			return mv;
+			
 		}
 		
-		session.setAttribute( "battle" , battle );
 		
+		//グループが対象の魔法（敵のみが対象
+		if( magic.getRange().equals( "group" ) ) {
+			
+			session.setAttribute( "mode" , "targetGroupNameMonsterMagic" );
+			
+			//選択した内容をオブジェクトに保存
+			session.setAttribute( "battle" , battle );
+			
+			return mv;
+		}
+		
+		
+		//対象が全体の魔法
+		if( magic.getRange().equals( "whole" )) {
+			
+			switch( magic.getCategory() ) {
+			
+				//味方全体が対象の魔法
+				case "targetally":
+					battle.selectionAllyMagic( myKeys , magic );
+					session.setAttribute( "mode" , "log" );
+					
+					break;
+				
+				//敵全体の魔法
+				case "targetenemy":
+					battle.selectionMonsterMagic( myKeys , magic );
+					session.setAttribute( "mode" , "log" );	
+					
+					break;
+					
+				//全体蘇生魔法
+				case "resuscitationmagic":
+					battle.selectionAllyMagic( myKeys , magic );
+					session.setAttribute( "mode" , "log" );
+					break;
+			}
+					
+			//選択した内容をオブジェクトに保存
+			session.setAttribute( "battle" , battle );
+
+			return mv;
+			
+		}
+
 		return mv;
-		
 	}
 	
 	
