@@ -162,24 +162,22 @@ public class BuffSkill implements TargetAllyAction{
 					}
 					
 					//毒以外にも状態異常を持っているかチェック
-					Long sts = statusSet.stream()
-							.filter( s -> s.getName().equals( "毒" ))
-							.count();
-					
 					int size = statusSet.size();
 					
 					//状態異常が毒のみ
-					if( sts == 1 && size == 1 ) {
+					if( size == 1 ) {
 						statusSet.clear();
 						statusSet.add( new Normal() );
 						
 					//状態異常が毒以外にもある。
-					}else if( sts == 1 && size > 1 ) {
+					}else if( size > 1 ) {
 						statusSet.remove( new Poison() );
 					}
 					
 					receptionAllyData.setStatusSet( statusSet );
 					this.resultMessage = receptionAllyData.getName() + "の毒が治った!!";
+					
+					break;
 			}
 			
 			return receptionAllyData;

@@ -45,54 +45,76 @@ public class DeBuffSkill implements TaregetEnemyAction{
 	@Override
 	public MonsterData action( MonsterData monsterData ) {
 		
-		//防御妨害魔法の処理
-		if( skill.getBuffcategory().equals( "DEF" )) {
+		switch( skill.getBuffcategory() ) {
+		
+		
+		//防御力のデバフ
+		case "DEF":
 			
 			double def = monsterData.getCurrentDEF();
+			
+			double buffPoint = 0.0;
 			
 			//下限チェック
 			if( def < 1 ) {
 				this.resultMessage = monsterData.getName() + "の守備力は、これ以上は下がらなかった･･･";
-			
+				return monsterData;
+			}
 			//下限未達
-			}else{
-				double buffPoint = skill.getPercentage() + 0.2 ;
-				def = def / buffPoint;
+			buffPoint = skill.getPercentage() + 0.2 ;
+			def = def / buffPoint;
 				
-				//補正値が上限を上回らないように再分岐
-				if( def < 1 ) {
+			//補正値が上限を上回らないように再分岐
+			if( def < 1 ) {
 					def = 0 ;
-				}
-				monsterData.setCurrentDEF( (int) def );
-				this.resultMessage = monsterData.getName() + "の守備力が下がった!!";
 			}
 			
-		}else if( skill.getBuffcategory().equals( "ATK" )) {
+			//キャラクターへ反映
+			monsterData.setCurrentDEF( (int) def );
 			
+			//メッセージを設定
+			this.resultMessage = monsterData.getName() + "の守備力が下がった!!";
+			
+			break;
+		
+			
+		//攻撃力のデバフ	
+		case "ATK":
 			double atk = monsterData.getCurrentATK();
 			
 			//下限チェック
 			if( atk < 1 ) {
 				this.resultMessage = monsterData.getName() + "の攻撃力は、これ以上は下がらなかった･･･";
-			
-			//下限未達
-			}else{
-				double buffPoint = skill.getPercentage() + 1.2 ;
-				atk = atk / buffPoint;
-				
-				//補正値が上限を上回らないように再分岐
-				if( atk < 1 ) {
-					atk = 0 ;
-				}
-				
-				monsterData.setCurrentDEF( (int) atk );
-				this.resultMessage = monsterData.getName() + "の攻撃力が下がった!!";
+				return monsterData;
 			}
 			
-		//状態異常の処理	
-		}else{
+			//下限未達
+			buffPoint = skill.getPercentage() + 1.2 ;
+			atk = atk / buffPoint;
+				
+			//補正値が上限を上回らないように再分岐
+			if( atk < 1 ) {
+					atk = 0 ;
+			}
+			
+			//キャラクターへ反映
+			monsterData.setCurrentDEF( (int) atk );
+			
+			//メッセージを設定
+			this.resultMessage = monsterData.getName() + "の攻撃力が下がった!!";
+			
+			break;
+		
+		//デバフではなく悪性状態異常を付与
+		default:
+			
+			//悪性状態異常の処理を委譲
 			BadStatusEnemy badStatusEnemy = new BadStatusEnemy();
+			
+			//キャラクターへ反映
 			monsterData = badStatusEnemy.bad( monsterData , skill );
+			
+			//メッセージを設定
 			this.resultMessage = badStatusEnemy.getResultMessage();
 		}
 		

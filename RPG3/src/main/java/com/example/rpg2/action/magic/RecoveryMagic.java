@@ -47,7 +47,6 @@ public class RecoveryMagic implements TargetAllyAction {
 		
 		//治療・バフ効果の処理
 		if( !magic.getBuffcategory().equals( "no" )) {
-			
 			BuffMagic buffMagic = new BuffMagic( receptionAllyData , magic );
 			receptionAllyData = buffMagic.action( receptionAllyData );
 			this.resultMessage = buffMagic.getResultMessage();

@@ -106,7 +106,7 @@ public class DeBuffMagic implements TaregetEnemyAction{
 				
 				
 			//デバフではなく状態異常
-			default :
+			default:
 				
 				//悪性状態異常の処理を委譲
 				BadStatusEnemy badStatusEnemy = new BadStatusEnemy();
