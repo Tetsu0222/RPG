@@ -127,26 +127,26 @@ public class EnemyAction {
 		}
 		
 		//ブレス攻撃かつ対象がフバーハかチェック、第2引数はダミー
-		if( monsterPattern.getAttribute().equals( "breath" )) {
-			if( IsDefense.isDefense( allyData , "ダミー" )){
+		if( monsterPattern.getAttribute().equals( "breath" ) && IsDefense.isDefense( allyData , "ダミー" ) ) {
 				this.damage = damage / 2;
-			}
 		}
 		
+		//ダメージがゼロなら処理終了
 		if( damage < 0 ) {
 			this.damage = 0;
 			this.battleMessage = allyData.getName() + "にダメージを与えられない…";
 			
-		}else{
-			this.battleMessage = allyData.getName() + "に" + damage + "のダメージ!!!";
+			return allyData;
+		}
+		
+		this.battleMessage = allyData.getName() + "に" + damage + "のダメージ!!!";
 			
-			//対象が睡眠状態の場合は、それを解除する。
-			if( allyData.getStatusSet().stream()
-					.filter( s -> s.getName().equals( "睡眠" ))
-					.count() == 1 ) {
-				this.resultMessage = allyData.getName() + "は目を覚ました!";
-				allyData = Awakening.awakening( allyData );
-			}
+		//対象が睡眠状態の場合は、それを解除する。
+		if( allyData.getStatusSet().stream()
+				.filter( s -> s.getName().equals( "睡眠" ))
+				.count() == 1 ) {
+			this.resultMessage = allyData.getName() + "は目を覚ました!";
+			allyData = Awakening.awakening( allyData );
 		}
 		
 		//ダメージ計算
@@ -156,7 +156,7 @@ public class EnemyAction {
 		if( HP <= 0 ) {
 			allyData = Funeral.execution( allyData );
 			this.dedMessage = allyData.getName() + "は死んでしまった…";
-		
+			
 		//ダメージを反映
 		}else{
 			allyData.setCurrentHp( HP );
@@ -191,13 +191,14 @@ public class EnemyAction {
 			this.damage = damage / 2;
 		}
 		
+		//ダメージがゼロなら処理終了
 		if( damage < 0 ) {
 			this.damage = 0;
 			this.battleMessage = allyData.getName() + "にダメージを与えられない…";
-			
-		}else{
-			this.battleMessage = allyData.getName() + "に" + damage + "のダメージ!!!";
+			return allyData;
 		}
+		
+		this.battleMessage = allyData.getName() + "に" + damage + "のダメージ!!!";
 		
 		//ダメージ計算
 		Integer HP = allyData.getCurrentHp() - damage;
