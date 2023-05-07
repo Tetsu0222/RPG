@@ -10,11 +10,14 @@ public class EnemyTarget {
 	public static Integer enemyTarget( List<Integer> targetList , int size ) {
 		
 		Random random = new Random();
+		int target = 0;
 		int targetiD = 0;
 		
-		if( size == 4 ) {
+		switch( size ) {
+		
+		case 4:
 			
-			int target = random.nextInt( 10 );
+			target = random.nextInt( 10 );
 			
 			if( target < 4 ) {
 				targetiD = targetList.get( 0 );
@@ -29,9 +32,11 @@ public class EnemyTarget {
 				targetiD = targetList.get( 3 );
 			}
 			
-		}else if( size == 3 ) {
+			break;
 			
-			int target = random.nextInt( 10 );
+		case 3:
+			
+			target = random.nextInt( 10 );
 			
 			if( target < 5 ) {
 				targetiD = targetList.get( 0 );
@@ -43,9 +48,11 @@ public class EnemyTarget {
 				targetiD = targetList.get( 2 );
 			}
 			
-		}else if( size == 2 ) {
+			break;
 			
-			int target = random.nextInt( 2 );
+		case 2:
+			
+			target = random.nextInt( 2 );
 			
 			if( target == 0 ) {
 				targetiD = targetList.get( 0 );
@@ -54,8 +61,14 @@ public class EnemyTarget {
 				targetiD = targetList.get( 1 );
 			}
 			
-		}else{
+			break;
+			
+		case 1:
+			
 			targetiD = targetList.get( 0 );
+			
+			break;
+			
 		}
 		
 		return targetiD;
