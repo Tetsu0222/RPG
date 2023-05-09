@@ -11,7 +11,7 @@
 	<body>
 		
 		<!-- エネミーゾーン -->
-		<h3>敵の名前</h3>
+		<h3 th:text="#{enemy.name}"></h3>
 		<h3 th:each="entry:${session.battle.monsterDataMap}">
 			<div th:unless="${entry.value.survival == 0}">
 				<a th:text="${entry.value.name}"></a>
