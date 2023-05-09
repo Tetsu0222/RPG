@@ -2,12 +2,14 @@ package com.example.rpg2.controller;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -35,6 +37,17 @@ public class PublicController {
 	private final AllyRepository allyRepository;
 	private final MonsterRepository monsterRepository;
 	private final HttpSession session;
+	private final MessageSource messageSource;
+	
+	
+	//定数
+	private final String keys = "key";
+	private final String TopMenu = "index";
+	private final String BattleScreen = "battle";
+	private final String BattleObject = "battle";
+	private final String PartyMember = "allyList";
+	private final String EnemyMember = "monsterList";
+	private final String ScreenMode = "mode";
 	
 	//行動する側の情報を管理
 	private Integer myKeys;
@@ -49,14 +62,14 @@ public class PublicController {
 	@GetMapping( "/" )
 	public ModelAndView Index( ModelAndView mv ) {
 		
-		mv.setViewName( "index" );
+		mv.setViewName( TopMenu );
 		
 		//プレイアブルキャラクターとエネミーキャラクターの選択肢を提示
 		List<Ally>    allyList    = allyRepository.findAll();
 		List<Monster> monsterList = monsterRepository.findAll();
 
-		mv.addObject( "allyList"    , allyList    );
-		mv.addObject( "monsterList" , monsterList );
+		mv.addObject( PartyMember    , allyList    );
+		mv.addObject( EnemyMember , monsterList );
 		
 		session.invalidate();
 		createCharacterSet.initialize();
@@ -77,7 +90,7 @@ public class PublicController {
 								@RequestParam( name = "MLV4" ) Integer mid4 ,
 								ModelAndView mv ) {
 		
-		mv.setViewName( "battle" );
+		mv.setViewName( BattleScreen );
 			
 		//選択に応じたプレイアブルキャラクターのIdを格納
 		List<Integer> repositoryIdList = Stream.of( pid1 , pid2 , pid3 , pid4 )
@@ -106,7 +119,7 @@ public class PublicController {
 		battle.createSupport();
 		
 		//戦闘画面用のデータをセッションスコープに保存
-		session.setAttribute( "battle" , battle );
+		session.setAttribute( BattleObject , battle );
 		
 		return mv;
 	}
@@ -114,12 +127,12 @@ public class PublicController {
 	
 	//通常攻撃を選択
 	@GetMapping( "/attack/{key}" )
-	public ModelAndView attack( @PathVariable( name = "key" ) int key ,
+	public ModelAndView attack( @PathVariable( name = keys ) int key ,
 								ModelAndView mv ) {
 		
-		mv.setViewName( "battle" );
+		mv.setViewName( BattleScreen );
 		myKeys = key;
-		session.setAttribute( "mode" , "attackTargetMonster" );
+		session.setAttribute( ScreenMode , "attackTargetMonster" );
 		
 		return mv;
 		
@@ -128,15 +141,15 @@ public class PublicController {
 	
 	//通常攻撃のターゲット選択(敵）
 	@GetMapping( "/target/attack/monster/{key}" )
-	public ModelAndView attackTargetMonster( @PathVariable( name = "key" ) int key ,
+	public ModelAndView attackTargetMonster( @PathVariable( name = keys ) int key ,
 											 ModelAndView mv ) {
 		
-		mv.setViewName( "battle" );
-		Battle battle = (Battle)session.getAttribute( "battle" );
+		mv.setViewName( BattleScreen );
+		Battle battle = (Battle)session.getAttribute( BattleObject );
 		battle.selectionAttack( myKeys , key );
 		
-		session.setAttribute( "battle" , battle );
-		session.setAttribute( "mode" , "log" );
+		session.setAttribute( BattleObject , battle );
+		session.setAttribute( ScreenMode , "log" );
 		
 		return mv;
 	}
@@ -144,11 +157,11 @@ public class PublicController {
 	
 	//防御を選択
 	@GetMapping( "/defense/{key}" )
-	public ModelAndView defense( @PathVariable( name = "key" ) int key ,
+	public ModelAndView defense( @PathVariable( name = keys ) int key ,
 								 ModelAndView mv ) {
 		
-		mv.setViewName( "battle" );
-		Battle battle = (Battle)session.getAttribute( "battle" );
+		mv.setViewName( BattleScreen );
+		Battle battle = (Battle)session.getAttribute( BattleObject );
 		battle.selectionDefense( key );
 		
 		return mv;
@@ -157,11 +170,11 @@ public class PublicController {
 	
 	//戦闘開始
 	@GetMapping( "/start" )
-	public ModelAndView start( ModelAndView mv ) {
+	public ModelAndView start( ModelAndView mv , Locale locale ) {
 		
 		//いつもの処理
-		mv.setViewName( "battle" );
-		Battle battle = (Battle)session.getAttribute( "battle" );
+		mv.setViewName( BattleScreen );
+		Battle battle = (Battle)session.getAttribute( BattleObject );
 		
 		//前回までのログを消去
 		battle.getMesageList().clear();
@@ -178,9 +191,9 @@ public class PublicController {
 		
 		//ターンの最初に発動する効果を処理
 		battle.startSkill();
-		battle.getMesageList().add( turnCount + "ターン目開始" );
-		session.setAttribute( "battle" , battle );
-		session.setAttribute( "mode"   , "battle" );
+		battle.getMesageList().add( turnCount + messageSource.getMessage( "turn.start" , null , locale ) );
+		session.setAttribute( BattleObject , battle );
+		session.setAttribute( ScreenMode   , "battle" );
 
 		return mv;
 	}
@@ -188,17 +201,17 @@ public class PublicController {
 	
 	//戦闘続行
 	@GetMapping( "/next" )
-	public ModelAndView next( ModelAndView mv ) {
+	public ModelAndView next( ModelAndView mv , Locale locale ) {
 		
 		//いつもの処理
-		mv.setViewName( "battle" );
-		Battle battle = (Battle)session.getAttribute( "battle" );
+		mv.setViewName( BattleScreen );
+		Battle battle = (Battle)session.getAttribute( BattleObject );
 	
 		//前回までのログを消去
 		battle.getMesageList().clear();
 		
 		//素早さ順に行動
-		this.turnAction( battle );
+		this.turnAction( battle , locale );
 		
 		return mv;
 	}
@@ -209,12 +222,12 @@ public class PublicController {
 	public ModelAndView end( ModelAndView mv ) {
 		
 		//いつもの処理
-		mv.setViewName( "battle" );
-		Battle battle = (Battle)session.getAttribute( "battle" );
+		mv.setViewName( BattleScreen );
+		Battle battle = (Battle)session.getAttribute( BattleObject );
 		
 		session.invalidate();
-		session.setAttribute( "battle" , battle );
-		session.setAttribute( "mode" , "log" );
+		session.setAttribute( BattleObject , battle );
+		session.setAttribute( ScreenMode , "log" );
 		
 		return mv;
 	}
@@ -225,7 +238,7 @@ public class PublicController {
 	//素早さ順で行動処理を実行させるメソッド
 	//別クラスへ委譲させたい。
 	//------------------------------------------------------
-	public void turnAction( Battle battle ) {
+	public void turnAction( Battle battle , Locale locale ) {
 		
 		if( turnqueue.peek() != null ) {
 			
@@ -240,20 +253,20 @@ public class PublicController {
 				//戦闘終了判定
 				if( battle.getTargetSetAlly().size() == 0 ) {
 					session.invalidate();
-					battle.getMesageList().add( "全滅してしまった…" );
-					session.setAttribute( "battle" , battle );
-					session.setAttribute( "mode" , "result" );
+					battle.getMesageList().add( messageSource.getMessage( "lose.message" , null , locale ) );
+					session.setAttribute( BattleObject , battle );
+					session.setAttribute( ScreenMode , "result" );
 					
 				}else if( battle.getTargetSetEnemy().size() == 0 ) {
 					session.invalidate();
-					battle.getMesageList().add( "戦いに勝利した!!!" );
-					session.setAttribute( "battle" , battle );
-					session.setAttribute( "mode" , "result" );
+					battle.getMesageList().add( messageSource.getMessage( "win.message" , null , locale ) );
+					session.setAttribute( BattleObject , battle );
+					session.setAttribute( ScreenMode , "result" );
 					
 				}else{
 					session.invalidate();
-					session.setAttribute( "battle" , battle );
-					session.setAttribute( "mode" , "battle" );
+					session.setAttribute( BattleObject , battle );
+					session.setAttribute( ScreenMode , "battle" );
 				}
 			
 			//全員の行動が終了
@@ -261,12 +274,12 @@ public class PublicController {
 				
 				//ターン終了時に発動する処理
 				battle.endSkill();
-				battle.getMesageList().add( turnCount + "ターン目終了" );
+				battle.getMesageList().add( turnCount + messageSource.getMessage( "turn.end" , null , locale ) );
 				this.turnCount += 1;
 				
 				session.invalidate();
-				session.setAttribute( "battle" , battle );
-				session.setAttribute( "mode"   , "end"  );
+				session.setAttribute( BattleObject , battle );
+				session.setAttribute( ScreenMode   , "end"  );
 			}
 			
 		//全キャラクターの行動終了
@@ -274,12 +287,12 @@ public class PublicController {
 			
 			//ターン終了時に発動する処理
 			battle.endSkill();
-			battle.getMesageList().add( turnCount + "ターン目終了" );
+			battle.getMesageList().add( turnCount + messageSource.getMessage( "turn.end" , null , locale ) );
 			this.turnCount += 1;
 			
 			session.invalidate();
-			session.setAttribute( "battle" , battle );
-			session.setAttribute( "mode"   , "end"  );
+			session.setAttribute( BattleObject , battle );
+			session.setAttribute( ScreenMode   , "end"  );
 		}
 	}
 	
