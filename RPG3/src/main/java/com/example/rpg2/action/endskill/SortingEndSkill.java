@@ -11,8 +11,12 @@ public class SortingEndSkill {
 			case "HP":
 				endSkill = new AutoRecovery();
 				
+				break;
+				
 			case "MP":
 				endSkill = new AutoRecoveryMp();
+				
+				break;
 		}
 		
 		return endSkill;

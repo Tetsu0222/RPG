@@ -36,6 +36,8 @@ public class Attack implements TaregetEnemyAction{
 	@Override
 	public MonsterData action( MonsterData monsterData ) {
 		
+		//---ダメージの事前処理---
+		
 		//会心の発生率設定
 		Random random = new Random();
 		int critical = random.nextInt( 255 ); //引数をキャラクターの会心率に応じて引き算し、会心発生率を上昇させる予定
@@ -58,33 +60,36 @@ public class Attack implements TaregetEnemyAction{
 			this.damage = damage / 2;
 		}
 		
+		//ダメージを与えられない。
 		if( damage < 0 ) {
 			this.damage = 0;
 			this.damageMessage = monsterData.getName() + "にダメージを与えられない";
+			
+			return monsterData;
 		}
 		
+		//---ダメージ処理実行---
 		Integer HP = monsterData.getCurrentHp() - this.damage;
 		
 		if( HP < 0 ) {
 			monsterData = Funeral.execution( monsterData );
 			this.resultMessage =  monsterData.getName() + "を倒した!!";
 			
-		}else{
-			
-			Sleep sleep = new Sleep();
-			
-			//対象が睡眠状態の場合は、それを解除する。
-			if( monsterData.getStatusSet().contains( sleep )) {
-				
-				//メッセージを追加
-				this.resultMessage = monsterData.getName() + "は目を覚ました!";
-				
-				//睡眠解除
-				monsterData = Awakening.awakening( monsterData , sleep );
-			}
-			
-			monsterData.setCurrentHp( HP );
+			return monsterData;
 		}
+		
+			
+		//対象が睡眠状態の場合は、それを解除する。
+		if( monsterData.getStatusSet().contains( new Sleep() )) {
+				
+			//メッセージを追加
+			this.resultMessage = monsterData.getName() + "は目を覚ました!";
+				
+			//睡眠解除
+			monsterData = Awakening.awakening( monsterData , new Sleep() );
+		}
+			
+		monsterData.setCurrentHp( HP );
 		
 		return monsterData;
 	}
