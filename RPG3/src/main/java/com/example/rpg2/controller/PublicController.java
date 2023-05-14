@@ -45,9 +45,14 @@ public class PublicController {
 	private final String TopMenu = "index";
 	private final String BattleScreen = "battle";
 	private final String BattleObject = "battle";
+	private final String TurnProgression = "battle";
 	private final String PartyMember = "allyList";
 	private final String EnemyMember = "monsterList";
 	private final String ScreenMode = "mode";
+	private final String TurnEnd = "end";
+	private final String BeforeTurn = "log";
+	private final String BattleResult = "result";
+	private final String NormalAttack = "attackTargetMonster";
 	
 	//行動する側の情報を管理
 	private Integer myKeys;
@@ -132,7 +137,7 @@ public class PublicController {
 		
 		mv.setViewName( BattleScreen );
 		myKeys = key;
-		session.setAttribute( ScreenMode , "attackTargetMonster" );
+		session.setAttribute( ScreenMode , NormalAttack );
 		
 		return mv;
 		
@@ -149,7 +154,7 @@ public class PublicController {
 		battle.selectionAttack( myKeys , key );
 		
 		session.setAttribute( BattleObject , battle );
-		session.setAttribute( ScreenMode , "log" );
+		session.setAttribute( ScreenMode , BeforeTurn );
 		
 		return mv;
 	}
@@ -193,7 +198,7 @@ public class PublicController {
 		battle.startSkill();
 		battle.getMesageList().add( turnCount + messageSource.getMessage( "turn.start" , null , locale ) );
 		session.setAttribute( BattleObject , battle );
-		session.setAttribute( ScreenMode   , "battle" );
+		session.setAttribute( ScreenMode   , TurnProgression );
 
 		return mv;
 	}
@@ -227,7 +232,7 @@ public class PublicController {
 		
 		session.invalidate();
 		session.setAttribute( BattleObject , battle );
-		session.setAttribute( ScreenMode , "log" );
+		session.setAttribute( ScreenMode , BeforeTurn );
 		
 		return mv;
 	}
@@ -255,18 +260,18 @@ public class PublicController {
 					session.invalidate();
 					battle.getMesageList().add( messageSource.getMessage( "lose.message" , null , locale ) );
 					session.setAttribute( BattleObject , battle );
-					session.setAttribute( ScreenMode , "result" );
+					session.setAttribute( ScreenMode , BattleResult );
 					
 				}else if( battle.getTargetSetEnemy().size() == 0 ) {
 					session.invalidate();
 					battle.getMesageList().add( messageSource.getMessage( "win.message" , null , locale ) );
 					session.setAttribute( BattleObject , battle );
-					session.setAttribute( ScreenMode , "result" );
+					session.setAttribute( ScreenMode , BattleResult );
 					
 				}else{
 					session.invalidate();
 					session.setAttribute( BattleObject , battle );
-					session.setAttribute( ScreenMode , "battle" );
+					session.setAttribute( ScreenMode , TurnProgression );
 				}
 			
 			//全員の行動が終了
@@ -279,7 +284,7 @@ public class PublicController {
 				
 				session.invalidate();
 				session.setAttribute( BattleObject , battle );
-				session.setAttribute( ScreenMode   , "end"  );
+				session.setAttribute( ScreenMode   , TurnEnd  );
 			}
 			
 		//全キャラクターの行動終了
@@ -292,7 +297,7 @@ public class PublicController {
 			
 			session.invalidate();
 			session.setAttribute( BattleObject , battle );
-			session.setAttribute( ScreenMode   , "end"  );
+			session.setAttribute( ScreenMode   , TurnEnd  );
 		}
 	}
 	
