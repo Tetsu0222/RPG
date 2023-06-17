@@ -7,14 +7,16 @@ public class PlayerCharacter implements Characters{
 	private final String name;
 	
 	private CurrentPlayerHitPoints HP;
+	private CurrentPlayerOffensivePower ATK;
 	
 	
-	PlayerCharacter( final Integer id , final String name , final Integer initialHP ){
+	PlayerCharacter( final Integer id , final String name , final Integer initialHP , final Integer atk ){
 		
 		this.playerCharacterId = id;
 		this.name = name + id;
 		this.MAX_HP = new MaxPlayerHitPoints( initialHP );
 		this.HP = new CurrentPlayerHitPoints( initialHP );
+		this.ATK = new CurrentPlayerOffensivePower( atk );
 
 	}
 	
@@ -24,12 +26,17 @@ public class PlayerCharacter implements Characters{
 	
 	public void damage( final CurrentPlayerHitPoints damagePoint ) {
 		this.HP = HP.decreasePlayerHitPoints( damagePoint );
+		this.displayAction( HP );
 	}
 	
-	public void display() {
+	public PlayerCharacter attak( final PlayerCharacter targetCharacter ) {
+		this.displayAction( ATK );
+		return ATK.attack( targetCharacter );
+	}
+	
+	public void displayAction( Points command ) {
 		final StringBuilder message = new StringBuilder( name );
-		message.append( "の" );
-		message.append( HP );
+		message.append( command );
 		System.out.println( message );
 	}
 	
