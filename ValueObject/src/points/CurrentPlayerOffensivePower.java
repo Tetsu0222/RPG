@@ -1,5 +1,7 @@
 package points;
 
+import java.util.Random;
+
 public class CurrentPlayerOffensivePower implements Points{
 
 	private final int SPECIFICATION_MIN_OP = 0;
@@ -54,11 +56,16 @@ public class CurrentPlayerOffensivePower implements Points{
 	
 	public PlayerCharacter attack( final PlayerCharacter targetCharacter ) {
 		
-		targetCharacter.damage( new CurrentPlayerHitPoints( CURRENT_OP ));
+		targetCharacter.damage( this.randomNumberCreate() );
 		
 		return targetCharacter;
 	}
 	
+	private Integer randomNumberCreate() {
+		final int random = new Random().nextInt( 10 );
+		
+		return CURRENT_OP + random ;
+	}
 	
 	public String toString() {
 		return toStringMessage;
