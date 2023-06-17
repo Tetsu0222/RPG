@@ -64,6 +64,14 @@ public class CurrentEnemyHitPoints implements Points{
 	
 	}
 	
+	public boolean is_Dead() {
+		
+		return CURRENT_HP <= SPECIFICATION_MIN_HP;
+	}
 	
+	public String toString( String message ) {
+		return message + CURRENT_HP;
+	
+	}
 
 }
