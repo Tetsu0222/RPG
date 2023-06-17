@@ -2,7 +2,7 @@ package points;
 
 import java.util.Random;
 
-public class CurrentPlayerOffensivePower implements Points{
+public class CurrentEnemyOffensivePower implements Points{
 
 	private final int SPECIFICATION_MIN_OP = 0;
 	private final int SPECIFICATION_MAX_OP = 999;
@@ -12,7 +12,7 @@ public class CurrentPlayerOffensivePower implements Points{
 	private final Integer CURRENT_OP;
 	
 	
-	CurrentPlayerOffensivePower( final Integer currentOP ){
+	CurrentEnemyOffensivePower( final Integer currentOP ){
 		
 		if( currentOP > SPECIFICATION_MAX_OP || currentOP < SPECIFICATION_MIN_OP ) {
 			throw new IllegalArgumentException( IllegalArgumentException_MESSAGE );
@@ -24,7 +24,7 @@ public class CurrentPlayerOffensivePower implements Points{
 	
 	
 	//キャラクターの攻撃力を増やす。
-	public CurrentPlayerOffensivePower increasePlayerOffensivePower( final CurrentPlayerOffensivePower increaseOffensivePower ) {
+	public CurrentEnemyOffensivePower increasePlayerOffensivePower( final CurrentEnemyOffensivePower increaseOffensivePower ) {
 		
 		if( increaseOffensivePower.CURRENT_OP > SPECIFICATION_MAX_OP || increaseOffensivePower.CURRENT_OP < SPECIFICATION_MIN_OP ) {
 			throw new IllegalArgumentException( IllegalArgumentException_MESSAGE );
@@ -32,12 +32,12 @@ public class CurrentPlayerOffensivePower implements Points{
 		
 		final int addPoint = this.CURRENT_OP + increaseOffensivePower.CURRENT_OP;
 		
-		return new CurrentPlayerOffensivePower( addPoint );
+		return new CurrentEnemyOffensivePower( addPoint );
 		
 	}
 	
 	//キャラクターの攻撃力を減らす
-	public CurrentPlayerOffensivePower decreasePlayerOffensivePower( final CurrentPlayerOffensivePower decreaseOffensivePower ) {
+	public CurrentEnemyOffensivePower decreasePlayerOffensivePower( final CurrentEnemyOffensivePower decreaseOffensivePower ) {
 		
 		if( decreaseOffensivePower.CURRENT_OP > SPECIFICATION_MAX_OP || decreaseOffensivePower.CURRENT_OP < SPECIFICATION_MIN_OP ) {
 			throw new IllegalArgumentException( IllegalArgumentException_MESSAGE );
@@ -45,16 +45,16 @@ public class CurrentPlayerOffensivePower implements Points{
 		
 		if( this.CURRENT_OP < decreaseOffensivePower.CURRENT_OP ) {
 			
-			return new CurrentPlayerOffensivePower( SPECIFICATION_MIN_OP );
+			return new CurrentEnemyOffensivePower( SPECIFICATION_MIN_OP );
 		}
 		
 		final int lowerPoint = this.CURRENT_OP - decreaseOffensivePower.CURRENT_OP;
 		
-		return new CurrentPlayerOffensivePower( lowerPoint );
+		return new CurrentEnemyOffensivePower( lowerPoint );
 		
 	}
 	
-	public EnemyCharacter attack( final EnemyCharacter targetCharacter ) {
+	public PlayerCharacter attack( final PlayerCharacter targetCharacter ) {
 		
 		targetCharacter.damage( this.randomNumberCreate() );
 		

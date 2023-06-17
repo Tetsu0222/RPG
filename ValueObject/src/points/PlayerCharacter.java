@@ -32,7 +32,7 @@ public class PlayerCharacter implements Characters{
 		this.displayAction( resultDamage );
 	}
 	
-	public PlayerCharacter attak( final PlayerCharacter targetCharacter ) {
+	public EnemyCharacter attak( final EnemyCharacter targetCharacter ) {
 		this.displayAction( ATK );
 		return ATK.attack( targetCharacter );
 	}
