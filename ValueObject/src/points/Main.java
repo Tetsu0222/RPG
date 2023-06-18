@@ -1,20 +1,31 @@
 package points;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Main {
 
+	
 	public static void main(String[] args) {
 		
+		
+		List< PlayerCharacter > playerCharacterList = new ArrayList<>();
+		List< EnemyCharacter > enemyCharacterList = new ArrayList<>();
+		
 		PlayerCharacter testA = new PlayerCharacter( 1 , "テストA" , 100 , 30 , 10 );
-		EnemyCharacter testB = new EnemyCharacter( 1 , "テストB" , 100 , 30 , 10 );
+		PlayerCharacter testD = new PlayerCharacter( 2 , "テストD" , 100 , 30 , 10 );
+		EnemyCharacter testB = new EnemyCharacter( 4 , "テストB" , 100 , 30 , 10 );
+		EnemyCharacter testC = new EnemyCharacter( 5 , "テストC" , 100 , 30 , 10 );
 		
+		playerCharacterList.add( testA );
+		playerCharacterList.add( testD );
 		
-		while( testA.is_Survival() && testB.is_Survival() ) {
-			testA.attak( testB );
-			testB.attak( testA );
-		}
-
+		enemyCharacterList.add( testB );
+		enemyCharacterList.add( testC );
+		
+		BattleTest battle = new BattleTest( playerCharacterList , enemyCharacterList );
+		battle.battleStart();
 	}
-
 }
 
 

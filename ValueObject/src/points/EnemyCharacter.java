@@ -11,6 +11,9 @@ public class EnemyCharacter implements Characters{
 	private CurrentEnemyDefensePower DEF;
 	private boolean survivalFlag;
 	
+	//nullの可能性あり。
+	private PlayerCharacter targetPlayerCharacter;
+	
 	EnemyCharacter( final Integer id , final String name , final Integer initialHP , final Integer atk , final Integer def ){
 		
 		this.enemyCharacterId = id;
@@ -49,11 +52,15 @@ public class EnemyCharacter implements Characters{
 		this.currentHP();
 	}
 	
-	public PlayerCharacter attak( final PlayerCharacter targetCharacter ) {
+	public PlayerCharacter attak() {
+		
+		if( this.targetPlayerCharacter == null ) {
+			throw new IllegalStateException( "対象が選択されていません。" );
+		}
 		
 		//戦闘不能ならば呼び出されないように修正する予定
 		if( !survivalFlag ) {
-			return targetCharacter;
+			return targetPlayerCharacter;
 		}
 		
 		if( HP.is_Dead() ) {
@@ -61,7 +68,7 @@ public class EnemyCharacter implements Characters{
 		}
 		
 		this.displayAction( ATK );
-		return ATK.attack( targetCharacter );
+		return ATK.attack( targetPlayerCharacter );
 	}
 	
 	public void displayAction( Points command ) {
@@ -89,6 +96,10 @@ public class EnemyCharacter implements Characters{
 	
 	public void currentHP() {
 		System.out.println( HP.toString( "現在のHPは" ));
+	}
+	
+	public void targetPlayerCharacterSelection( final PlayerCharacter targetCharacter ) {
+		this.targetPlayerCharacter = targetCharacter;
 	}
 	
 }
