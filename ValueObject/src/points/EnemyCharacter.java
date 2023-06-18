@@ -1,11 +1,17 @@
 package points;
 
+import java.util.List;
+import java.util.Random;
+
 public class EnemyCharacter implements Characters{
 
+	//コンストラクタで初期化する定数
 	private final Integer enemyCharacterId;
 	private final MaxEnemyHitPoints MAX_HP;
 	private final String name;
+	private final Random random = new Random();
 	
+	//変数
 	private CurrentEnemyHitPoints HP;
 	private CurrentEnemyOffensivePower ATK;
 	private CurrentEnemyDefensePower DEF;
@@ -13,6 +19,7 @@ public class EnemyCharacter implements Characters{
 	
 	//nullの可能性あり。
 	private PlayerCharacter targetPlayerCharacter;
+	private List< PlayerCharacter > playerList;
 	
 	EnemyCharacter( final Integer id , final String name , final Integer initialHP , final Integer atk , final Integer def ){
 		
@@ -52,7 +59,7 @@ public class EnemyCharacter implements Characters{
 		this.currentHP();
 	}
 	
-	public PlayerCharacter attak() {
+	private PlayerCharacter attak() {
 		
 		if( this.targetPlayerCharacter == null ) {
 			throw new IllegalStateException( "対象が選択されていません。" );
@@ -65,6 +72,26 @@ public class EnemyCharacter implements Characters{
 		
 		if( HP.is_Dead() ) {
 			throw new IllegalStateException( "キャラクターは戦闘不能なのに呼び出されています" );
+		}
+		
+		this.displayAction( ATK );
+		return ATK.attack( targetPlayerCharacter );
+	}
+	
+	private PlayerCharacter attakAll() {
+		
+		//戦闘不能ならば呼び出されないように修正する予定
+		if( !survivalFlag ) {
+			return targetPlayerCharacter;
+		}
+		
+		if( HP.is_Dead() ) {
+			throw new IllegalStateException( "キャラクターは戦闘不能なのに呼び出されています" );
+		}
+		
+		for( int i = 0 ; this.playerList.size() > i ; i++ ) {
+			this.targetPlayerCharacter = playerList.get( i );
+			this.attak();
 		}
 		
 		this.displayAction( ATK );
@@ -98,8 +125,23 @@ public class EnemyCharacter implements Characters{
 		System.out.println( HP.toString( "現在のHPは" ));
 	}
 	
-	public void targetPlayerCharacterSelection( final PlayerCharacter targetCharacter ) {
-		this.targetPlayerCharacter = targetCharacter;
+	public void targetSelection( final List< PlayerCharacter > playerList ) {
+		this.playerList = playerList;
+		this.targetPlayerCharacter = playerList.get( random.nextInt( playerList.size() ));
+		
+		final int actionPattern = random.nextInt( 3 );
+		
+		switch( actionPattern ) {
+		
+			case 0:
+			case 1:
+				this.attak();
+			break;
+			
+			case 2:
+				this.attakAll();
+			break;	
+		}
 	}
 	
 }

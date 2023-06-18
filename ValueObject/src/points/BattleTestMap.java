@@ -70,8 +70,7 @@ public class BattleTestMap {
 			
 			if( actionKey > Max_playerCharacterMap_Key ) {
 				EnemyCharacter actionEnemyCharacter = enemyCharacterMap.get( actionKey );
-				actionEnemyCharacter.targetPlayerCharacterSelection( playerList.get( random.nextInt( playerList.size() )));
-				actionEnemyCharacter.attak();
+				actionEnemyCharacter.targetSelection( playerList );
 				this.is_SurvivalList();
 			}
 			
