@@ -1,14 +1,18 @@
 package points;
 
+import java.util.Random;
+
 public class PlayerCharacter implements Characters{
 
 	private final Integer playerCharacterId;
 	private final MaxPlayerHitPoints MAX_HP;
 	private final String name;
+	private final Random random = new Random();
 	
 	private CurrentPlayerHitPoints HP;
 	private CurrentPlayerOffensivePower ATK;
 	private CurrentPlayerDefensePower DEF;
+	private Integer SPD;
 	private boolean survivalFlag;
 	
 	
@@ -16,7 +20,7 @@ public class PlayerCharacter implements Characters{
 	private EnemyCharacter targetEnemyCharacter;
 	
 	
-	PlayerCharacter( final Integer id , final String name , final Integer initialHP , final Integer atk , final Integer def ){
+	PlayerCharacter( final Integer id , final String name , final Integer initialHP , final Integer atk , final Integer def , final Integer spd ){
 		
 		this.playerCharacterId = id;
 		this.name = name + id;
@@ -24,6 +28,7 @@ public class PlayerCharacter implements Characters{
 		this.HP = new CurrentPlayerHitPoints( initialHP );
 		this.ATK = new CurrentPlayerOffensivePower( atk );
 		this.DEF = new CurrentPlayerDefensePower( def );
+		this.SPD = spd;
 		this.survivalFlag = true;
 	}
 	
@@ -102,6 +107,11 @@ public class PlayerCharacter implements Characters{
 	
 	public void targetEnemyCharacterSelection( final EnemyCharacter targetCharacter ) {
 		this.targetEnemyCharacter = targetCharacter;
+	}
+	
+	public Integer getSPD() {
+		final Integer spe = random.nextInt( this.SPD / 2 + 1 );
+		return this.SPD + spe;
 	}
 	
 	

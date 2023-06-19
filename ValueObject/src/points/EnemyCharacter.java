@@ -15,13 +15,14 @@ public class EnemyCharacter implements Characters{
 	private CurrentEnemyHitPoints HP;
 	private CurrentEnemyOffensivePower ATK;
 	private CurrentEnemyDefensePower DEF;
+	private Integer SPD;
 	private boolean survivalFlag;
 	
 	//nullの可能性あり。
 	private PlayerCharacter targetPlayerCharacter;
 	private List< PlayerCharacter > playerList;
 	
-	EnemyCharacter( final Integer id , final String name , final Integer initialHP , final Integer atk , final Integer def ){
+	EnemyCharacter( final Integer id , final String name , final Integer initialHP , final Integer atk , final Integer def , final Integer spd ){
 		
 		this.enemyCharacterId = id;
 		this.name = name + id;
@@ -29,6 +30,7 @@ public class EnemyCharacter implements Characters{
 		this.HP = new CurrentEnemyHitPoints( initialHP );
 		this.ATK = new CurrentEnemyOffensivePower( atk );
 		this.DEF = new CurrentEnemyDefensePower( def );
+		this.SPD = spd;
 		this.survivalFlag = true;
 	}
 	
@@ -142,6 +144,11 @@ public class EnemyCharacter implements Characters{
 				this.attakAll();
 			break;	
 		}
+	}
+	
+	public Integer getSPD() {
+		final Integer spe = random.nextInt( this.SPD / 2 + 1 );
+		return this.SPD + spe;
 	}
 	
 }

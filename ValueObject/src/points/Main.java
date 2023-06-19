@@ -11,10 +11,10 @@ public class Main {
 		Map< Integer , PlayerCharacter > playerCharacterMap = new HashMap<>();
 		Map< Integer , EnemyCharacter > enemyCharacterMap = new HashMap<>();
 		
-		PlayerCharacter testA = new PlayerCharacter( 1 , "テストA" , 100 , 30 , 10 );
-		PlayerCharacter testD = new PlayerCharacter( 2 , "テストD" , 100 , 30 , 10 );
-		PlayerCharacter testE = new PlayerCharacter( 3 , "テストE" , 100 , 30 , 10 );
-		EnemyCharacter testB = new EnemyCharacter( 4 , "テストB" , 700 , 20 , 10 );
+		PlayerCharacter testA = new PlayerCharacter( 1 , "テストA" , 100 , 30 , 10 , 10 );
+		PlayerCharacter testD = new PlayerCharacter( 2 , "テストD" , 100 , 30 , 10 , 40 );
+		PlayerCharacter testE = new PlayerCharacter( 3 , "テストE" , 100 , 30 , 10 , 15 );
+		EnemyCharacter testB = new EnemyCharacter( 4 , "テストB" , 700 , 20 , 10 , 5 );
 		//EnemyCharacter testC = new EnemyCharacter( 5 , "テストC" , 100 , 30 , 10 );
 		
 		playerCharacterMap.put( 1 , testA );

@@ -3,12 +3,13 @@ package points;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.Random;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class BattleTestMap {
 	
@@ -91,12 +92,44 @@ public class BattleTestMap {
 		this.enemyList = enemyList.stream().filter( pc -> pc.is_Survival() ).toList();
 	}
 	
+
+	//キャラクターの素早さで順番を生成
+	//戦闘不能のキャラクターの素早さ取得を行わないようにリファクタリング予定
+	//各キャラクターの素早さと素早さの取得方法もリファクタリング予定
 	public void create_turnQueue() {
-		List< Integer > turnList = Stream.concat( playerkeylist.stream() , enemykeylist.stream() )
-				.collect( Collectors.toList() );
-		Collections.shuffle( turnList );
 		
-		turnList.stream().forEach( key -> turnqueue.add( key ));
+		//各キャラの座標と素早さで構成されたマップ
+		Map<Integer,Integer> turnMap = new HashMap<>();
+		
+		//味方の座標と素早さをマップへ格納
+		for( Integer index : playerkeylist ) {
+			Integer spe = playerCharacterMap.get( index ).getSPD();
+			
+			//キャラクターが戦闘不能なら中断処理を追加
+			turnMap.put( index , spe );
+		}
+		
+		//敵の座標と素早さをマップへ格納
+		for( Integer index : enemykeylist ) {
+			Integer spe   = enemyCharacterMap.get( index ).getSPD();
+			
+			//キャラクターが戦闘不能なら中断処理を追加
+			turnMap.put( index , spe );
+		}
+		
+		//敵味方の混合マップからエントリーを抽出、各キャラの座標が素早さの高い順（降順）でソートされているリストを生成
+		List<Entry<Integer, Integer>> turnList = new ArrayList<Entry<Integer, Integer>>( turnMap.entrySet() );
+        Collections.sort( turnList , new Comparator<Entry<Integer, Integer>>() {
+            public int compare( Entry<Integer, Integer> obj1 , Entry<Integer, Integer> obj2 )
+            {
+            	return obj2.getValue().compareTo( obj1.getValue() );
+            }
+        });
+        
+		for( Entry<Integer, Integer> entry : turnList){
+			Integer key = entry.getKey();
+			this.turnqueue.add( key );
+		}
 	}
 	
 }
