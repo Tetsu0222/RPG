@@ -103,17 +103,29 @@ public class BattleTestMap {
 		
 		//味方の座標と素早さをマップへ格納
 		for( Integer index : playerkeylist ) {
-			Integer spe = playerCharacterMap.get( index ).getSPD();
 			
-			//キャラクターが戦闘不能なら中断処理を追加
+			PlayerCharacter player = playerCharacterMap.get( index );
+			
+			if( !player.is_Survival() ) {
+				continue;
+			}
+			
+			Integer spe = player.getSPD();
+			
 			turnMap.put( index , spe );
 		}
 		
 		//敵の座標と素早さをマップへ格納
 		for( Integer index : enemykeylist ) {
-			Integer spe   = enemyCharacterMap.get( index ).getSPD();
 			
-			//キャラクターが戦闘不能なら中断処理を追加
+			EnemyCharacter enemy = enemyCharacterMap.get( index );
+			
+			if( !enemy.is_Survival() ) {
+				continue;
+			}
+			
+			Integer spe = enemy.getSPD();
+			
 			turnMap.put( index , spe );
 		}
 		

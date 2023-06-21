@@ -9,10 +9,11 @@ public class PlayerCharacter implements Characters{
 	private final String name;
 	private final Random random = new Random();
 	
+	
 	private CurrentPlayerHitPoints HP;
 	private CurrentPlayerOffensivePower ATK;
 	private CurrentPlayerDefensePower DEF;
-	private Integer SPD;
+	private CurrentPlayerAgility SPD;
 	private boolean survivalFlag;
 	
 	
@@ -28,7 +29,7 @@ public class PlayerCharacter implements Characters{
 		this.HP = new CurrentPlayerHitPoints( initialHP );
 		this.ATK = new CurrentPlayerOffensivePower( atk );
 		this.DEF = new CurrentPlayerDefensePower( def );
-		this.SPD = spd;
+		this.SPD = new CurrentPlayerAgility( spd );
 		this.survivalFlag = true;
 	}
 	
@@ -110,8 +111,8 @@ public class PlayerCharacter implements Characters{
 	}
 	
 	public Integer getSPD() {
-		final Integer spe = random.nextInt( this.SPD / 2 + 1 );
-		return this.SPD + spe;
+		
+		return this.SPD.getTurnSPD( random );
 	}
 	
 	
